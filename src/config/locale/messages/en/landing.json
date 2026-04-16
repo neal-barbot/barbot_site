@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing"
+  },
+  "hero": {
+    "cta": "Get Started",
+    "secondary": "Dashboard"
+  },
+  "features": {
+    "title": "Everything you need to ship",
+    "description": "Pre-wired business logic so you can focus on your product",
+    "auth": {
+      "title": "Authentication",
+      "description": "Email/password, Google, GitHub OAuth — ready out of the box with session management"
+    },
+    "payment": {
+      "title": "Payments",
+      "description": "Stripe, PayPal, Alipay, WeChat Pay — checkout, subscriptions, and webhooks"
+    },
+    "rbac": {
+      "title": "RBAC",
+      "description": "Roles, permissions, wildcard matching — full admin panel with user management"
+    },
+    "i18n": {
+      "title": "Internationalization",
+      "description": "English and Chinese built-in, locale-aware routing, easy to add more languages"
+    }
+  },
+  "pricing": {
+    "title": "Simple pricing",
+    "description": "Choose the plan that works for you",
+    "monthly": "Monthly",
+    "popular": "Popular",
+    "starter": "Starter",
+    "starter_desc": "For individuals",
+    "pro": "Pro",
+    "pro_desc": "For growing teams",
+    "enterprise": "Enterprise",
+    "enterprise_desc": "For large organizations",
+    "feature_1_project": "1 project",
+    "feature_5k_credits": "5,000 credits",
+    "feature_email_support": "Email support",
+    "feature_unlimited_projects": "Unlimited projects",
+    "feature_50k_credits": "50,000 credits",
+    "feature_priority_support": "Priority support",
+    "feature_api_access": "API access",
+    "feature_everything_pro": "Everything in Pro",
+    "feature_unlimited_credits": "Unlimited credits",
+    "feature_dedicated_support": "Dedicated support",
+    "feature_custom_integrations": "Custom integrations"
+  },
+  "footer": {
+    "product": "Product",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  }
+}

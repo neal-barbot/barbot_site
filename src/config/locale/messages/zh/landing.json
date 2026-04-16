@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "features": "功能",
+    "pricing": "价格"
+  },
+  "hero": {
+    "cta": "立即开始",
+    "secondary": "控制台"
+  },
+  "features": {
+    "title": "开箱即用的完整功能",
+    "description": "预置的业务逻辑，让你专注于产品本身",
+    "auth": {
+      "title": "身份认证",
+      "description": "邮箱密码、Google、GitHub OAuth 登录，开箱即用，自带会话管理"
+    },
+    "payment": {
+      "title": "支付系统",
+      "description": "Stripe、PayPal、支付宝、微信支付 — 结账、订阅和 Webhook 全链路"
+    },
+    "rbac": {
+      "title": "权限管理",
+      "description": "角色、权限、通配符匹配 — 完整的管理后台和用户管理"
+    },
+    "i18n": {
+      "title": "国际化",
+      "description": "内置中英文支持，路由感知语言，轻松添加更多语言"
+    }
+  },
+  "pricing": {
+    "title": "简单透明的价格",
+    "description": "选择适合你的方案",
+    "monthly": "月付",
+    "popular": "热门",
+    "starter": "入门版",
+    "starter_desc": "适合个人用户",
+    "pro": "专业版",
+    "pro_desc": "适合成长型团队",
+    "enterprise": "企业版",
+    "enterprise_desc": "适合大型组织",
+    "feature_1_project": "1 个项目",
+    "feature_5k_credits": "5,000 积分",
+    "feature_email_support": "邮件支持",
+    "feature_unlimited_projects": "无限项目",
+    "feature_50k_credits": "50,000 积分",
+    "feature_priority_support": "优先支持",
+    "feature_api_access": "API 访问",
+    "feature_everything_pro": "包含专业版全部功能",
+    "feature_unlimited_credits": "无限积分",
+    "feature_dedicated_support": "专属支持",
+    "feature_custom_integrations": "定制集成"
+  },
+  "footer": {
+    "product": "产品",
+    "legal": "法律信息",
+    "privacy": "隐私政策",
+    "terms": "服务条款"
+  }
+}
