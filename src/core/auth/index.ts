@@ -4,7 +4,8 @@ import { getUuid } from '@/lib/hash';
 
 import { db } from '@/core/db';
 import { envConfigs } from '@/config';
-import { getDbConfigs } from '@/modules/config/service';
+import { getAllConfigs } from '@/modules/config/service';
+import { ResendProvider } from '@/core/email/resend';
 import * as schema from '@/config/db/schema';
 
 function getDatabaseProvider(provider: string): 'sqlite' | 'pg' | 'mysql' {
@@ -99,7 +100,33 @@ export function getAuth(configs?: Record<string, string>) {
     advanced: {
       database: { generateId: () => getUuid() },
     },
-    emailAndPassword: { enabled: emailAndPasswordEnabled },
+    emailAndPassword: {
+      enabled: emailAndPasswordEnabled,
+      sendResetPassword: async ({ user, url }) => {
+        const all = await getAllConfigs();
+        const apiKey = all.resend_api_key;
+        const from = all.resend_email_from;
+        if (!apiKey || !from) {
+          console.error('[auth] sendResetPassword: Resend is not configured (resend_api_key / resend_email_from)');
+          return;
+        }
+        const appName = all.app_name || envConfigs.app_name;
+        const provider = new ResendProvider({ apiKey, defaultFrom: from });
+        const greeting = user.name ? `Hi ${user.name},` : 'Hi,';
+        const result = await provider.sendEmail({
+          to: user.email,
+          subject: `Reset your ${appName} password`,
+          text: `${greeting}\n\nYou recently requested to reset your password for ${appName}. Use the link below to choose a new one:\n\n${url}\n\nThis link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.`,
+          html: `<p>${greeting}</p>
+<p>You recently requested to reset your password for <strong>${appName}</strong>. Click the link below to choose a new one:</p>
+<p><a href="${url}">Reset your password</a></p>
+<p>This link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.</p>`,
+        });
+        if (!result.success) {
+          console.error('[auth] sendResetPassword failed:', result.error);
+        }
+      },
+    },
     logger: { disabled: true },
   } satisfies BetterAuthOptions);
 

@@ -16,5 +16,12 @@ const publicKeys = [
 
 export async function GET() {
   const configs = await getAllConfigs();
-  return respData(filterPublicConfigs(configs, publicKeys));
+  const result = filterPublicConfigs(configs, publicKeys);
+  result.password_reset_enabled =
+    configs.email_auth_enabled !== 'false' &&
+    !!configs.resend_api_key &&
+    !!configs.resend_email_from
+      ? 'true'
+      : 'false';
+  return respData(result);
 }

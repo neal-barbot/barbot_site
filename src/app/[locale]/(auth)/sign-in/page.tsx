@@ -58,6 +58,7 @@ export default function SignInPage() {
   const emailEnabled = configs.email_auth_enabled !== "false";
   const googleEnabled = configs.google_auth_enabled === "true";
   const githubEnabled = configs.github_auth_enabled === "true";
+  const passwordResetEnabled = configs.password_reset_enabled === "true";
   const hasSocial = googleEnabled || githubEnabled;
   const hasAnyMethod = emailEnabled || hasSocial;
 
@@ -151,7 +152,17 @@ export default function SignInPage() {
                       />
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="password">{t("sign.password_title")}</FieldLabel>
+                      <div className="flex items-center justify-between">
+                        <FieldLabel htmlFor="password">{t("sign.password_title")}</FieldLabel>
+                        {passwordResetEnabled && (
+                          <Link
+                            href="/forgot-password"
+                            className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground"
+                          >
+                            {t("sign.forgot_password")}
+                          </Link>
+                        )}
+                      </div>
                       <Input
                         id="password"
                         type="password"
