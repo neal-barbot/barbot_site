@@ -204,7 +204,7 @@ export default function PostsPage() {
 
       <Card>
         <CardContent>
-          <DataTable columns={columns} data={posts} total={total} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} rowKey={(p) => p.id} emptyText={t("posts.no_data")} search={search} onSearchChange={setSearch} />
+          <DataTable columns={columns} data={posts} total={total} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} rowKey={(p) => p.id} emptyText={t("posts.no_data")} search={search} onSearchChange={setSearch} onRefresh={() => fetchPosts(page)} />
         </CardContent>
       </Card>
 

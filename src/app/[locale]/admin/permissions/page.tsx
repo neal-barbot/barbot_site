@@ -246,6 +246,7 @@ export default function PermissionsPage() {
             emptyText={t("permissions.no_permissions")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchPermissions(page)}
           />
         </CardContent>
       </Card>

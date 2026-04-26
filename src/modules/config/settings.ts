@@ -119,10 +119,9 @@ export function getSettings(): Setting[] {
 
     // ─── Payment / Stripe ────────────────────────────────────────────
     { name: 'stripe_enabled', title: 'Enable Stripe', type: 'switch', group: 'stripe', tab: 'payment' },
-    { name: 'stripe_api_key', title: 'Secret Key', type: 'password', placeholder: 'sk_xxx', group: 'stripe', tab: 'payment' },
     { name: 'stripe_publishable_key', title: 'Publishable Key', type: 'text', placeholder: 'pk_xxx', group: 'stripe', tab: 'payment' },
+    { name: 'stripe_api_key', title: 'Secret Key', type: 'password', placeholder: 'sk_xxx', group: 'stripe', tab: 'payment' },
     { name: 'stripe_webhook_secret', title: 'Webhook Secret', type: 'password', placeholder: 'whsec_xxx', group: 'stripe', tab: 'payment' },
-    { name: 'stripe_test_amount', title: 'Test amount (cents)', type: 'number', placeholder: '留空使用实际金额，填 1 则支付 $0.01', group: 'stripe', tab: 'payment' },
 
     // ─── Payment / Creem ─────────────────────────────────────────────
     { name: 'creem_enabled', title: 'Enable Creem', type: 'switch', group: 'creem', tab: 'payment' },

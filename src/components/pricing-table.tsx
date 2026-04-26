@@ -26,8 +26,11 @@ export interface PricingPlan {
   features: PricingFeature[];
   buttonText?: string;
   productId?: string;
+  productName?: string;
   paymentProvider?: string;
   priceInCents?: number;
+  credits?: number;
+  creditsValidDays?: number;
   plan?: {
     name: string;
     interval: string;
@@ -69,11 +72,15 @@ export function PricingTable({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_id: plan.productId,
+          product_name: plan.productName || plan.name,
+          plan_name: plan.plan?.name || plan.name,
           price: plan.priceInCents,
           currency: plan.currency || "usd",
           type: plan.plan ? "subscription" : "one-time",
           description: plan.name,
           plan: plan.plan,
+          credits: plan.credits,
+          credits_valid_days: plan.creditsValidDays,
           payment_provider: plan.paymentProvider || "stripe",
         }),
       });
@@ -127,19 +134,26 @@ export function PricingTable({
           <div
             key={plan.id}
             className={cn(
-              "relative flex flex-col rounded-3xl border bg-background p-8 transition-colors",
+              "relative flex flex-col rounded-2xl border border-border p-8 transition-all",
               plan.featured
-                ? "border-2 border-primary"
-                : "border-border hover:border-foreground/30"
+                ? "bg-card shadow-md ring-1 ring-foreground/10"
+                : "bg-background hover:border-foreground/30"
             )}
           >
+            {/* Plan name */}
+            {plan.name && (
+              <p className="mb-2 text-sm font-medium text-foreground">
+                {plan.name}
+              </p>
+            )}
+
             {/* Price */}
             <div className="mb-2 flex items-baseline gap-1">
-              <span className="text-4xl font-bold tracking-tight">
+              <span className="font-serif text-5xl tracking-tight">
                 {plan.price}
               </span>
               {plan.interval && (
-                <span className="text-base text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   /{plan.interval}
                 </span>
               )}
@@ -159,12 +173,8 @@ export function PricingTable({
 
             {/* CTA — full-width pill */}
             <Button
-              className={cn(
-                "h-11 w-full rounded-full text-sm font-medium",
-                plan.featured
-                  ? ""
-                  : "bg-foreground text-background hover:bg-foreground/90"
-              )}
+              variant={plan.featured ? "default" : "outline"}
+              className="h-10 w-full rounded-full text-sm font-medium"
               onClick={() => handleCheckout(plan)}
               disabled={loadingId === plan.id}
             >
@@ -174,16 +184,16 @@ export function PricingTable({
             </Button>
 
             {/* Features */}
-            <ul className="mt-8 space-y-3.5">
+            <ul className="mt-8 space-y-3">
               {plan.features.map((feature, i) => {
                 const isObj = typeof feature !== "string";
                 const Icon: IconComponent =
                   (isObj && feature.icon) || Check;
                 const label = isObj ? feature.label : feature;
                 return (
-                  <li key={i} className="flex items-center gap-3 text-sm">
+                  <li key={i} className="flex items-center gap-2.5 text-sm">
                     <Icon className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="text-foreground">{label}</span>
+                    <span className="text-foreground/90">{label}</span>
                   </li>
                 );
               })}

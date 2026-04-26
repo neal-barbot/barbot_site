@@ -158,6 +158,7 @@ export default function CreditsPage() {
             emptyText={t("credits.no_credits")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchCredits(page)}
           />
         </CardContent>
       </Card>

@@ -32,10 +32,15 @@ export async function Features() {
             {t("features.description")}
           </p>
         </div>
-        <div className="grid gap-x-16 gap-y-14 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map(({ key, icon: Icon }) => (
-            <div key={key} className="space-y-4">
-              <Icon className="size-6 text-foreground/80" strokeWidth={1.75} />
+            <div
+              key={key}
+              className="group relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:border-foreground/20 hover:shadow-sm"
+            >
+              <div className="inline-flex size-10 items-center justify-center rounded-xl bg-muted text-foreground/80 transition-colors group-hover:bg-foreground group-hover:text-background">
+                <Icon className="size-5" strokeWidth={1.75} />
+              </div>
               <div className="space-y-2">
                 <h3 className="font-medium">{t(`features.${key}.title`)}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">

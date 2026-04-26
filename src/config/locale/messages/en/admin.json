@@ -6,6 +6,7 @@
   "nav": {
     "overview": "Overview",
     "settings": "Settings",
+    "home": "Home",
     "rbac": "RBAC",
     "users": "Users",
     "roles": "Roles",
@@ -30,13 +31,26 @@
     "no_users": "No users yet",
     "user_col": "User",
     "email_col": "Email",
+    "credits_col": "Credits",
     "joined_col": "Joined",
     "actions_col": "Actions",
     "manage_roles": "Manage Roles",
     "manage_roles_title": "Manage User Roles",
     "manage_roles_description": "Assign or remove roles for this user",
     "role_assigned": "Role assigned",
-    "role_removed": "Role removed"
+    "role_removed": "Role removed",
+    "manage_credits_title": "Manage Credits",
+    "manage_credits_for": "{name} — current balance: {balance}",
+    "credits_action_grant": "Grant",
+    "credits_action_deduct": "Deduct",
+    "credits_amount_label": "Amount",
+    "credits_desc_label": "Description",
+    "credits_desc_placeholder": "Optional reason",
+    "credits_submit": "Confirm",
+    "credits_submitting": "Submitting...",
+    "credits_invalid_amount": "Enter a positive amount",
+    "credits_granted": "Credits granted",
+    "credits_deducted": "Credits deducted"
   },
   "roles": {
     "title": "Roles",
@@ -300,7 +314,6 @@
       "stripe_api_key": "Secret Key",
       "stripe_publishable_key": "Publishable Key",
       "stripe_webhook_secret": "Webhook Secret",
-      "stripe_test_amount": "Test amount (cents)",
       "creem_enabled": "Enable Creem",
       "creem_environment": "Environment",
       "creem_api_key": "API Key",
@@ -339,7 +352,6 @@
       "fal_api_key": "API Key"
     },
     "placeholders": {
-      "stripe_test_amount": "Leave empty to use real amount, 1 = $0.01",
       "creem_test_amount": "Leave empty to use real amount, 1 = $0.01",
       "paypal_test_amount": "Leave empty to use real amount, 1 = $0.01",
       "alipay_test_amount": "Leave empty to use real amount, 1 = ¥0.01",

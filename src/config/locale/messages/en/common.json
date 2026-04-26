@@ -55,8 +55,7 @@
   "systems": {
     "label": "Switch System",
     "admin": "Admin",
-    "dashboard": "Dashboard",
-    "landing": "Website"
+    "dashboard": "Dashboard"
   },
   "search": {
     "placeholder": "Search..."
@@ -66,7 +65,8 @@
     "total": "{count} records",
     "page_info": "Page {current} of {total}",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "refresh": "Refresh"
   },
   "nav": {
     "dashboard": "Dashboard",

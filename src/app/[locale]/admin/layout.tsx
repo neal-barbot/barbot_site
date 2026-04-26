@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { LayoutDashboard, Users, Shield, KeyRound, Settings, DollarSign, CreditCard, Coins, FolderOpen, FileText } from "lucide-react";
+import { LayoutDashboard, Users, Shield, KeyRound, Settings, DollarSign, CreditCard, Coins, FolderOpen, FileText, Home } from "lucide-react";
 import { envConfigs } from "@/config";
 import { AppLayout } from "@/components/app-layout";
 
@@ -11,9 +11,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const t = useTranslations("admin");
+  const tc = useTranslations("common");
 
   const navItems = [
-    { href: "/admin", label: t("nav.overview"), icon: LayoutDashboard },
+    { href: "/admin", label: t("nav.overview"), icon: LayoutDashboard, group: tc("systems.admin") },
     { href: "/admin/users", label: t("nav.users"), icon: Users, group: t("nav.rbac") },
     { href: "/admin/roles", label: t("nav.roles"), icon: Shield, group: t("nav.rbac") },
     { href: "/admin/permissions", label: t("nav.permissions"), icon: KeyRound, group: t("nav.rbac") },
@@ -26,6 +27,7 @@ export default function AdminLayout({
 
   const footerNavItems = [
     { href: "/admin/settings", label: t("nav.settings"), icon: Settings },
+    { href: "/", label: t("nav.home"), icon: Home, newTab: true },
   ];
 
   return (

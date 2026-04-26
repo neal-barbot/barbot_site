@@ -6,6 +6,7 @@
   "nav": {
     "overview": "概览",
     "settings": "设置",
+    "home": "首页",
     "rbac": "权限管理",
     "users": "用户",
     "roles": "角色",
@@ -30,13 +31,26 @@
     "no_users": "暂无用户",
     "user_col": "用户",
     "email_col": "邮箱",
+    "credits_col": "积分",
     "joined_col": "注册时间",
     "actions_col": "操作",
     "manage_roles": "管理角色",
     "manage_roles_title": "管理用户角色",
     "manage_roles_description": "为此用户分配或移除角色",
     "role_assigned": "角色已分配",
-    "role_removed": "角色已移除"
+    "role_removed": "角色已移除",
+    "manage_credits_title": "管理积分",
+    "manage_credits_for": "{name} — 当前余额：{balance}",
+    "credits_action_grant": "授予",
+    "credits_action_deduct": "扣除",
+    "credits_amount_label": "数量",
+    "credits_desc_label": "备注",
+    "credits_desc_placeholder": "操作原因（可选）",
+    "credits_submit": "确认",
+    "credits_submitting": "提交中...",
+    "credits_invalid_amount": "请输入正数",
+    "credits_granted": "积分已授予",
+    "credits_deducted": "积分已扣除"
   },
   "roles": {
     "title": "角色管理",
@@ -300,7 +314,6 @@
       "stripe_api_key": "密钥",
       "stripe_publishable_key": "公钥",
       "stripe_webhook_secret": "Webhook 密钥",
-      "stripe_test_amount": "测试金额（分）",
       "creem_enabled": "启用 Creem",
       "creem_environment": "环境",
       "creem_api_key": "API 密钥",
@@ -339,7 +352,6 @@
       "fal_api_key": "API 密钥"
     },
     "placeholders": {
-      "stripe_test_amount": "留空使用实际金额，填 1 则支付 $0.01",
       "creem_test_amount": "留空使用实际金额，填 1 则支付 $0.01",
       "paypal_test_amount": "留空使用实际金额，填 1 则支付 $0.01",
       "alipay_test_amount": "留空使用实际金额，填 1 则支付 ¥0.01",

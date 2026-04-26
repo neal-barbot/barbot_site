@@ -105,13 +105,14 @@ export async function grant(params: {
 
 export async function consume(params: {
   userId: string;
+  userEmail?: string;
   credits: number;
   scene?: string;
   description?: string;
   metadata?: string;
   tx?: any;
 }): Promise<{ success: boolean; consumedCredit?: any }> {
-  const { userId, credits: amount, scene, description, metadata, tx } = params;
+  const { userId, userEmail, credits: amount, scene, description, metadata, tx } = params;
   const now = new Date();
 
   const execute = async (tx: any) => {
@@ -186,6 +187,7 @@ export async function consume(params: {
     const consumedCredit: NewCredit = {
       id: getUuid(),
       userId,
+      userEmail: userEmail || '',
       transactionNo: getSnowId(),
       transactionType: CreditTransactionType.CONSUME,
       transactionScene: scene || '',

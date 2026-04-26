@@ -193,6 +193,7 @@ export default function ApiKeysPage() {
             emptyText={t("dashboard.apikeys.no_keys")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchKeys(page, search)}
           />
         </CardContent>
       </Card>

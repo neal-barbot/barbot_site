@@ -55,8 +55,7 @@
   "systems": {
     "label": "切换系统",
     "admin": "管理后台",
-    "dashboard": "控制台",
-    "landing": "网站首页"
+    "dashboard": "控制台"
   },
   "search": {
     "placeholder": "搜索..."
@@ -66,7 +65,8 @@
     "total": "共 {count} 条记录",
     "page_info": "第 {current} 页，共 {total} 页",
     "previous": "上一页",
-    "next": "下一页"
+    "next": "下一页",
+    "refresh": "刷新"
   },
   "nav": {
     "dashboard": "控制台",

@@ -16,7 +16,20 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { product_id, payment_provider, price, currency, type, description, plan, redirect } = body;
+    const {
+      product_id,
+      product_name,
+      plan_name,
+      payment_provider,
+      price,
+      currency,
+      type,
+      description,
+      plan,
+      redirect,
+      credits,
+      credits_valid_days,
+    } = body;
 
     if (!product_id && !price) {
       return respErr('Missing product_id or price');
@@ -41,6 +54,11 @@ export async function POST(req: Request) {
     const checkout = await createCheckout({
       userId: session.user.id,
       userEmail: session.user.email,
+      productName: product_name,
+      planName: plan_name,
+      credits: typeof credits === 'number' ? credits : undefined,
+      creditsValidDays:
+        typeof credits_valid_days === 'number' ? credits_valid_days : undefined,
       paymentOrder: {
         productId: product_id,
         price: actualPrice ? { amount: actualPrice, currency: currency || 'cny' } : undefined,

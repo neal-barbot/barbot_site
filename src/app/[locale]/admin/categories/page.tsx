@@ -146,7 +146,7 @@ export default function CategoriesPage() {
 
       <Card>
         <CardContent>
-          <DataTable columns={columns} data={categories} total={total} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} rowKey={(c) => c.id} emptyText={t("categories.no_data")} search={search} onSearchChange={setSearch} />
+          <DataTable columns={columns} data={categories} total={total} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} rowKey={(c) => c.id} emptyText={t("categories.no_data")} search={search} onSearchChange={setSearch} onRefresh={() => fetchCategories(page)} />
         </CardContent>
       </Card>
 

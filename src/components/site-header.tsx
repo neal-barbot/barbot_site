@@ -7,6 +7,8 @@ import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleSelector } from "@/components/locale-selector";
+import { SiteUserMenu } from "@/components/site-user-menu";
+import { useSession } from "@/core/auth/client";
 import { cn } from "@/lib/utils";
 import { envConfigs } from "@/config";
 
@@ -23,6 +25,8 @@ export function SiteHeader({
 }) {
   const t = useTranslations("common");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
@@ -48,16 +52,24 @@ export function SiteHeader({
         </nav>
 
         {/* Desktop actions */}
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           <LocaleSelector />
           <ThemeToggle />
-          <Link
-            href="/sign-in"
-            className={cn(buttonVariants({ size: "sm" }), "gap-1")}
-          >
-            {t("nav.get_started")}
-            <ArrowRight className="size-3.5" />
-          </Link>
+          {user ? (
+            <SiteUserMenu
+              name={user.name || "User"}
+              email={user.email}
+              image={user.image}
+            />
+          ) : (
+            <Link
+              href="/dashboard"
+              className={cn(buttonVariants(), "gap-1.5")}
+            >
+              {t("nav.get_started")}
+              <ArrowRight className="size-4" />
+            </Link>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -90,13 +102,21 @@ export function SiteHeader({
             <LocaleSelector />
             <ThemeToggle />
             <div className="flex-1" />
-            <Link
-              href="/sign-in"
-              className={cn(buttonVariants({ size: "sm" }), "gap-1")}
-              onClick={() => setMobileOpen(false)}
-            >
-              {t("nav.get_started")}
-            </Link>
+            {user ? (
+              <SiteUserMenu
+                name={user.name || "User"}
+                email={user.email}
+                image={user.image}
+              />
+            ) : (
+              <Link
+                href="/dashboard"
+                className={cn(buttonVariants(), "gap-1.5")}
+                onClick={() => setMobileOpen(false)}
+              >
+                {t("nav.get_started")}
+              </Link>
+            )}
           </div>
         </div>
       )}

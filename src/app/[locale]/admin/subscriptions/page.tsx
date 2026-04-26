@@ -166,6 +166,7 @@ export default function SubscriptionsPage() {
             emptyText={t("subscriptions.no_subscriptions")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchSubscriptions(page)}
           />
         </CardContent>
       </Card>

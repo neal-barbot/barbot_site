@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 export interface Column<T> {
   header: string;
@@ -32,6 +34,7 @@ interface DataTableProps<T> {
   toolbar?: React.ReactNode;
   emptyText?: string;
   rowKey: (row: T) => string;
+  onRefresh?: () => void | Promise<unknown>;
 }
 
 export function DataTable<T>({
@@ -47,14 +50,28 @@ export function DataTable<T>({
   toolbar,
   emptyText,
   rowKey,
+  onRefresh,
 }: DataTableProps<T>) {
   const t = useTranslations("common");
+  const [refreshing, setRefreshing] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  async function handleRefresh() {
+    if (!onRefresh || refreshing) return;
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  const showHeader = onSearchChange || toolbar || onRefresh;
+
   return (
     <div className="space-y-4">
-      {(onSearchChange || toolbar) && (
+      {showHeader && (
         <div className="flex items-center gap-2">
           {onSearchChange && (
             <div className="relative max-w-sm">
@@ -68,6 +85,20 @@ export function DataTable<T>({
             </div>
           )}
           {toolbar}
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="ml-auto size-9"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              aria-label={t("table.refresh")}
+            >
+              <RefreshCw
+                className={cn("size-4", refreshing && "animate-spin")}
+              />
+            </Button>
+          )}
         </div>
       )}
 

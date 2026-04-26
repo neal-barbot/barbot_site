@@ -107,8 +107,7 @@ export default function CreditsPage() {
             r.transactionType === "consume" && "text-muted-foreground",
           )}
         >
-          {r.transactionType === "consume" ? "-" : "+"}
-          {r.credits}
+          {r.credits > 0 ? `+${r.credits}` : r.credits}
         </span>
       ),
     },
@@ -194,6 +193,7 @@ export default function CreditsPage() {
             emptyText={t("no_records")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchCredits(page, tab, search)}
           />
         </CardContent>
       </Card>

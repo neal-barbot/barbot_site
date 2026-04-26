@@ -93,6 +93,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "starter_monthly",
           priceInCents: 900,
           currency: "usd",
+          credits: 5000,
           plan: { name: "Starter", interval: "month", intervalCount: 1 },
         },
         {
@@ -107,6 +108,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "pro_monthly",
           priceInCents: 2900,
           currency: "usd",
+          credits: 50000,
           plan: { name: "Pro", interval: "month", intervalCount: 1 },
         },
         {
@@ -119,6 +121,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "enterprise_monthly",
           priceInCents: 9900,
           currency: "usd",
+          credits: 500000,
           plan: { name: "Enterprise", interval: "month", intervalCount: 1 },
         },
       ],
@@ -138,6 +141,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "starter_yearly",
           priceInCents: 8600,
           currency: "usd",
+          credits: 60000,
           plan: { name: "Starter", interval: "year", intervalCount: 1 },
         },
         {
@@ -153,6 +157,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "pro_yearly",
           priceInCents: 27800,
           currency: "usd",
+          credits: 600000,
           plan: { name: "Pro", interval: "year", intervalCount: 1 },
         },
         {
@@ -166,6 +171,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "enterprise_yearly",
           priceInCents: 95000,
           currency: "usd",
+          credits: 6000000,
           plan: { name: "Enterprise", interval: "year", intervalCount: 1 },
         },
       ],
@@ -183,6 +189,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "starter_lifetime",
           priceInCents: 14900,
           currency: "usd",
+          credits: 100000,
           buttonText: t("pricing.buy_lifetime"),
         },
         {
@@ -196,6 +203,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "pro_lifetime",
           priceInCents: 49900,
           currency: "usd",
+          credits: 1000000,
           buttonText: t("pricing.buy_lifetime"),
         },
         {
@@ -207,6 +215,7 @@ export function Pricing({ title }: { title?: string } = {}) {
           productId: "enterprise_lifetime",
           priceInCents: 199900,
           currency: "usd",
+          credits: 10000000,
           buttonText: t("pricing.buy_lifetime"),
         },
       ],
@@ -221,11 +230,15 @@ export function Pricing({ title }: { title?: string } = {}) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_id: plan.productId,
+          product_name: plan.productName || plan.name,
+          plan_name: plan.plan?.name || plan.name,
           price: plan.priceInCents,
           currency: plan.currency || "usd",
           type: plan.plan ? "subscription" : "one-time",
           description: plan.name,
           plan: plan.plan,
+          credits: plan.credits,
+          credits_valid_days: plan.creditsValidDays,
           payment_provider: provider,
         }),
       });

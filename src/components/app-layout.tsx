@@ -36,6 +36,7 @@ export function AppLayout({
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (isPending) return;
@@ -46,20 +47,28 @@ export function AppLayout({
       return;
     }
 
-    if (requirePermission) {
-      fetch("/api/admin/users")
-        .then((r) => r.json())
-        .then((res) => {
-          if (res.code === 0) {
+    fetch("/api/user/permissions")
+      .then((r) => r.json())
+      .then((res) => {
+        const admin = res.code === 0 && res.data?.isAdmin === true;
+        setIsAdmin(admin);
+        if (requirePermission) {
+          if (admin) {
             setAuthorized(true);
           } else {
             router.push(unauthorizedRedirect);
           }
-        })
-        .catch(() => router.push(unauthorizedRedirect));
-    } else {
-      setAuthorized(true);
-    }
+        } else {
+          setAuthorized(true);
+        }
+      })
+      .catch(() => {
+        if (requirePermission) {
+          router.push(unauthorizedRedirect);
+        } else {
+          setAuthorized(true);
+        }
+      });
   }, [isPending, session, router, requirePermission, unauthorizedRedirect]);
 
   if (isPending || !authorized || !session?.user) {
@@ -80,6 +89,7 @@ export function AppLayout({
         brandHref={brandHref}
         navItems={navItems}
         footerNavItems={footerNavItems}
+        isAdmin={isAdmin}
         footer={
           <UserMenu
             name={session.user.name || "User"}
@@ -89,7 +99,7 @@ export function AppLayout({
         }
       />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border">
+        <header className="flex h-14 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
           </div>

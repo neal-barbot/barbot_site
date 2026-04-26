@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Shield } from "lucide-react";
+import { Shield, Coins, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DataTable, type Column } from "@/components/data-table";
 
 interface User {
@@ -24,6 +31,7 @@ interface User {
   email: string;
   image: string | null;
   createdAt: string;
+  credits: number;
 }
 
 interface RoleInfo {
@@ -53,6 +61,13 @@ export default function UsersPage() {
   const [allRoles, setAllRoles] = useState<RoleInfo[]>([]);
   const [userRoleIds, setUserRoleIds] = useState<Set<string>>(new Set());
   const [toggling, setToggling] = useState<string | null>(null);
+
+  // Credits dialog
+  const [creditsUser, setCreditsUser] = useState<User | null>(null);
+  const [creditsAction, setCreditsAction] = useState<"grant" | "deduct">("grant");
+  const [creditsAmount, setCreditsAmount] = useState("");
+  const [creditsDesc, setCreditsDesc] = useState("");
+  const [creditsSubmitting, setCreditsSubmitting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
@@ -91,6 +106,56 @@ export default function UsersPage() {
     }
     if (userRolesRes.code === 0) {
       setUserRoleIds(new Set(userRolesRes.data.map((r: UserRoleInfo) => r.roleId)));
+    }
+  }
+
+  function openCreditsDialog(u: User) {
+    setCreditsUser(u);
+    setCreditsAction("grant");
+    setCreditsAmount("");
+    setCreditsDesc("");
+  }
+
+  async function submitCredits() {
+    if (!creditsUser) return;
+    const amount = Number(creditsAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error(t("users.credits_invalid_amount"));
+      return;
+    }
+
+    setCreditsSubmitting(true);
+    try {
+      const res = await fetch("/api/admin/users/credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: creditsUser.id,
+          action: creditsAction,
+          credits: amount,
+          description: creditsDesc || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.code === 0) {
+        toast.success(
+          creditsAction === "grant"
+            ? t("users.credits_granted")
+            : t("users.credits_deducted")
+        );
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === creditsUser.id ? { ...u, credits: data.data.balance } : u
+          )
+        );
+        setCreditsUser(null);
+      } else {
+        toast.error(data.message || "Failed");
+      }
+    } catch {
+      toast.error("Failed");
+    } finally {
+      setCreditsSubmitting(false);
     }
   }
 
@@ -157,6 +222,13 @@ export default function UsersPage() {
       cell: (u) => u.email,
     },
     {
+      header: t("users.credits_col"),
+      className: "w-[120px]",
+      cell: (u) => (
+        <span className="font-medium tabular-nums">{u.credits.toLocaleString()}</span>
+      ),
+    },
+    {
       header: t("users.joined_col"),
       cell: (u) => (
         <span className="text-muted-foreground">
@@ -168,9 +240,25 @@ export default function UsersPage() {
       header: t("users.actions_col"),
       className: "w-[80px]",
       cell: (u) => (
-        <Button variant="ghost" size="icon" className="size-7" onClick={() => openRoleDialog(u)}>
-          <Shield className="size-3" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="icon" className="size-7">
+                <MoreHorizontal className="size-4" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => openCreditsDialog(u)}>
+              <Coins className="size-4" />
+              {t("users.manage_credits_title")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openRoleDialog(u)}>
+              <Shield className="size-4" />
+              {t("users.manage_roles_title")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];
@@ -195,6 +283,7 @@ export default function UsersPage() {
             emptyText={t("users.no_users")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchUsers(page)}
           />
         </CardContent>
       </Card>
@@ -226,6 +315,81 @@ export default function UsersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setManagingUser(null)}>{t("roles.cancel")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Credits Management Dialog */}
+      <Dialog open={!!creditsUser} onOpenChange={(v) => !v && setCreditsUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("users.manage_credits_title")}</DialogTitle>
+            <DialogDescription>
+              {creditsUser
+                ? t("users.manage_credits_for", {
+                    name: creditsUser.name || creditsUser.email,
+                    balance: creditsUser.credits.toLocaleString(),
+                  })
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setCreditsAction("grant")}
+                className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+                  creditsAction === "grant"
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                {t("users.credits_action_grant")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCreditsAction("deduct")}
+                className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+                  creditsAction === "deduct"
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                {t("users.credits_action_deduct")}
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">{t("users.credits_amount_label")}</label>
+              <Input
+                type="number"
+                min="1"
+                value={creditsAmount}
+                onChange={(e) => setCreditsAmount(e.target.value)}
+                placeholder="0"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">{t("users.credits_desc_label")}</label>
+              <Input
+                value={creditsDesc}
+                onChange={(e) => setCreditsDesc(e.target.value)}
+                placeholder={t("users.credits_desc_placeholder")}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreditsUser(null)}>
+              {t("roles.cancel")}
+            </Button>
+            <Button onClick={submitCredits} disabled={creditsSubmitting}>
+              {creditsSubmitting
+                ? t("users.credits_submitting")
+                : t("users.credits_submit")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -294,6 +294,7 @@ export default function RolesPage() {
             emptyText={t("roles.no_roles")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchRoles(page)}
           />
         </CardContent>
       </Card>

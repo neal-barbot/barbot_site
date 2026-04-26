@@ -1,6 +1,6 @@
 "use client";
 
-import { type LucideIcon, ChevronsUpDown, LayoutDashboard, Shield, Globe } from "lucide-react";
+import { type LucideIcon, ChevronsUpDown, LayoutDashboard, Shield } from "lucide-react";
 import { Link, usePathname } from "@/core/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -30,12 +30,12 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   group?: string;
+  newTab?: boolean;
 }
 
 const SYSTEMS = [
   { key: "admin", href: "/admin", icon: Shield },
   { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { key: "landing", href: "/", icon: Globe },
 ] as const;
 
 export function AppSidebar({
@@ -44,12 +44,14 @@ export function AppSidebar({
   navItems,
   footerNavItems,
   footer,
+  isAdmin = false,
 }: {
   brand: React.ReactNode;
   brandHref?: string;
   navItems: NavItem[];
   footerNavItems?: NavItem[];
   footer?: React.ReactNode;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const t = useTranslations("common");
@@ -67,50 +69,61 @@ export function AppSidebar({
     }
   }
 
-  // Detect current system
-  const currentSystem = SYSTEMS.find(
-    (s) => s.key !== "landing" && pathname.startsWith(s.href)
-  ) || SYSTEMS[2]; // fallback to landing
+  // Filter to systems the user can access, and detect current
+  const visibleSystems = SYSTEMS.filter((s) => s.key !== "admin" || isAdmin);
+  const currentSystem = visibleSystems.find((s) => pathname.startsWith(s.href));
+  const showSwitcher = visibleSystems.length > 1;
 
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer outline-none"
+            {showSwitcher ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer outline-none"
+                >
+                  <span className="flex-1 font-serif italic text-lg leading-none">
+                    {brand}
+                  </span>
+                  <ChevronsUpDown className="size-4 text-muted-foreground" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="right" align="start">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>{t("systems.label")}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {visibleSystems.map((sys) => {
+                      const Icon = sys.icon;
+                      const isCurrent = sys.key === currentSystem?.key;
+                      return (
+                        <DropdownMenuItem
+                          key={sys.key}
+                          disabled={isCurrent}
+                          onClick={() => {
+                            if (!isCurrent) {
+                              window.open(`/${locale}${sys.href}`, "_blank");
+                            }
+                          }}
+                        >
+                          <Icon className="size-4" />
+                          {t(`systems.${sys.key}`)}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                href={brandHref}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm"
               >
                 <span className="flex-1 font-serif italic text-lg leading-none">
                   {brand}
                 </span>
-                <ChevronsUpDown className="size-4 text-muted-foreground" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent side="right" align="start">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>{t("systems.label")}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {SYSTEMS.map((sys) => {
-                    const Icon = sys.icon;
-                    const isCurrent = sys.key === currentSystem.key;
-                    return (
-                      <DropdownMenuItem
-                        key={sys.key}
-                        disabled={isCurrent}
-                        onClick={() => {
-                          if (!isCurrent) {
-                            window.open(`/${locale}${sys.href}`, "_blank");
-                          }
-                        }}
-                      >
-                        <Icon className="size-4" />
-                        {t(`systems.${sys.key}`)}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </Link>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -149,15 +162,30 @@ export function AppSidebar({
           <SidebarMenu>
             {footerNavItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname.startsWith(item.href);
+              const isActive = item.newTab
+                ? false
+                : item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
+              const button = (
+                <SidebarMenuButton tooltip={item.label} isActive={isActive}>
+                  <Icon />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              );
               return (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton tooltip={item.label} isActive={isActive}>
-                      <Icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
+                  {item.newTab ? (
+                    <a
+                      href={`/${locale}${item.href === "/" ? "" : item.href}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {button}
+                    </a>
+                  ) : (
+                    <Link href={item.href}>{button}</Link>
+                  )}
                 </SidebarMenuItem>
               );
             })}

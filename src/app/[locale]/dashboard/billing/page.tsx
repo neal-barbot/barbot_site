@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRight } from "lucide-react";
+import { toast } from "sonner";
+import { Eye, MoreHorizontal, Pencil, XCircle } from "lucide-react";
 import { Link } from "@/core/i18n/navigation";
+import { buttonVariants, Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,18 +13,54 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DataTable, type Column } from "@/components/data-table";
+import { cn } from "@/lib/utils";
 
 type Subscription = {
   id: string;
+  subscriptionNo: string;
   status: string;
+  paymentProvider: string;
   planName?: string | null;
   productName?: string | null;
   interval?: string | null;
+  intervalCount?: number | null;
   amount?: number | null;
   currency?: string | null;
+  currentPeriodStart?: string | null;
   currentPeriodEnd?: string | null;
+  canceledAt?: string | null;
   canceledEndAt?: string | null;
+  canceledReason?: string | null;
+  createdAt?: string | null;
 };
+
+const TABS = [
+  "all",
+  "active",
+  "trialing",
+  "paused",
+  "expired",
+  "pending_cancel",
+  "canceled",
+] as const;
+type Tab = (typeof TABS)[number];
+
+const PAGE_SIZE = 20;
 
 function formatAmount(amount: number, currency: string) {
   const normalized = (currency || "usd").toUpperCase();
@@ -32,45 +70,201 @@ function formatAmount(amount: number, currency: string) {
   }).format(amount / 100);
 }
 
-function statusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
+function statusVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   const s = status.toLowerCase();
-  if (s === "active" || s === "paid" || s === "succeeded") return "default";
-  if (s === "canceled" || s === "failed") return "destructive";
+  if (s === "active" || s === "trialing") return "default";
+  if (s === "canceled" || s === "expired") return "destructive";
   return "secondary";
+}
+
+function isCancellable(status: string) {
+  const s = status.toLowerCase();
+  return s === "active" || s === "trialing";
 }
 
 export default function BillingPage() {
   const t = useTranslations("dashboard.billing");
-  const [credits, setCredits] = useState<number | null>(null);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [current, setCurrent] = useState<Subscription | null>(null);
+  const [currentLoaded, setCurrentLoaded] = useState(false);
+  const [rows, setRows] = useState<Subscription[]>([]);
+  const [total, setTotal] = useState(0);
+  const [tab, setTab] = useState<Tab>("all");
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [viewing, setViewing] = useState<Subscription | null>(null);
+  const [canceling, setCanceling] = useState<Subscription | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/credits").then((r) => r.json()).catch(() => null),
-      fetch("/api/user/subscriptions").then((r) => r.json()).catch(() => null),
-    ]).then(([creditsRes, subsRes]) => {
-      if (creditsRes?.code === 0) setCredits(creditsRes.data.balance);
-      if (subsRes?.code === 0 && Array.isArray(subsRes.data)) {
-        const active = subsRes.data.find((s: Subscription) => s.status === "active") || subsRes.data[0];
-        setSubscription(active || null);
-      }
-      setLoaded(true);
-    });
+  const fetchCurrent = useCallback(() => {
+    fetch("/api/user/subscriptions/current")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res?.code === 0) setCurrent(res.data || null);
+        setCurrentLoaded(true);
+      })
+      .catch(() => setCurrentLoaded(true));
   }, []);
 
-  const planLabel =
-    subscription?.planName ||
-    subscription?.productName ||
-    (subscription ? subscription.status : null);
+  const fetchList = useCallback(
+    async (p: number, tb: Tab, s: string) => {
+      const params = new URLSearchParams({
+        page: String(p),
+        pageSize: String(PAGE_SIZE),
+      });
+      if (tb !== "all") params.set("status", tb);
+      if (s) params.set("search", s);
+      const res = await fetch(`/api/user/subscriptions?${params}`)
+        .then((r) => r.json())
+        .catch(() => null);
+      if (res?.code === 0) {
+        setRows(res.data.items);
+        setTotal(res.data.total);
+      }
+    },
+    [],
+  );
 
-  const periodEnd = subscription?.currentPeriodEnd
-    ? new Date(subscription.currentPeriodEnd)
-    : null;
-  const canceledEnd = subscription?.canceledEndAt
-    ? new Date(subscription.canceledEndAt)
-    : null;
-  const isCanceled = subscription?.status === "canceled" || !!canceledEnd;
+  useEffect(() => {
+    fetchCurrent();
+  }, [fetchCurrent]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => fetchList(page, tab, search), 300);
+    return () => clearTimeout(timer);
+  }, [page, tab, search, fetchList]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [tab, search]);
+
+  async function confirmCancel() {
+    if (!canceling) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/user/subscriptions/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscriptionNo: canceling.subscriptionNo }),
+      });
+      const data = await res.json();
+      if (data.code === 0) {
+        toast.success(t("cancel_success"));
+        setCanceling(null);
+        fetchCurrent();
+        fetchList(page, tab, search);
+      } else {
+        toast.error(data.message || t("cancel_failed"));
+      }
+    } catch {
+      toast.error(t("cancel_failed"));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const columns: Column<Subscription>[] = [
+    {
+      header: t("subscription_no"),
+      cell: (r) => (
+        <span className="font-mono text-xs">{r.subscriptionNo}</span>
+      ),
+    },
+    {
+      header: t("plan"),
+      cell: (r) => (
+        <span className="font-medium">
+          {r.planName || r.productName || "—"}
+        </span>
+      ),
+    },
+    {
+      header: t("interval"),
+      cell: (r) =>
+        r.interval ? (
+          <span className="text-sm">
+            {r.intervalCount ? `${r.intervalCount} ` : ""}
+            {r.interval}
+          </span>
+        ) : (
+          "—"
+        ),
+    },
+    {
+      header: t("status"),
+      cell: (r) => (
+        <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
+      ),
+    },
+    {
+      header: t("amount"),
+      cell: (r) =>
+        r.amount && r.currency ? (
+          <span className="tabular-nums">
+            {formatAmount(r.amount, r.currency)}
+          </span>
+        ) : (
+          "—"
+        ),
+    },
+    {
+      header: t("current_period"),
+      cell: (r) => (
+        <span className="text-xs text-muted-foreground whitespace-pre-line">
+          {r.currentPeriodStart && r.currentPeriodEnd
+            ? `${new Date(r.currentPeriodStart).toLocaleDateString()}\n~ ${new Date(r.currentPeriodEnd).toLocaleDateString()}`
+            : "—"}
+        </span>
+      ),
+    },
+    {
+      header: t("end_time"),
+      cell: (r) => (
+        <span className="text-sm text-muted-foreground">
+          {r.canceledEndAt
+            ? new Date(r.canceledEndAt).toLocaleDateString()
+            : "—"}
+        </span>
+      ),
+    },
+    {
+      header: t("date"),
+      cell: (r) => (
+        <span className="text-sm text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
+      ),
+    },
+    {
+      header: t("actions_col"),
+      className: "w-[80px]",
+      cell: (r) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="icon" className="size-7">
+                <MoreHorizontal className="size-4" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setViewing(r)}>
+              <Eye className="size-4" />
+              {t("view")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => isCancellable(r.status) && setCanceling(r)}
+              disabled={!isCancellable(r.status)}
+            >
+              <XCircle className="size-4" />
+              {t("cancel")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -79,63 +273,211 @@ export default function BillingPage() {
         <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
+      <Card className="max-w-md">
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <CardTitle>{t("subscription")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!loaded ? (
-              <p className="text-muted-foreground text-sm">…</p>
-            ) : subscription ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold">{planLabel}</span>
-                  <Badge variant={statusVariant(subscription.status)}>
-                    {subscription.status}
-                  </Badge>
-                </div>
-                {subscription.amount && subscription.currency && (
-                  <p className="text-sm text-muted-foreground">
-                    {formatAmount(subscription.amount, subscription.currency)}
-                    {subscription.interval ? ` / ${subscription.interval}` : ""}
-                  </p>
-                )}
-                {isCanceled && canceledEnd ? (
-                  <p className="text-sm text-muted-foreground">
-                    {t("ends_on", { date: canceledEnd.toLocaleDateString() })}
-                  </p>
-                ) : periodEnd ? (
-                  <p className="text-sm text-muted-foreground">
-                    {t("renews_on", { date: periodEnd.toLocaleDateString() })}
-                  </p>
-                ) : null}
+            <Link
+              href="/pricing"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-2",
+              )}
+            >
+              <Pencil className="size-4" />
+              {current ? t("adjust") : t("subscribe")}
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!currentLoaded ? (
+            <p className="text-muted-foreground text-sm">…</p>
+          ) : current ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <p className="text-3xl font-bold">
+                  {current.planName || current.productName || "—"}
+                </p>
+                <Badge variant={statusVariant(current.status)}>
+                  {current.status}
+                </Badge>
               </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">{t("no_subscription")}</p>
-            )}
-          </CardContent>
-        </Card>
+              {current.amount && current.currency && (
+                <p className="text-sm text-muted-foreground">
+                  {formatAmount(current.amount, current.currency)}
+                  {current.interval ? ` / ${current.interval}` : ""}
+                </p>
+              )}
+              {current.canceledEndAt ? (
+                <p className="text-sm text-destructive">
+                  {t("ends_on", {
+                    date: new Date(
+                      current.canceledEndAt,
+                    ).toLocaleDateString(),
+                  })}
+                </p>
+              ) : current.currentPeriodEnd ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("renews_on", {
+                    date: new Date(
+                      current.currentPeriodEnd,
+                    ).toLocaleDateString(),
+                  })}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-3xl font-bold text-muted-foreground">
+              {t("no_subscription")}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
-        <Link href="/dashboard/credits" className="block">
-          <Card className="h-full transition-colors hover:bg-muted/50">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{t("credits")}</CardTitle>
-                <ArrowRight className="size-4 text-muted-foreground" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">
-                {loaded ? credits ?? 0 : "…"}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t("credits_description")}
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+      <div className="flex gap-1 border-b border-border overflow-x-auto overflow-y-hidden">
+        {TABS.map((tb) => (
+          <button
+            key={tb}
+            onClick={() => setTab(tb)}
+            className={cn(
+              "px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px",
+              tab === tb
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {t(`tab_${tb}` as `tab_${Tab}`)}
+          </button>
+        ))}
       </div>
+
+      <Card>
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={rows}
+            total={total}
+            page={page}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            rowKey={(r) => r.id}
+            emptyText={t("no_subscription")}
+            search={search}
+            onSearchChange={setSearch}
+            onRefresh={async () => {
+              fetchCurrent();
+              await fetchList(page, tab, search);
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!viewing} onOpenChange={(v) => !v && setViewing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("subscription_details")}</DialogTitle>
+            <DialogDescription className="font-mono text-xs">
+              {viewing?.subscriptionNo}
+            </DialogDescription>
+          </DialogHeader>
+          {viewing && (
+            <div className="space-y-3 py-2 text-sm">
+              <DetailRow label={t("plan")}>
+                {viewing.planName || viewing.productName || "—"}
+              </DetailRow>
+              <DetailRow label={t("status")}>
+                <Badge variant={statusVariant(viewing.status)}>
+                  {viewing.status}
+                </Badge>
+              </DetailRow>
+              <DetailRow label={t("amount")}>
+                {viewing.amount && viewing.currency
+                  ? `${formatAmount(viewing.amount, viewing.currency)}${
+                      viewing.interval ? ` / ${viewing.interval}` : ""
+                    }`
+                  : "—"}
+              </DetailRow>
+              <DetailRow label={t("provider")}>
+                {viewing.paymentProvider}
+              </DetailRow>
+              <DetailRow label={t("period_start")}>
+                {viewing.currentPeriodStart
+                  ? new Date(viewing.currentPeriodStart).toLocaleString()
+                  : "—"}
+              </DetailRow>
+              <DetailRow label={t("period_end")}>
+                {viewing.currentPeriodEnd
+                  ? new Date(viewing.currentPeriodEnd).toLocaleString()
+                  : "—"}
+              </DetailRow>
+              {viewing.canceledAt && (
+                <DetailRow label={t("canceled_at")}>
+                  {new Date(viewing.canceledAt).toLocaleString()}
+                </DetailRow>
+              )}
+              {viewing.canceledEndAt && (
+                <DetailRow label={t("canceled_end_at")}>
+                  {new Date(viewing.canceledEndAt).toLocaleString()}
+                </DetailRow>
+              )}
+              {viewing.canceledReason && (
+                <DetailRow label={t("canceled_reason")}>
+                  {viewing.canceledReason}
+                </DetailRow>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewing(null)}>
+              {t("close")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!canceling} onOpenChange={(v) => !v && setCanceling(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("cancel_title")}</DialogTitle>
+            <DialogDescription>
+              {t("cancel_description", {
+                plan: canceling?.planName || canceling?.productName || "—",
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCanceling(null)}
+              disabled={submitting}
+            >
+              {t("cancel_back")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmCancel}
+              disabled={submitting}
+            >
+              {submitting ? t("canceling") : t("cancel_confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="text-muted-foreground w-32 shrink-0">{label}</span>
+      <span className="flex-1">{children}</span>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { respPage, respErr } from '@/lib/resp';
 import { getAuth } from '@/core/auth';
 import { hasPermission } from '@/modules/rbac/service';
 import { db } from '@/core/db';
-import { credit } from '@/config/db/schema';
+import { credit, user } from '@/config/db/schema';
 import { desc, count, eq, and, like, or, type SQL } from 'drizzle-orm';
 
 export async function GET(req: Request) {
@@ -38,11 +38,12 @@ export async function GET(req: Request) {
     const [totalResult] = await db().select({ count: count() }).from(credit).where(where);
     const total = totalResult.count;
 
-    const credits = await db()
+    const rows = await db()
       .select({
         id: credit.id,
         userId: credit.userId,
         userEmail: credit.userEmail,
+        userTableEmail: user.email,
         transactionNo: credit.transactionNo,
         transactionType: credit.transactionType,
         transactionScene: credit.transactionScene,
@@ -54,10 +55,16 @@ export async function GET(req: Request) {
         createdAt: credit.createdAt,
       })
       .from(credit)
+      .leftJoin(user, eq(user.id, credit.userId))
       .where(where)
       .orderBy(desc(credit.createdAt))
       .limit(pageSize)
       .offset(offset);
+
+    const credits = rows.map((r: typeof rows[number]) => {
+      const { userTableEmail, ...rest } = r;
+      return { ...rest, userEmail: rest.userEmail || userTableEmail || null };
+    });
 
     return respPage(credits, total);
   } catch (error: any) {

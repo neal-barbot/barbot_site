@@ -30,7 +30,7 @@ export async function Hero() {
 
         <div className="flex items-center justify-center gap-3 pt-4">
           <Link
-            href="/sign-up"
+            href="/dashboard"
             className={cn(
               buttonVariants({ size: "lg" }),
               "gap-2 rounded-full px-8 h-12"

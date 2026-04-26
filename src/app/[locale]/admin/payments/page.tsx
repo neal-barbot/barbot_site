@@ -152,6 +152,7 @@ export default function PaymentsPage() {
             emptyText={t("payments.no_payments")}
             search={search}
             onSearchChange={setSearch}
+            onRefresh={() => fetchOrders(page)}
           />
         </CardContent>
       </Card>

@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { respPage, respErr } from '@/lib/resp';
 import { getAuth } from '@/core/auth';
 import { hasPermission } from '@/modules/rbac/service';
+import { getBalance } from '@/modules/credits/service';
 import { db } from '@/core/db';
 import { user } from '@/config/db/schema';
 import { desc, count, or, like, and, type SQL } from 'drizzle-orm';
@@ -49,7 +50,14 @@ export async function GET(req: Request) {
       .limit(pageSize)
       .offset(offset);
 
-    return respPage(users, total);
+    const withCredits = await Promise.all(
+      users.map(async (u: typeof users[number]) => ({
+        ...u,
+        credits: await getBalance(u.id),
+      }))
+    );
+
+    return respPage(withCredits, total);
   } catch (error: any) {
     return respErr(error.message || 'Internal error');
   }

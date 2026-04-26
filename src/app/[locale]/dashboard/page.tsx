@@ -12,11 +12,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+type Subscription = {
+  status: string;
+  planName?: string | null;
+  productName?: string | null;
+};
+
 export default function DashboardPage() {
   const t = useTranslations();
   const { data: session } = useSession();
   const [credits, setCredits] = useState<number | null>(null);
   const [apiKeys, setApiKeys] = useState<number | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
     fetch("/api/credits")
@@ -32,7 +39,17 @@ export default function DashboardPage() {
         if (res.code === 0) setApiKeys(res.data.length);
       })
       .catch(() => {});
+
+    fetch("/api/user/subscriptions/current")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.code === 0) setSubscription(res.data || null);
+      })
+      .catch(() => {});
   }, []);
+
+  const planLabel =
+    subscription?.planName || subscription?.productName || "Free";
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -46,13 +63,26 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{t("dashboard.billing.credits")}</CardTitle>
+            <CardTitle className="text-sm font-medium">Plan</CardTitle>
+            <TrendingUp className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{planLabel}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Current subscription
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">{t("dashboard.credits.title")}</CardTitle>
             <CreditCard className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{credits ?? "—"}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {t("dashboard.billing.credits_description")}
+              {t("dashboard.credits.description")}
             </p>
           </CardContent>
         </Card>
@@ -66,19 +96,6 @@ export default function DashboardPage() {
             <div className="text-2xl font-bold">{apiKeys ?? "—"}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Active keys
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Plan</CardTitle>
-            <TrendingUp className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Free</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Current subscription
             </p>
           </CardContent>
         </Card>

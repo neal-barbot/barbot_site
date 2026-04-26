@@ -11,6 +11,7 @@ import {
   type NewSubscription,
   type UpdateSubscription,
   findByProviderSubscriptionId,
+  findBySubscriptionNo,
   updateBySubscriptionNo,
 } from '@/modules/subscriptions/service';
 import { calculateCreditExpirationTime } from '@/modules/credits/service';
@@ -113,16 +114,32 @@ export async function createCheckout(params: {
   userEmail?: string;
   paymentOrder: PaymentOrder;
   provider?: string;
+  productName?: string;
+  planName?: string;
+  credits?: number;
+  creditsValidDays?: number;
 }): Promise<CheckoutSession> {
-  const { userId, userEmail, paymentOrder, provider } = params;
+  const {
+    userId,
+    userEmail,
+    paymentOrder,
+    provider,
+    productName,
+    planName,
+    credits,
+    creditsValidDays,
+  } = params;
   const pm = await getPaymentManager();
   const orderNo = getUniSeq('ORD');
+
+  const finalSuccessUrl = paymentOrder.successUrl || `${envConfigs.app_url}/dashboard/billing?success=1`;
+  const callbackSuccessUrl = `${envConfigs.app_url}/api/payment/callback?order_no=${orderNo}&redirect=${encodeURIComponent(finalSuccessUrl)}`;
 
   const session = await pm.createPayment({
     order: {
       ...paymentOrder,
       orderNo,
-      successUrl: paymentOrder.successUrl || `${envConfigs.app_url}/dashboard/billing?success=1`,
+      successUrl: callbackSuccessUrl,
       cancelUrl: paymentOrder.cancelUrl || `${envConfigs.app_url}/dashboard/billing?canceled=1`,
     },
     provider,
@@ -137,6 +154,10 @@ export async function createCheckout(params: {
     amount: paymentOrder.price?.amount || 0,
     currency: paymentOrder.price?.currency || 'usd',
     productId: paymentOrder.productId || '',
+    productName: productName || null,
+    planName: planName || null,
+    creditsAmount: credits ?? null,
+    creditsValidDays: creditsValidDays ?? null,
     paymentType: paymentOrder.type || 'one-time',
     paymentProvider: session.provider,
     paymentSessionId: session.checkoutInfo.sessionId,
@@ -171,22 +192,10 @@ export async function handlePaymentCallback(orderNo: string) {
     sessionId: existingOrder.paymentSessionId || existingOrder.orderNo,
   });
 
-  if (session.paymentStatus === PaymentStatus.SUCCESS) {
-    const paymentInfo = session.paymentInfo;
-    await db()
-      .update(order)
-      .set({
-        status: OrderStatus.PAID,
-        paymentResult: JSON.stringify(session.paymentResult),
-        paymentAmount: paymentInfo?.paymentAmount || null,
-        paymentCurrency: paymentInfo?.paymentCurrency || null,
-        paymentEmail: paymentInfo?.paymentEmail || null,
-        paidAt: paymentInfo?.paidAt || new Date(),
-        transactionId: paymentInfo?.transactionId || null,
-        paymentUserId: paymentInfo?.paymentUserId || null,
-      })
-      .where(eq(order.orderNo, orderNo));
-  }
+  // Reuse the same atomic success handler as the webhook so that
+  // subscriptions are created and credits granted on synchronous return too.
+  // This is important in environments where webhooks aren't reachable (e.g. localhost).
+  await handleCheckoutSuccess(session, existingOrder.paymentProvider);
 }
 
 // --- Webhook handling ---
@@ -456,6 +465,47 @@ async function handleSubscriptionCanceled(session: any, provider: string) {
     canceledReason: info.canceledReason,
     canceledReasonType: info.canceledReasonType,
   });
+}
+
+// --- Cancel subscription (user-initiated) ---
+
+export async function cancelUserSubscription(params: {
+  userId: string;
+  subscriptionNo: string;
+}) {
+  const { userId, subscriptionNo } = params;
+
+  const sub = await findBySubscriptionNo(subscriptionNo);
+  if (!sub) throw new Error('Subscription not found');
+  if (sub.userId !== userId) throw new Error('Forbidden');
+
+  if (
+    sub.status === SubscriptionStatus.CANCELED ||
+    sub.status === SubscriptionStatus.EXPIRED
+  ) {
+    return sub;
+  }
+
+  const pm = await getPaymentManager();
+  const provider = pm.getProvider(sub.paymentProvider);
+  if (!provider || !provider.cancelSubscription) {
+    throw new Error('Cancellation not supported for this provider');
+  }
+
+  const session = await provider.cancelSubscription({
+    subscriptionId: sub.subscriptionId,
+  });
+
+  const info = session.subscriptionInfo;
+  const updated = await updateBySubscriptionNo(subscriptionNo, {
+    status: info?.status || SubscriptionStatus.CANCELED,
+    canceledAt: info?.canceledAt || new Date(),
+    canceledEndAt: info?.canceledEndAt || null,
+    canceledReason: info?.canceledReason || 'Canceled by user',
+    canceledReasonType: info?.canceledReasonType || 'user_request',
+  });
+
+  return updated;
 }
 
 // --- Query helpers ---
