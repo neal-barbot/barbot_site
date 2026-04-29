@@ -27,7 +27,7 @@ export default function SettingsLayout({
   ];
 
   return (
-    <AppLayout navItems={navItems} footerNavItems={footerNavItems} brand={envConfigs.app_name}>
+    <AppLayout navItems={navItems} footerNavItems={footerNavItems} brand={envConfigs.app_name} brandHref="/settings">
       {children}
     </AppLayout>
   );
