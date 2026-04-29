@@ -92,6 +92,8 @@ export function getSettings(): Setting[] {
 
     // ─── Auth / Email ────────────────────────────────────────────────
     { name: 'email_auth_enabled', title: 'Enable email auth', type: 'switch', group: 'email_auth', tab: 'auth', defaultValue: 'true' },
+    { name: 'email_verification_enabled', title: 'Require email verification on sign up', type: 'switch', group: 'email_auth', tab: 'auth', defaultValue: 'false' },
+    { name: 'invite_code_required', title: 'Require invite code on sign up', type: 'switch', group: 'email_auth', tab: 'auth', defaultValue: 'false' },
 
     // ─── Auth / Google ───────────────────────────────────────────────
     { name: 'google_auth_enabled', title: 'Enable Google auth', type: 'switch', group: 'google_auth', tab: 'auth' },

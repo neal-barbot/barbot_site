@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { LayoutDashboard, Users, Shield, KeyRound, DollarSign, CreditCard, Coins, FolderOpen, FileText } from "lucide-react";
+import { LayoutDashboard, Users, Shield, KeyRound, DollarSign, CreditCard, Coins, FolderOpen, FileText, Settings, Home, Ticket } from "lucide-react";
 import { envConfigs } from "@/config";
 import { AppLayout } from "@/components/app-layout";
 
@@ -16,6 +16,7 @@ export default function AdminLayout({
   const navItems = [
     { href: "/admin", label: t("nav.overview"), icon: LayoutDashboard, group: tc("systems.admin") },
     { href: "/admin/users", label: t("nav.users"), icon: Users, group: t("nav.rbac") },
+    { href: "/admin/invite-codes", label: t("nav.invite_codes"), icon: Ticket, group: t("nav.rbac") },
     { href: "/admin/roles", label: t("nav.roles"), icon: Shield, group: t("nav.rbac") },
     { href: "/admin/permissions", label: t("nav.permissions"), icon: KeyRound, group: t("nav.rbac") },
     { href: "/admin/categories", label: t("nav.categories"), icon: FolderOpen, group: t("nav.content") },
@@ -25,11 +26,18 @@ export default function AdminLayout({
     { href: "/admin/credits", label: t("nav.credits"), icon: Coins, group: t("nav.billing") },
   ];
 
+  const footerNavItems = [
+    { href: "/admin/settings", label: t("nav.settings"), icon: Settings },
+    { href: "/", label: tc("systems.home"), icon: Home, newTab: true },
+  ];
+
   return (
     <AppLayout
       navItems={navItems}
+      footerNavItems={footerNavItems}
       brand={envConfigs.app_name}
       brandHref="/admin"
+      profileHref="/settings/profile"
       requirePermission="admin.*"
     >
       {children}

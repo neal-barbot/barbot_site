@@ -20,6 +20,7 @@ export function AppLayout({
   brandHref = "/",
   mobileBrand,
   headerExtra,
+  profileHref,
   requirePermission,
   unauthorizedRedirect = "/settings",
 }: {
@@ -30,13 +31,13 @@ export function AppLayout({
   brandHref?: string;
   mobileBrand?: React.ReactNode;
   headerExtra?: React.ReactNode;
+  profileHref?: string;
   requirePermission?: string;
   unauthorizedRedirect?: string;
 }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (isPending) return;
@@ -47,27 +48,23 @@ export function AppLayout({
       return;
     }
 
+    if (!requirePermission) {
+      setAuthorized(true);
+      return;
+    }
+
     fetch("/api/user/permissions")
       .then((r) => r.json())
       .then((res) => {
         const admin = res.code === 0 && res.data?.isAdmin === true;
-        setIsAdmin(admin);
-        if (requirePermission) {
-          if (admin) {
-            setAuthorized(true);
-          } else {
-            router.push(unauthorizedRedirect);
-          }
-        } else {
+        if (admin) {
           setAuthorized(true);
+        } else {
+          router.push(unauthorizedRedirect);
         }
       })
       .catch(() => {
-        if (requirePermission) {
-          router.push(unauthorizedRedirect);
-        } else {
-          setAuthorized(true);
-        }
+        router.push(unauthorizedRedirect);
       });
   }, [isPending, session, router, requirePermission, unauthorizedRedirect]);
 
@@ -89,12 +86,12 @@ export function AppLayout({
         brandHref={brandHref}
         navItems={navItems}
         footerNavItems={footerNavItems}
-        isAdmin={isAdmin}
         footer={
           <UserMenu
             name={session.user.name || "User"}
             email={session.user.email}
             image={session.user.image}
+            profileHref={profileHref}
           />
         }
       />

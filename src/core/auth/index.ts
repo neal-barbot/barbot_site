@@ -6,7 +6,11 @@ import { db } from '@/core/db';
 import { envConfigs } from '@/config';
 import { getAllConfigs } from '@/modules/config/service';
 import { ResendProvider } from '@/core/email/resend';
+import { VerifyEmail } from '@/core/email/templates/verify-email';
 import * as schema from '@/config/db/schema';
+
+const recentVerificationEmailSentAt = new Map<string, number>();
+const VERIFICATION_EMAIL_MIN_INTERVAL_MS = 60_000;
 
 function getDatabaseProvider(provider: string): 'sqlite' | 'pg' | 'mysql' {
   switch (provider) {
@@ -27,6 +31,7 @@ function getDatabaseProvider(provider: string): 'sqlite' | 'pg' | 'mysql' {
 let authInstance: any;
 let socialConfigsLoaded = false;
 let emailEnabledLoaded = true;
+let emailVerificationEnabledLoaded = false;
 
 function getSocialProviders(configs: Record<string, string>) {
   const providers: Record<string, any> = {};
@@ -67,10 +72,27 @@ export function getAuth(configs?: Record<string, string>) {
     }
   }
 
+  // Rebuild if the email-verification flag changed
+  if (configs) {
+    const nextVerificationEnabled =
+      configs.email_verification_enabled === 'true' &&
+      !!configs.resend_api_key &&
+      !!configs.resend_email_from;
+    if (nextVerificationEnabled !== emailVerificationEnabledLoaded) {
+      authInstance = null;
+      emailVerificationEnabledLoaded = nextVerificationEnabled;
+    }
+  }
+
   if (authInstance) return authInstance;
 
   const socialProviders = configs ? getSocialProviders(configs) : {};
   const emailAndPasswordEnabled = configs ? configs.email_auth_enabled !== 'false' : true;
+  const emailVerificationEnabled = configs
+    ? configs.email_verification_enabled === 'true' &&
+      !!configs.resend_api_key &&
+      !!configs.resend_email_from
+    : false;
 
   authInstance = betterAuth({
     appName: envConfigs.app_name,
@@ -102,6 +124,8 @@ export function getAuth(configs?: Record<string, string>) {
     },
     emailAndPassword: {
       enabled: emailAndPasswordEnabled,
+      requireEmailVerification: emailVerificationEnabled,
+      autoSignIn: !emailVerificationEnabled,
       sendResetPassword: async ({ user, url }) => {
         const all = await getAllConfigs();
         const apiKey = all.resend_api_key;
@@ -127,6 +151,55 @@ export function getAuth(configs?: Record<string, string>) {
         }
       },
     },
+    ...(emailVerificationEnabled
+      ? {
+          emailVerification: {
+            sendOnSignUp: false,
+            sendOnSignIn: false,
+            autoSignInAfterVerification: true,
+            expiresIn: 60 * 60 * 24,
+            sendVerificationEmail: async ({ user, url }: { user: any; url: string; token: string }) => {
+              try {
+                const key = String(user?.email || '').toLowerCase();
+                const now = Date.now();
+                const last = recentVerificationEmailSentAt.get(key) || 0;
+                if (key && now - last < VERIFICATION_EMAIL_MIN_INTERVAL_MS) {
+                  return;
+                }
+                if (key) {
+                  recentVerificationEmailSentAt.set(key, now);
+                }
+
+                const all = await getAllConfigs();
+                const apiKey = all.resend_api_key;
+                const from = all.resend_email_from;
+                if (!apiKey || !from) {
+                  console.error('[auth] sendVerificationEmail: Resend is not configured (resend_api_key / resend_email_from)');
+                  return;
+                }
+                const appName = all.app_name || envConfigs.app_name;
+                const logo = all.app_logo || '';
+                const logoUrl = logo.startsWith('http')
+                  ? logo
+                  : logo
+                  ? `${envConfigs.app_url || ''}${logo.startsWith('/') ? '' : '/'}${logo}`
+                  : undefined;
+                const provider = new ResendProvider({ apiKey, defaultFrom: from });
+                const result = await provider.sendEmail({
+                  to: user.email,
+                  subject: `Verify your email - ${appName}`,
+                  react: VerifyEmail({ appName, logoUrl, url }),
+                });
+                if (!result.success) {
+                  console.error('[auth] sendVerificationEmail failed:', result.error);
+                }
+              } catch (e) {
+                console.error('[auth] sendVerificationEmail error:', e);
+              }
+            },
+          },
+        }
+      : {}),
     logger: { disabled: true },
   } satisfies BetterAuthOptions);
 

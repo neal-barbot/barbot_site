@@ -12,6 +12,7 @@ import {
   MonitorIcon,
   PaletteIcon,
   CheckIcon,
+  UserIcon,
 } from "lucide-react";
 import { signOut } from "@/core/auth/client";
 import { localeNames, locales } from "@/config/locale";
@@ -39,10 +40,12 @@ export function UserMenu({
   name,
   email,
   image,
+  profileHref,
 }: {
   name: string;
   email: string;
   image?: string | null;
+  profileHref?: string;
 }) {
   const t = useTranslations("common");
   const router = useRouter();
@@ -102,6 +105,16 @@ export function UserMenu({
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            {profileHref && (
+              <DropdownMenuItem
+                onClick={() => {
+                  window.open(`/${locale}${profileHref}`, "_blank");
+                }}
+              >
+                <UserIcon className="size-4" />
+                {t("nav.profile")}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="gap-2 px-2 py-2">
                 <LanguagesIcon className="size-4" />

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/core/i18n/navigation";
-import { signIn, signUp } from "@/core/auth/client";
+import { authClient, signIn, signUp } from "@/core/auth/client";
+import { defaultLocale } from "@/config/locale";
 import { envConfigs } from "@/config";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,10 +25,12 @@ import { Input } from "@/components/ui/input";
 export default function SignUpPage() {
   const t = useTranslations("common");
   const router = useRouter();
+  const locale = useLocale();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [configs, setConfigs] = useState<Record<string, string>>({});
@@ -58,6 +61,8 @@ export default function SignUpPage() {
   const emailEnabled = configs.email_auth_enabled !== "false";
   const googleEnabled = configs.google_auth_enabled === "true";
   const githubEnabled = configs.github_auth_enabled === "true";
+  const emailVerificationEnabled = configs.email_verification_enabled === "true";
+  const inviteCodeRequired = configs.invite_code_required === "true";
   const hasSocial = googleEnabled || githubEnabled;
   const hasAnyMethod = emailEnabled || hasSocial;
 
@@ -68,11 +73,58 @@ export default function SignUpPage() {
       setError(t("sign.password_mismatch"));
       return;
     }
+    const trimmedInvite = inviteCode.trim();
+    if (inviteCodeRequired && !trimmedInvite) {
+      setError(t("sign.invite_code_required"));
+      return;
+    }
     setLoading(true);
     try {
+      // Pre-validate invite code so we don't create an unredeemable account.
+      if (inviteCodeRequired) {
+        const validateRes = await fetch("/api/invite-codes/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: trimmedInvite }),
+        });
+        const validateData = await validateRes.json();
+        if (validateData.code !== 0) {
+          setError(validateData.message || t("sign.invite_code_invalid"));
+          setLoading(false);
+          return;
+        }
+      }
+
       const result = await signUp.email({ name, email, password });
       if (result.error) {
         setError(result.error.message || "Sign up failed");
+        return;
+      }
+
+      // Try to redeem when feature is enabled.
+      // - Without email verification: we have a session immediately, redeem now.
+      // - With email verification: redeem after sign-in; we still attempt now in
+      //   case autoSignIn is on, and silently swallow the unauthorized failure.
+      if (inviteCodeRequired && trimmedInvite) {
+        try {
+          await fetch("/api/invite-codes/redeem", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: trimmedInvite }),
+          });
+        } catch {}
+      }
+
+      if (emailVerificationEnabled) {
+        const base = locale !== defaultLocale ? `/${locale}` : "";
+        const verifyPath = `/verify-email?sent=1&email=${encodeURIComponent(
+          email
+        )}&callbackUrl=${encodeURIComponent(afterLoginUrl)}`;
+        void authClient.sendVerificationEmail({
+          email,
+          callbackURL: `${base}${afterLoginUrl}`,
+        });
+        router.push(verifyPath);
       } else {
         router.push(afterLoginUrl);
       }
@@ -189,6 +241,19 @@ export default function SignUpPage() {
                         placeholder={t("sign.confirm_password_placeholder")}
                       />
                     </Field>
+                    {inviteCodeRequired && (
+                      <Field>
+                        <FieldLabel htmlFor="inviteCode">{t("sign.invite_code_title")}</FieldLabel>
+                        <Input
+                          id="inviteCode"
+                          type="text"
+                          value={inviteCode}
+                          onChange={(e) => setInviteCode(e.target.value)}
+                          required
+                          placeholder={t("sign.invite_code_placeholder")}
+                        />
+                      </Field>
+                    )}
                     <Field>
                       <Button type="submit" disabled={loading}>
                         {loading ? "..." : t("sign.sign_up_title")}

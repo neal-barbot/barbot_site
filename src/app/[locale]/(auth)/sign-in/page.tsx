@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/core/i18n/navigation";
-import { signIn } from "@/core/auth/client";
+import { authClient, signIn } from "@/core/auth/client";
+import { defaultLocale } from "@/config/locale";
 import { envConfigs } from "@/config";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ import { Input } from "@/components/ui/input";
 export default function SignInPage() {
   const t = useTranslations("common");
   const router = useRouter();
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -59,6 +61,7 @@ export default function SignInPage() {
   const googleEnabled = configs.google_auth_enabled === "true";
   const githubEnabled = configs.github_auth_enabled === "true";
   const passwordResetEnabled = configs.password_reset_enabled === "true";
+  const emailVerificationEnabled = configs.email_verification_enabled === "true";
   const hasSocial = googleEnabled || githubEnabled;
   const hasAnyMethod = emailEnabled || hasSocial;
 
@@ -67,8 +70,21 @@ export default function SignInPage() {
     setError("");
     setLoading(true);
     try {
-      const result = await signIn.email({ email, password });
+      const result: any = await signIn.email({ email, password });
       if (result.error) {
+        const status = result.error.status;
+        if (status === 403 && emailVerificationEnabled) {
+          const base = locale !== defaultLocale ? `/${locale}` : "";
+          const verifyPath = `/verify-email?sent=1&email=${encodeURIComponent(
+            email
+          )}&callbackUrl=${encodeURIComponent(afterLoginUrl)}`;
+          void authClient.sendVerificationEmail({
+            email,
+            callbackURL: `${base}${afterLoginUrl}`,
+          });
+          router.push(verifyPath);
+          return;
+        }
         setError(result.error.message || "Sign in failed");
       } else {
         router.push(afterLoginUrl);

@@ -5,6 +5,7 @@ const publicKeys = [
   'email_auth_enabled',
   'google_auth_enabled',
   'github_auth_enabled',
+  'invite_code_required',
   'select_payment_enabled',
   'default_payment_provider',
   'stripe_enabled',
@@ -19,6 +20,12 @@ export async function GET() {
   const result = filterPublicConfigs(configs, publicKeys);
   result.password_reset_enabled =
     configs.email_auth_enabled !== 'false' &&
+    !!configs.resend_api_key &&
+    !!configs.resend_email_from
+      ? 'true'
+      : 'false';
+  result.email_verification_enabled =
+    configs.email_verification_enabled === 'true' &&
     !!configs.resend_api_key &&
     !!configs.resend_email_from
       ? 'true'

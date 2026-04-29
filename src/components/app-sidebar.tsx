@@ -1,8 +1,8 @@
 "use client";
 
-import { type LucideIcon, ChevronsUpDown, Settings, Shield, Home } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { Link, usePathname } from "@/core/i18n/navigation";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import {
   Sidebar,
   SidebarContent,
@@ -15,15 +15,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export interface NavItem {
   href: string;
@@ -33,28 +24,20 @@ export interface NavItem {
   newTab?: boolean;
 }
 
-const SYSTEMS = [
-  { key: "admin", href: "/admin", icon: Shield },
-  { key: "settings", href: "/settings", icon: Settings },
-] as const;
-
 export function AppSidebar({
   brand,
   brandHref = "/",
   navItems,
   footerNavItems,
   footer,
-  isAdmin = false,
 }: {
   brand: React.ReactNode;
   brandHref?: string;
   navItems: NavItem[];
   footerNavItems?: NavItem[];
   footer?: React.ReactNode;
-  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
-  const t = useTranslations("common");
   const locale = useLocale();
 
   // Group nav items
@@ -69,57 +52,19 @@ export function AppSidebar({
     }
   }
 
-  // Filter to systems the user can access, and detect current
-  const visibleSystems = SYSTEMS.filter((s) => s.key !== "admin" || isAdmin);
-  const currentSystem = visibleSystems.find((s) => pathname.startsWith(s.href));
-
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer outline-none"
-              >
-                <span className="flex-1 font-serif italic text-lg leading-none">
-                  {brand}
-                </span>
-                <ChevronsUpDown className="size-4 text-muted-foreground" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent side="right" align="start">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>{t("systems.label")}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {visibleSystems.map((sys) => {
-                    const Icon = sys.icon;
-                    const isCurrent = sys.key === currentSystem?.key;
-                    return (
-                      <DropdownMenuItem
-                        key={sys.key}
-                        disabled={isCurrent}
-                        onClick={() => {
-                          if (!isCurrent) {
-                            window.open(`/${locale}${sys.href}`, "_blank");
-                          }
-                        }}
-                      >
-                        <Icon className="size-4" />
-                        {t(`systems.${sys.key}`)}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                  <DropdownMenuItem
-                    onClick={() => {
-                      window.open(`/${locale}`, "_blank");
-                    }}
-                  >
-                    <Home className="size-4" />
-                    {t("systems.home")}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              href={brandHref}
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            >
+              <span className="flex-1 font-serif italic text-lg leading-none">
+                {brand}
+              </span>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

@@ -20,8 +20,8 @@ export default function AdminPage() {
       fetch("/api/admin/roles").then((r) => r.json()),
     ]).then(([usersRes, rolesRes]) => {
       setStats({
-        users: usersRes.code === 0 ? usersRes.data.length : 0,
-        roles: rolesRes.code === 0 ? rolesRes.data.length : 0,
+        users: usersRes.code === 0 ? usersRes.data.total : 0,
+        roles: rolesRes.code === 0 ? rolesRes.data.total : 0,
       });
     });
   }, []);
