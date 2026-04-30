@@ -129,6 +129,8 @@ The `clone-website` skill handles the entire pixel-perfect cloning pipeline:
 
 **For Mode B** (reference only): After `clone-website` finishes, rewrite the cloned text content to match the user's product description. Keep the exact visual structure and styling.
 
+**Visual replacement:** When the cloned site's product screenshots no longer match the new product (different domain, different UI), use the `/generate-image` skill to produce on-brand replacements. Match each replacement's dimensions to the original (`width`/`height`) so the layout doesn't shift, and reuse a consistent `style` across all generated images so the page feels cohesive. Skip this for purely decorative imagery (gradients, abstract shapes) — those usually transfer fine.
+
 Then continue to Phase 3 (Dashboard Pages) and beyond.
 
 ---
@@ -189,6 +191,17 @@ Workflow:
    ```
 
 4. **Rewrite `config/locale/messages/{en,zh}/landing.json`** — the block translations.
+
+5. **Generate visuals via `/generate-image`** — a landing page made of plain text and shadcn cards looks generic. For each block that benefits from imagery, generate one image and reference it from the block:
+
+   | Block | Suggested prompt shape | Size |
+   |---|---|---|
+   | `hero` | `<product subject>, <hero composition>, soft gradient background, modern SaaS, no text` | 1280×720 |
+   | `features` | `<feature concept>, isometric illustration, pastel palette, white background, no text` (one per card) | 800×600 |
+   | `how-it-works` | `<step concept>, flat design illustration, single accent color, no text` | 600×600 |
+   | `cta` | abstract gradient or product mockup, no text | 1600×600 |
+
+   Pick **one consistent `style`** (e.g. `flat_design` or `digital_art`) and reuse it across every call so the page feels cohesive. Use kebab-case `slug` values matching the block (`slug: "hero"`, `slug: "feature-ai"`) — the script returns a `/imgs/generated/<slug>-<ts>.png` URL to drop straight into JSX. Skip image generation for blocks that read better as pure type (logos row, stats row, FAQ, footer).
 
 Make it visually polished — use gradients, subtle shadows, proper spacing, animations (fade-in on scroll). Don't generate a "template-looking" page.
 

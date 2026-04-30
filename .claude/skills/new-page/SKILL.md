@@ -104,7 +104,16 @@ const navItems = [
 ];
 ```
 
-## Step 7: Verify
+## Step 7: Add Visuals (optional)
+
+If the page has an empty state, a hero header, or a section that would feel sparse with text alone, invoke the `/generate-image` skill once per visual:
+
+- **Empty state** (no data yet): `flat_design` illustration, 600×400, slug like `empty-projects`. Reference it from the empty-state placeholder.
+- **Page hero** (above the table/grid): wide background image, 1280×400 or 1600×500, slug like `<feature>-hero`.
+
+The skill saves to `public/imgs/generated/` and returns a `/imgs/generated/<file>.png` URL ready for `<Image src=...>`. Always include `"no text"` in the prompt — Pollinations otherwise bakes garbled fake captions into the image. Skip image generation entirely for pages that are purely tabular or form-driven.
+
+## Step 8: Verify
 
 Run `pnpm build` to verify the page compiles.
 

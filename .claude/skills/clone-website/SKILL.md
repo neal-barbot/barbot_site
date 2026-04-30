@@ -508,7 +508,7 @@ For each component file, replace the hardcoded text strings with the mapped cont
 DO change:
 - All visible text (headings, paragraphs, button labels, link text)
 - Brand name and logo
-- Product screenshots (replace with user's images if provided, or use placeholder images with appropriate alt text)
+- Product screenshots and decorative imagery — if the user provided assets, use them; otherwise invoke the `/generate-image` skill once per image. **Match the original asset's `width`/`height`** so the layout doesn't shift, reuse the **same `style`** across every call (e.g. all `digital_art` or all `flat_design`) so the page feels cohesive, and **always include `"no text"`** in the prompt to avoid garbled fake captions baked into the image. Skip this for purely abstract overlays (gradients, blur shapes) — those usually transfer fine without replacement.
 - Footer copyright and links
 - Meta descriptions and page titles
 
