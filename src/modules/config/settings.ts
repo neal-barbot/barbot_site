@@ -37,6 +37,7 @@ export function getSettingTabs(): SettingTab[] {
     { name: 'email', title: 'Email' },
     { name: 'storage', title: 'Storage' },
     { name: 'ai', title: 'AI' },
+    { name: 'analytics', title: 'Analytics' },
   ];
 }
 
@@ -70,6 +71,10 @@ export function getSettingGroups(): SettingGroup[] {
     { name: 'replicate', title: 'Replicate', description: 'Replicate AI API', tab: 'ai' },
     { name: 'gemini', title: 'Gemini', description: 'Google Gemini API', tab: 'ai' },
     { name: 'fal', title: 'Fal', description: 'Fal AI API', tab: 'ai' },
+
+    // Analytics
+    { name: 'google_analytics', title: 'Google Analytics', description: 'Inject gtag.js with the configured Measurement ID', tab: 'analytics' },
+    { name: 'plausible', title: 'Plausible', description: 'Inject plausible.js for self-hosted or cloud Plausible', tab: 'analytics' },
   ];
 }
 
@@ -193,5 +198,12 @@ export function getSettings(): Setting[] {
 
     // ─── AI / Fal ────────────────────────────────────────────────────
     { name: 'fal_api_key', title: 'API Key', type: 'password', placeholder: 'xxx', group: 'fal', tab: 'ai' },
+
+    // ─── Analytics / Google Analytics ────────────────────────────────
+    { name: 'google_analytics_id', title: 'Measurement ID', type: 'text', placeholder: 'G-XXXXXXXXXX', group: 'google_analytics', tab: 'analytics' },
+
+    // ─── Analytics / Plausible ───────────────────────────────────────
+    { name: 'plausible_domain', title: 'Domain', type: 'text', placeholder: 'example.com', tip: 'The domain registered in your Plausible dashboard', group: 'plausible', tab: 'analytics' },
+    { name: 'plausible_src', title: 'Script Src', type: 'text', placeholder: 'https://plausible.io/js/script.js', tip: 'Use https://plausible.io/js/script.js for cloud, or your self-hosted URL', group: 'plausible', tab: 'analytics' },
   ];
 }

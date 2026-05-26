@@ -15,6 +15,9 @@ const publicKeys = [
   'paypal_enabled',
   'alipay_enabled',
   'wechat_enabled',
+  'google_analytics_id',
+  'plausible_domain',
+  'plausible_src',
 ];
 
 export async function GET() {

@@ -304,7 +304,8 @@
       "payment": "支付",
       "email": "邮件",
       "storage": "存储",
-      "ai": "AI"
+      "ai": "AI",
+      "analytics": "统计"
     },
     "groups": {
       "appinfo": { "title": "应用信息", "description": "基本应用设置" },
@@ -323,7 +324,9 @@
       "r2": { "title": "Cloudflare R2 / S3", "description": "对象存储设置" },
       "replicate": { "title": "Replicate", "description": "Replicate AI API" },
       "gemini": { "title": "Gemini", "description": "Google Gemini API" },
-      "fal": { "title": "Fal", "description": "Fal AI API" }
+      "fal": { "title": "Fal", "description": "Fal AI API" },
+      "google_analytics": { "title": "Google Analytics", "description": "按配置的 Measurement ID 注入 gtag.js" },
+      "plausible": { "title": "Plausible", "description": "注入 plausible.js（云版或自托管）" }
     },
     "fields": {
       "app_name": "应用名称",
@@ -386,7 +389,10 @@
       "storage_public_domain": "公共域名",
       "replicate_api_token": "API Token",
       "gemini_api_key": "API 密钥",
-      "fal_api_key": "API 密钥"
+      "fal_api_key": "API 密钥",
+      "google_analytics_id": "Measurement ID",
+      "plausible_domain": "域名",
+      "plausible_src": "脚本地址"
     },
     "placeholders": {
       "creem_test_amount": "留空使用实际金额，填 1 则支付 $0.01",

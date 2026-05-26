@@ -304,7 +304,8 @@
       "payment": "Payment",
       "email": "Email",
       "storage": "Storage",
-      "ai": "AI"
+      "ai": "AI",
+      "analytics": "Analytics"
     },
     "groups": {
       "appinfo": { "title": "App Info", "description": "Basic application settings" },
@@ -323,7 +324,9 @@
       "r2": { "title": "Cloudflare R2 / S3", "description": "Object storage settings" },
       "replicate": { "title": "Replicate", "description": "Replicate AI API" },
       "gemini": { "title": "Gemini", "description": "Google Gemini API" },
-      "fal": { "title": "Fal", "description": "Fal AI API" }
+      "fal": { "title": "Fal", "description": "Fal AI API" },
+      "google_analytics": { "title": "Google Analytics", "description": "Inject gtag.js with the configured Measurement ID" },
+      "plausible": { "title": "Plausible", "description": "Inject plausible.js for self-hosted or cloud Plausible" }
     },
     "fields": {
       "app_name": "App Name",
@@ -386,7 +389,10 @@
       "storage_public_domain": "Public Domain",
       "replicate_api_token": "API Token",
       "gemini_api_key": "API Key",
-      "fal_api_key": "API Key"
+      "fal_api_key": "API Key",
+      "google_analytics_id": "Measurement ID",
+      "plausible_domain": "Domain",
+      "plausible_src": "Script Src"
     },
     "placeholders": {
       "creem_test_amount": "Leave empty to use real amount, 1 = $0.01",
