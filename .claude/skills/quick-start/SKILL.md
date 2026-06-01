@@ -59,7 +59,7 @@ If the user doesn't specify, default to **SQLite** and move on — don't block o
 
 ### 0.2 Configure environment
 
-Update `.env.local`:
+If `.env.development` doesn't exist yet, copy the template first: `cp .env.example .env.development`. Then set the values in `.env.development` (the canonical local-dev env file — loaded by both `next dev` and the `db:*` scripts, ahead of `.env.local`/`.env`):
 ```env
 NEXT_PUBLIC_APP_URL=<domain or http://localhost:3000>
 NEXT_PUBLIC_APP_NAME=<App Name>
@@ -78,7 +78,7 @@ Default `DATABASE_URL` values:
 Run `pnpm db:setup` — this copies the matching dialect template into `schema.ts` based on `DATABASE_PROVIDER`:
 
 ```bash
-pnpm db:setup    # reads DATABASE_PROVIDER from .env.local, copies the right template
+pnpm db:setup    # reads DATABASE_PROVIDER from .env.development, copies the right template
 ```
 
 Or manually:

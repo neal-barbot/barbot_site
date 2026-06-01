@@ -6,10 +6,15 @@ A headless SaaS engine for building AI-powered products with Claude Code. Pre-wi
 
 ```bash
 pnpm install
+cp .env.example .env.development   # then fill in the values (AUTH_SECRET etc.)
 pnpm db:push
 pnpm rbac:init --admin-email=admin@example.com --admin-password=your-password
 pnpm dev
 ```
+
+> Local env lives in `.env.development` (gitignored). It is loaded by both `next dev`
+> and the `db:*` scripts. Only `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_APP_NAME`,
+> `DATABASE_PROVIDER`, `DATABASE_URL`, and `AUTH_SECRET` are required to boot.
 
 ## Features
 

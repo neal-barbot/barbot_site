@@ -23,12 +23,17 @@ This is a **headless SaaS engine** — pre-wired business logic (payments, credi
 ### First-time setup
 
 ```bash
-pnpm install          # install dependencies (postinstall auto-copies sqlite schema)
-# edit .env.local     # set DATABASE_PROVIDER, DATABASE_URL, AUTH_SECRET, etc.
-pnpm db:setup         # copy the matching schema template (if not sqlite)
-pnpm db:push          # create tables
-pnpm dev              # start dev server
+pnpm install              # install dependencies (postinstall auto-copies sqlite schema)
+cp .env.example .env.development   # then set DATABASE_PROVIDER, DATABASE_URL, AUTH_SECRET, etc.
+pnpm db:setup             # copy the matching schema template (if not sqlite)
+pnpm db:push              # create tables
+pnpm dev                  # start dev server
 ```
+
+**Env files:** copy `.env.example` → `.env.development` for local dev (gitignored). The loader
+(`scripts/with-env.ts`) and `next dev` both resolve `.env.{NODE_ENV}` before `.env.local`/`.env`,
+so `.env.development` is the canonical local file. `.env.example` is the committed template — keep
+it in sync when adding a new env var to `src/config/index.ts`.
 
 ### Schema change workflow
 
