@@ -522,5 +522,48 @@ export type NewChat = typeof chat.$inferInsert;
 export type ChatMessage = typeof chatMessage.$inferSelect;
 export type NewChatMessage = typeof chatMessage.$inferInsert;
 
+// ─── Tickets (support) ───────────────────────────────────────────────────────
+
+export const ticket = table(
+  'ticket',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id),
+    title: varchar('title', { length: 255 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('open'), // open | replied | closed
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    index('idx_ticket_user').on(t.userId),
+    index('idx_ticket_status').on(t.status),
+  ]
+);
+
+export const ticketMessage = table(
+  'ticket_message',
+  {
+    id: varchar191('id').primaryKey(),
+    ticketId: varchar191('ticket_id')
+      .notNull()
+      .references(() => ticket.id),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id),
+    role: varchar('role', { length: 50 }).notNull().default('user'), // user | admin
+    content: longtext('content').notNull(),
+    attachments: longtext('attachments').notNull(), // JSON array of image URLs (default [] set by service)
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_ticket_message_ticket').on(t.ticketId)]
+);
+
+export type Ticket = typeof ticket.$inferSelect;
+export type NewTicket = typeof ticket.$inferInsert;
+export type TicketMessage = typeof ticketMessage.$inferSelect;
+export type NewTicketMessage = typeof ticketMessage.$inferInsert;
+
 // ─── Custom tables ───────────────────────────────────────────────────────────
 // Add your own tables below this line.

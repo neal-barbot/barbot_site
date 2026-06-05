@@ -7,6 +7,7 @@ import { FAQ } from "@/blocks/faq";
 import { Blog } from "@/blocks/blog";
 import { CTA } from "@/blocks/cta";
 import { Footer } from "@/blocks/footer";
+import { SupportWidget } from "@/blocks/support-widget";
 import { envConfigs } from "@/config";
 import { getBlogPostsFn } from "@/content/posts/server";
 import { m } from "@/paraglide/messages.js";
@@ -32,6 +33,7 @@ function HomePage() {
         <CTA />
       </main>
       <Footer />
+      <SupportWidget />
     </div>
   );
 }

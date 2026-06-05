@@ -1,8 +1,9 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { m } from "@/paraglide/messages.js";
-import { LayoutDashboard, User, CreditCard, Key, Receipt, Coins, Home } from "lucide-react";
+import { LayoutDashboard, User, CreditCard, Key, Receipt, Coins, Home, LifeBuoy } from "lucide-react";
 
 import { AppLayout } from "@/components/app-layout";
+import { SupportWidget } from "@/blocks/support-widget";
 import { envConfigs } from "@/config";
 
 export const Route = createFileRoute('/settings')({
@@ -18,6 +19,7 @@ function SettingsLayout() {
     { href: "/settings/payments", label: m["settings.nav.payments"](), icon: Receipt, group },
     { href: "/settings/credits", label: m["settings.nav.credits"](), icon: Coins, group },
     { href: "/settings/apikeys", label: m["settings.nav.apikeys"](), icon: Key, group },
+    { href: "/settings/tickets", label: m["settings.nav.tickets"](), icon: LifeBuoy, group },
   ];
 
   const footerNavItems = [
@@ -28,6 +30,7 @@ function SettingsLayout() {
   return (
     <AppLayout navItems={navItems} footerNavItems={footerNavItems} brand={envConfigs.app_name} brandHref="/settings">
       <Outlet />
+      <SupportWidget />
     </AppLayout>
   );
 }

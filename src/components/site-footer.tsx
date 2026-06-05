@@ -7,8 +7,12 @@ import { BuiltWithShipAny } from "@/components/built-with-shipany";
 
 export interface FooterColumn {
   title: string;
+  /** external: open in a new tab. Off-site (http) hrefs always open in a new tab. */
   links: { label: string; href: string; external?: boolean }[];
 }
+
+/** Off-site URLs render as plain <a>; internal paths use the locale-aware Link. */
+const isExternalHref = (href: string) => /^https?:\/\//.test(href);
 
 export interface FooterSocial {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -57,7 +61,7 @@ export function SiteFooter({
                 <ul className="space-y-2">
                   {col.links.map((link) => (
                     <li key={link.label}>
-                      {link.external ? (
+                      {isExternalHref(link.href) ? (
                         <a
                           href={link.href}
                           target="_blank"
@@ -69,6 +73,7 @@ export function SiteFooter({
                       ) : (
                         <Link
                           href={link.href}
+                          target={link.external ? "_blank" : undefined}
                           className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
                         >
                           {link.label}

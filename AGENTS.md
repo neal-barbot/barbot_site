@@ -79,7 +79,7 @@ src/
 │
 ├── config/
 │   ├── index.ts                 # All env vars (app, db, auth, stripe, resend, storage, ai, locale)
-│   ├── db/schema.ts             # All table definitions (19 built-in + custom tables)
+│   ├── db/schema.ts             # All table definitions (21 built-in + custom tables)
 │   └── locale/index.ts          # localeNames map for the language-switcher UI (locales live in project.inlang)
 │
 ├── messages/{en,zh}.json        # Translation source — flat dot-keyed (e.g. "landing.hero.headline")
@@ -411,7 +411,7 @@ All functionality is self-contained — no external packages needed.
 | `@/core/i18n/navigation` | `Link`, `useRouter`, `usePathname` (locale-aware) |
 | `@/core/i18n/dynamic` | `tDynamic` (runtime-built message keys) |
 
-## Database Schema (19 tables)
+## Database Schema (21 tables)
 
 **`schema.ts` is gitignored** — it's the user's working copy generated from a template.
 
@@ -429,6 +429,7 @@ Each template exports **strong types** for all tables (`User`, `NewUser`, `Order
 **RBAC:** role, permission, rolePermission, userRole
 **Content:** post, taxonomy, config
 **AI:** aiTask, chat, chatMessage
+**Support:** ticket, ticketMessage
 
 ## Environment Variables
 

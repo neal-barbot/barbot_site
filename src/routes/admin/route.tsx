@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { m } from "@/paraglide/messages.js";
-import { LayoutDashboard, Users, Shield, KeyRound, DollarSign, CreditCard, Coins, FolderOpen, FileText, Settings, Home, Ticket } from "lucide-react";
+import { LayoutDashboard, Users, Shield, KeyRound, DollarSign, CreditCard, Coins, FolderOpen, FileText, Settings, Home, Ticket, LifeBuoy } from "lucide-react";
 
 import { AppLayout } from "@/components/app-layout";
 import { envConfigs } from "@/config";
@@ -22,6 +22,7 @@ function AdminLayout() {
     { href: "/admin/payments", label: m["admin.nav.payments"](), icon: DollarSign, group: m["admin.nav.billing"]() },
     { href: "/admin/subscriptions", label: m["admin.nav.subscriptions"](), icon: CreditCard, group: m["admin.nav.billing"]() },
     { href: "/admin/credits", label: m["admin.nav.credits"](), icon: Coins, group: m["admin.nav.billing"]() },
+    { href: "/admin/tickets", label: m["admin.nav.tickets"](), icon: LifeBuoy, group: m["admin.nav.support"]() },
   ];
 
   const footerNavItems = [

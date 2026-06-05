@@ -15,8 +15,12 @@ import { envConfigs } from "@/config";
 export interface NavLink {
   href: string;
   label: string;
+  /** Open in a new tab. Off-site (http) hrefs always open in a new tab. */
   external?: boolean;
 }
+
+/** Off-site URLs render as plain <a>; internal paths use the locale-aware Link. */
+const isExternalHref = (href: string) => /^https?:\/\//.test(href);
 
 export function SiteHeader({
   navLinks,
@@ -37,17 +41,28 @@ export function SiteHeader({
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 md:flex">
-          {navLinks?.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks?.map((link) =>
+            isExternalHref(link.href) ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
         </nav>
 
         {/* Desktop actions */}
@@ -86,18 +101,30 @@ export function SiteHeader({
       {mobileOpen && (
         <div className="border-t border-border px-4 pb-4 pt-2 md:hidden">
           <nav className="flex flex-col gap-2">
-            {navLinks?.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noopener noreferrer" : undefined}
-                className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks?.map((link) =>
+              isExternalHref(link.href) ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  target={link.external ? "_blank" : undefined}
+                  className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </nav>
           <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
             <LocaleSelector />

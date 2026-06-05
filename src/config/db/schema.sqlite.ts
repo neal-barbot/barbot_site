@@ -600,6 +600,55 @@ export type NewChat = typeof chat.$inferInsert;
 export type ChatMessage = typeof chatMessage.$inferSelect;
 export type NewChatMessage = typeof chatMessage.$inferInsert;
 
+// ─── Tickets (support) ───────────────────────────────────────────────────────
+
+export const ticket = table(
+  'ticket',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id),
+    title: text('title').notNull(),
+    status: text('status').notNull().default('open'), // open | replied | closed
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    index('idx_ticket_user').on(t.userId),
+    index('idx_ticket_status').on(t.status),
+  ]
+);
+
+export const ticketMessage = table(
+  'ticket_message',
+  {
+    id: text('id').primaryKey(),
+    ticketId: text('ticket_id')
+      .notNull()
+      .references(() => ticket.id),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id),
+    role: text('role').notNull().default('user'), // user | admin
+    content: text('content').notNull(),
+    attachments: text('attachments').notNull().default('[]'), // JSON array of image URLs
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [index('idx_ticket_message_ticket').on(t.ticketId)]
+);
+
+export type Ticket = typeof ticket.$inferSelect;
+export type NewTicket = typeof ticket.$inferInsert;
+export type TicketMessage = typeof ticketMessage.$inferSelect;
+export type NewTicketMessage = typeof ticketMessage.$inferInsert;
+
 // ─── Custom tables ───────────────────────────────────────────────────────────
 // Add your own tables below this line.
 
