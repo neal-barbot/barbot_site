@@ -8,6 +8,9 @@
     "prebuild": "node scripts/db-setup.mjs",
     "build": "vite build",
     "start": "node .output/server/index.mjs",
+    "prebuild:cf": "node scripts/db-setup.mjs",
+    "build:cf": "NITRO_PRESET=cloudflare_module vite build",
+    "deploy:cf": "sh -c 'set -a && [ -f .env.production ] && . ./.env.production; set +a && pnpm build:cf && exec wrangler deploy'",
     "postinstall": "mkdir -p data && (test -f src/config/db/schema.ts || node scripts/db-setup.mjs)",
     "db:setup": "node scripts/db-setup.mjs",
     "db:push": "tsx scripts/with-env.ts drizzle-kit push --config=drizzle.config.ts",
@@ -82,7 +85,8 @@
     "tailwindcss": "^4.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.0",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "wrangler": "^4.98.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -14,12 +14,19 @@ import { loadEnvFiles } from './src/lib/env';
 // from the actual host/container environment.
 loadEnvFiles();
 
+// Cloudflare Workers build (pnpm build:cf / deploy:cf): stub out Node-only
+// database drivers — they crash workerd at module evaluation (node:net,
+// node:process requires) and are unused there (Workers uses the D1 binding).
+const isCloudflareBuild = (process.env.NITRO_PRESET || '').includes('cloudflare');
+const driverStub = new URL('./src/core/db/driver-stub.ts', import.meta.url).pathname;
+
 export default defineConfig({
   server: {
     port: 3000,
   },
   resolve: {
     tsconfigPaths: true,
+    alias: isCloudflareBuild ? { mysql2: driverStub, postgres: driverStub } : {},
   },
   plugins: [
     // MDX must run before the react plugin so JSX in compiled MDX gets transformed.

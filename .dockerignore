@@ -28,6 +28,8 @@ drizzle
 .codex
 .vercel
 .wrangler
+wrangler.jsonc
+wrangler.example.jsonc
 
 # docs & misc
 docs

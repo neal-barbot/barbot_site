@@ -384,6 +384,7 @@ it when the task matches:
 | `generate-image` | AI-generate a decorative image for a page/block |
 | `security-scan` | **Before every git commit** — secrets, vulns, ignore gaps |
 | `sync-upstream` | Pull latest template updates; local changes win on conflict |
+| `deploy-cloudflare` | Deploy to Cloudflare Workers (D1 + secrets + schema, idempotent) |
 
 ## Inlined Modules (src/core/ and src/lib/)
 
