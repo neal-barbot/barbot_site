@@ -9,6 +9,22 @@ user-invocable: true
 
 You are driving a Cloudflare Workers deployment of this TanStack Start project. The build pipeline is `NITRO_PRESET=cloudflare_module vite build` (nitro merges the root `wrangler.jsonc` into the generated `.output/server/wrangler.json`, plus a `.wrangler/deploy/config.json` redirect), then `wrangler deploy`. Both are wrapped in `pnpm run cf:deploy`.
 
+## Database backend: D1 (default) or Postgres via Hyperdrive
+
+Two supported backends on Workers, chosen by `wrangler.jsonc` `vars.DATABASE_PROVIDER`:
+
+| | **D1** (`d1`) | **Postgres + Hyperdrive** (`postgresql`) |
+|---|---|---|
+| When | Default. Zero external infra. | User already has a Postgres (Neon/Supabase/RDS/self-hosted) or needs PG features |
+| Binding | `d1_databases` → `DB` | `hyperdrive` → `HYPERDRIVE` (`src/core/db/postgres.ts` reads `connectionString` from the stashed Workers env at runtime) |
+| Schema push | `wrangler d1 migrations apply --remote` | `pnpm db:migrate` directly against the real PG (NOT through Hyperdrive) |
+| RBAC seed / admin | local-sqlite dump dance (Phase 4.5 / 9) | `pnpm rbac:init` directly against PG — no dance needed |
+| Bundle | postgres driver stubbed out | postgres driver kept (vite.config.ts reads `vars.DATABASE_PROVIDER`) |
+
+**Backend selection:** if `wrangler.jsonc` already has a populated `hyperdrive` or `d1_databases` binding, keep that backend (incremental run). On first-time setup, default to D1 unless the user mentioned Postgres/Hyperdrive/Neon/Supabase or `$ARGUMENTS` contains `--db=postgres` — then use the **Phase 3-PG** variant below.
+
+If the chosen backend is Postgres: Phase 2's D1 checks, Phase 4 (D1 migrations), Phase 4.5 (local-sqlite RBAC dance), and Phase 9's D1 SQL steps are REPLACED by their direct-PG equivalents in Phase 3-PG — drizzle and `init-rbac.ts`/`assign-role.ts` talk to PG natively with `DATABASE_PROVIDER=postgresql DATABASE_URL=<direct PG url>`.
+
 ## Philosophy: minimal interruptions, fully idempotent
 
 The skill is designed to be run **any number of times**. A repeat invocation auto-detects what's already done and only redoes what's needed (e.g. a fresh build + deploy with the latest code). User interaction is capped at:
@@ -96,6 +112,8 @@ Note for the report: the no-storage image-upload fallback writes to local disk a
 
 Run all checks in parallel; every later phase reads these results.
 
+**Postgres backend** (`wrangler.jsonc` has a `hyperdrive` binding): skip the D1 commands below (`d1 list` / `d1 migrations list` / `d1 execute`) — instead check the Hyperdrive id is real (`npx wrangler hyperdrive list`), and probe RBAC/admin via `pnpm rbac:init` later (it's a no-op when seeded).
+
 ```bash
 WORKER=$(node -e "const fs=require('fs');const s=fs.readFileSync('wrangler.jsonc','utf8').replace(/\/\/.*$/gm,'');console.log(JSON.parse(s).name)")
 DB_NAME=$(node -e "const fs=require('fs');const s=fs.readFileSync('wrangler.jsonc','utf8').replace(/\/\/.*$/gm,'');console.log(JSON.parse(s).d1_databases[0].database_name)")
@@ -146,7 +164,68 @@ Capture the `database_id` UUID from stdout. Narrate: "D1 created: `<name>` (id: 
 
 Edit the working copy `wrangler.jsonc` (materialized from `wrangler.example.jsonc` in Phase 0.1): replace `REPLACE_WITH_OUTPUT_OF_WRANGLER_D1_CREATE` with the real UUID (and apply any renames). Confirm `vars.DATABASE_PROVIDER` is `"d1"` and `migrations_dir` is `"drizzle"`. Never commit `wrangler.jsonc` — it's gitignored on purpose.
 
+## Phase 3-PG: First-time setup — Postgres + Hyperdrive variant
+
+Use INSTEAD of Phase 3 when the backend decision (see "Database backend" above) is Postgres. Also REPLACES Phases 4 and 4.5 — schema and RBAC go directly to PG. Phase 9's admin steps run via `pnpm rbac:init` / `rbac:assign` against PG (no D1 SQL, no local-sqlite dance).
+
+### 1. Get the connection string
+
+Ask the user for their Postgres connection string if it's not already in `.env.development`/`.env.local` (`DATABASE_URL=postgres://...`). Requirements: publicly reachable from Cloudflare (or via Hyperdrive-supported access methods), TLS recommended. Treat the URL as a secret — never echo it back (it embeds the password).
+
+### 2. Create the Hyperdrive config (auto)
+
+```bash
+# pipe, don't paste into argv history where avoidable; name defaults to the worker name
+npx wrangler hyperdrive create <worker-name> --connection-string="$DATABASE_URL"
+```
+
+Capture the `id` from stdout. Narrate: "Hyperdrive created: `<name>` (id: `<id>`)". If it errors with "could not connect", the PG isn't reachable from Cloudflare — surface the error and stop (common causes: IP allowlist, no TLS, non-5432 port blocked).
+
+### 3. Materialize `wrangler.jsonc` (auto)
+
+```bash
+test -f wrangler.jsonc || cp wrangler.example.jsonc wrangler.jsonc
+```
+
+Edit `wrangler.jsonc`:
+- `name` ← chosen worker name
+- `vars.DATABASE_PROVIDER` ← `"postgresql"` (this also tells vite.config.ts to keep the postgres driver in the Worker bundle)
+- REMOVE the `d1_databases` block
+- ADD: `"hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<id from step 2>" }]`
+
+Do NOT put `DATABASE_URL` in `vars` (vars are public). The runtime reads the connection string from the Hyperdrive binding; `DATABASE_URL` is only needed as a **secret** fallback if the user insists on running without Hyperdrive (discouraged): `grep "^DATABASE_URL=" .env.development | cut -d= -f2- | npx wrangler secret put DATABASE_URL`.
+
+### 4. Schema + RBAC directly against PG (auto, replaces Phases 4 & 4.5)
+
+`src/config/db/schema.ts` must be the postgres dialect. If the working copy is still sqlite/mysql (check the imports at the top), run `DATABASE_PROVIDER=postgresql pnpm db:setup` — but WARN first if `schema.ts` has custom tables beyond the template (they'd be overwritten; port them over after the copy).
+
+```bash
+# Schema: drizzle talks to the real PG directly (NOT through Hyperdrive)
+DATABASE_PROVIDER=postgresql DATABASE_URL="$PG_URL" pnpm db:generate
+DATABASE_PROVIDER=postgresql DATABASE_URL="$PG_URL" pnpm db:migrate
+
+# RBAC seed (idempotent — init-rbac has its own existence checks)
+DATABASE_PROVIDER=postgresql DATABASE_URL="$PG_URL" pnpm rbac:init
+```
+
+If `drizzle/` already holds migrations for another dialect (journal from a previous sqlite/d1 setup), move it aside (`mv drizzle drizzle.d1.bak`) and generate fresh.
+
+Incremental runs: just re-run both — drizzle skips applied migrations, `rbac:init` is a no-op when seeded.
+
+### 5. Admin (replaces Phase 9's D1 SQL)
+
+```bash
+# create-account mode
+DATABASE_PROVIDER=postgresql DATABASE_URL="$PG_URL" pnpm rbac:init --admin-email="$EMAIL" --admin-password="$PASS"
+# promote-existing mode
+DATABASE_PROVIDER=postgresql DATABASE_URL="$PG_URL" pnpm rbac:assign "$EMAIL" super_admin
+```
+
+Then continue with Phase 5 (secrets), 5.5 (URL), 6 (deploy) unchanged.
+
 ## Phase 4: Schema push to D1 (auto, incremental)
+
+**Skip entirely if the backend is Postgres** — Phase 3-PG step 4 already handled schema.
 
 **Skip if:** `LOCAL_MIGRATIONS == REMOTE_MIGRATIONS` (and > 0). Narrate "Schema up to date (N migrations), skipping".
 
@@ -158,6 +237,8 @@ echo y | npx wrangler d1 migrations apply "$DB_NAME" --remote
 Narrate: "Applied N migrations to D1 (X SQL commands)."
 
 ## Phase 4.5: Seed default RBAC roles + permissions (auto, no prompt)
+
+**Skip entirely if the backend is Postgres** — Phase 3-PG step 4 already seeded RBAC.
 
 **Skip if:** `ROLE_COUNT > 0`. Narrate "RBAC already seeded (N roles), skipping". Force with `--force-rbac`.
 
@@ -256,6 +337,8 @@ Both 200 → report success with the live URL. Any 500 → one-shot `npx wrangle
 
 ## Phase 9: First super_admin (optional — Interruption #3)
 
+**Postgres backend:** use Phase 3-PG step 5 instead (direct `pnpm rbac:init` / `rbac:assign` against PG) — the D1 SQL below doesn't apply.
+
 **Skip prompt if:** `ADMIN_COUNT > 0` and no `--admin*` flag.
 
 Flag modes: `--admin-email=X --admin-password=Y` → 9.A create; `--admin=X` → 9.B promote. Otherwise prompt the three options (create with password ⚠️ visible in chat once / promote existing — sign up at `<URL>/sign-up` first / skip).
@@ -319,6 +402,10 @@ Just the `INSERT OR IGNORE ... SELECT` + verify from above. 0 rows → user hasn
 | Deploy fails `not a zone in your account` | Custom domain isn't a Cloudflare zone | Add the zone, or `--domain=default` |
 | 522/1014 right after custom-domain deploy | DNS record still propagating | Wait ~30 s, retry |
 | `/admin` 403 after Phase 9 | Stale session claims | Sign out and back in |
+| Runtime throws "This DB driver was stubbed out of the Cloudflare Workers build" | `wrangler.jsonc` `vars.DATABASE_PROVIDER` was changed AFTER the last build (vite.config.ts bakes the driver choice at build time) | Rebuild + redeploy (`pnpm run cf:deploy`) so the bundle matches the provider |
+| Postgres mode: every query fails with connection errors but `wrangler hyperdrive create` succeeded | `hyperdrive` binding missing from `wrangler.jsonc`, or binding name ≠ `HYPERDRIVE` | `src/core/db/postgres.ts` expects binding name exactly `HYPERDRIVE`; fix wrangler.jsonc and redeploy |
+| Postgres mode: intermittent `Cannot perform I/O on behalf of a different request` | A postgres client got cached across requests (e.g. someone re-added a module-level cache for TCP drivers) | `src/core/db/index.ts` deliberately skips the singleton cache for postgres/mysql on Workers — restore that behavior |
+| `wrangler hyperdrive create` fails with connection error | Postgres unreachable from Cloudflare: IP allowlist, no TLS, or blocked port | Allow Cloudflare egress / enable TLS on the DB; for Neon/Supabase use the direct (non-pooler) connection string |
 
 ## What this skill never does
 

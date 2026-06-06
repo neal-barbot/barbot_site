@@ -3,8 +3,11 @@ import postgres from 'postgres';
 
 import type { DbConfig } from './types';
 
+// workerd sets navigator.userAgent — the documented Workers runtime detection.
 const isCloudflareWorker =
-  typeof globalThis !== 'undefined' && 'Cloudflare' in globalThis;
+  (typeof navigator !== 'undefined' &&
+    navigator.userAgent === 'Cloudflare-Workers') ||
+  (typeof globalThis !== 'undefined' && 'Cloudflare' in globalThis);
 
 // Global database connection instance (singleton pattern)
 let dbInstance: ReturnType<typeof drizzle> | null = null;
@@ -13,7 +16,6 @@ let client: ReturnType<typeof postgres> | null = null;
 export function createPostgresDb(config: DbConfig) {
   let databaseUrl = config.database_url;
 
-  let isHyperdrive = false;
   const schemaName = (config.db_schema || 'public').trim();
   const connectionSchemaOptions =
     schemaName && schemaName !== 'public'
@@ -21,12 +23,17 @@ export function createPostgresDb(config: DbConfig) {
       : {};
 
   if (isCloudflareWorker) {
-    const { env }: { env: any } = { env: {} };
-    // Detect if set Hyperdrive
-    isHyperdrive = 'HYPERDRIVE' in env;
-
-    if (isHyperdrive) {
-      const hyperdrive = env.HYPERDRIVE;
+    // Prefer the Hyperdrive binding — direct Workers→Postgres pays a full
+    // TCP+TLS+auth handshake per connection; Hyperdrive pools at the edge.
+    // The binding env is stashed on globalThis by src/server.ts (same pattern
+    // as the D1 binding in d1.ts). Configure via wrangler.jsonc:
+    //   "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "..." }]
+    const g = globalThis as any;
+    const env = g.__CF_ENV__ ?? g.__env__;
+    const hyperdrive = env?.HYPERDRIVE as
+      | { connectionString: string }
+      | undefined;
+    if (hyperdrive?.connectionString) {
       databaseUrl = hyperdrive.connectionString;
     }
   }

@@ -25,4 +25,16 @@
       "migrations_dir": "drizzle"
     }
   ]
+  // ── Postgres via Hyperdrive (instead of D1) ────────────────────────────────
+  // 1. npx wrangler hyperdrive create <name> --connection-string="postgres://..." (your direct PG url)
+  // 2. Set vars.DATABASE_PROVIDER to "postgresql" and remove the d1_databases block
+  // 3. Uncomment and fill the binding (the build keeps the postgres driver in
+  //    the bundle when DATABASE_PROVIDER=postgresql — see vite.config.ts):
+  // "hyperdrive": [
+  //   { "binding": "HYPERDRIVE", "id": "REPLACE_WITH_OUTPUT_OF_WRANGLER_HYPERDRIVE_CREATE" }
+  // ]
+  //
+  // Other optional bindings — uncomment when needed:
+  // "kv_namespaces":  [{ "binding": "CACHE",  "id": "..." }],
+  // "r2_buckets":     [{ "binding": "BUCKET", "bucket_name": "..." }]
 }

@@ -384,7 +384,11 @@ it when the task matches:
 | `generate-image` | AI-generate a decorative image for a page/block |
 | `security-scan` | **Before every git commit** — secrets, vulns, ignore gaps |
 | `sync-upstream` | Pull latest template updates; local changes win on conflict |
-| `deploy-cloudflare` | Deploy to Cloudflare Workers (D1 + secrets + schema, idempotent) |
+| `deploy-cloudflare` | Deploy to Cloudflare Workers (D1 or Postgres+Hyperdrive + secrets + schema, idempotent) |
+
+**Database backends on Cloudflare Workers** (chosen by `wrangler.jsonc` `vars.DATABASE_PROVIDER`):
+- **D1** (`d1`, default) — zero external infra; binding `DB` in `d1_databases`
+- **Postgres via Hyperdrive** (`postgresql`) — binding `HYPERDRIVE` in `hyperdrive`; `src/core/db/postgres.ts` reads `connectionString` from the Workers env stashed on `globalThis.__CF_ENV__` by `src/server.ts`. `vite.config.ts` reads `vars.DATABASE_PROVIDER` at build time and keeps the matching driver in the Worker bundle (the others are stubbed). Schema/RBAC/admin scripts talk to the real Postgres directly (`DATABASE_URL`), never through Hyperdrive. Setup: `npx wrangler hyperdrive create <name> --connection-string="postgres://..."`, then fill the binding in `wrangler.jsonc` (template comments show the exact shape).
 
 ## Inlined Modules (src/core/ and src/lib/)
 
