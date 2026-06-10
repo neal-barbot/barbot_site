@@ -383,6 +383,7 @@ it when the task matches:
 | `new-static-page` | Static MDX page (legal, about, etc.) |
 | `generate-image` | AI-generate a decorative image for a page/block |
 | `security-scan` | **Before every git commit** — secrets, vulns, ignore gaps |
+| `launch-audit` | Whole-project sweep on one axis — responsive, light/dark theme, SEO, performance (Lighthouse), or security; run `all` before deploy |
 | `sync-upstream` | Pull latest template updates; local changes win on conflict |
 | `deploy-cloudflare` | Deploy to Cloudflare Workers (D1 or Postgres+Hyperdrive + secrets + schema, idempotent) |
 
