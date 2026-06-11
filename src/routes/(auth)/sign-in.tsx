@@ -2,10 +2,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { m } from "@/paraglide/messages.js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { Link, useRouter } from "@/core/i18n/navigation";
-import { authClient, signIn } from "@/core/auth/client";
+import { authClient, signIn, useSession } from "@/core/auth/client";
 import { envConfigs } from "@/config";
 import { usePublicConfig } from "@/hooks/use-public-config";
 import { TextField } from "@/components/form-field";
@@ -32,6 +32,9 @@ const signInSchema = z.object({
 
 function SignInPage() {
     const router = useRouter();
+  const { data: session, isPending: sessionPending } = useSession();
+  // Set right before we navigate so the already-signed-in effect doesn't also fire.
+  const navigatingRef = useRef(false);
   const [error, setError] = useState("");
 
   // redirect: client protocol, goes through auth-callback
@@ -45,9 +48,22 @@ function SignInPage() {
     setCallbackUrl(params.get("callbackUrl"));
   }, []);
 
-  // Only allow same-site relative paths as callbackUrl (avoid open redirects).
+  // Already signed in (visited /sign-in directly, or a stale callbackUrl looped
+  // back here) → go home. The auth pages never gate themselves, so this can't loop.
+  useEffect(() => {
+    if (sessionPending || navigatingRef.current) return;
+    if (session?.user) {
+      navigatingRef.current = true;
+      router.push("/");
+    }
+  }, [sessionPending, session?.user, router]);
+
+  // Allow only same-site relative paths, and never an auth page (would loop).
   const safeCallbackUrl =
-    callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")
+    callbackUrl &&
+    callbackUrl.startsWith("/") &&
+    !callbackUrl.startsWith("//") &&
+    !/^\/(sign-in|sign-up|verify-email)(\/|\?|$)/.test(callbackUrl)
       ? callbackUrl
       : null;
 
@@ -104,6 +120,7 @@ function SignInPage() {
           // Hard navigation so the destination reloads with a fresh session
           // cookie — a client push would let the guard read a stale (logged-out)
           // session store and bounce straight back to /sign-in.
+          navigatingRef.current = true;
           window.location.assign(localizeHref(afterLoginUrl));
         }
       } catch (err: any) {
