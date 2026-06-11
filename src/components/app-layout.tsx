@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "@/core/auth/client";
 import { useRouter, usePathname } from "@/core/i18n/navigation";
 import { useUserPermissions } from "@/hooks/use-user-permissions";
@@ -39,6 +39,10 @@ export function AppLayout({
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  // Guard against a double redirect: useLocation() flips to "/sign-in" the moment
+  // we navigate (while this layout is still mounted), which would otherwise re-fire
+  // the effect and overwrite callbackUrl with the sign-in path itself.
+  const redirectingRef = useRef(false);
 
   // Only query permissions once we have a session and a permission gate.
   const permissionsEnabled = !!session?.user && !!requirePermission;
@@ -54,6 +58,8 @@ export function AppLayout({
     if (isPending) return;
 
     if (!session?.user) {
+      if (redirectingRef.current) return;
+      redirectingRef.current = true;
       // Remember where the user was headed so sign-in can send them back.
       // pathname is already locale-free; append the live query string.
       const search = typeof window !== "undefined" ? window.location.search : "";
