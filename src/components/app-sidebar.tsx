@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, type LucideIcon } from "lucide-react";
+import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Link, usePathname } from "@/core/i18n/navigation";
 import { localizeHref } from "@/paraglide/runtime.js";
 import {
@@ -15,7 +15,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+
+export interface NavSubItem {
+  href: string;
+  label: string;
+  newTab?: boolean;
+}
 
 export interface NavItem {
   href: string;
@@ -23,6 +32,8 @@ export interface NavItem {
   icon: LucideIcon;
   group?: string;
   newTab?: boolean;
+  /** Sub-items render as a collapsible group under this item. */
+  items?: NavSubItem[];
 }
 
 export function AppSidebar({
@@ -40,9 +51,9 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
 
-  // Group nav items
+  // Group nav items by their (static) group label.
   const groups: { label?: string; items: NavItem[] }[] = [];
-  let currentGroup: string | undefined = '__initial__';
+  let currentGroup: string | undefined = "__initial__";
   for (const item of navItems) {
     if (item.group !== currentGroup) {
       groups.push({ label: item.group, items: [item] });
@@ -52,47 +63,61 @@ export function AppSidebar({
     }
   }
 
-  const isItemActive = (item: NavItem) =>
-    item.href === navItems[0]?.href
-      ? pathname === item.href
-      : pathname.startsWith(item.href);
+  // The first nav item (dashboard root, e.g. /admin) matches exactly; everything
+  // else matches by path prefix so sub-routes light up their entry.
+  const isActiveHref = (href: string) =>
+    href === navItems[0]?.href
+      ? pathname === href
+      : pathname === href || pathname.startsWith(href + "/");
 
-  // The group that contains the current route — kept expanded.
-  const activeGroupLabel = groups.find((g) => g.items.some(isItemActive))?.label;
+  // Hrefs of parent items whose sub-items contain the current route.
+  const activeParents = () => {
+    const set = new Set<string>();
+    for (const item of navItems) {
+      if (item.items?.some((sub) => isActiveHref(sub.href))) set.add(item.href);
+    }
+    return set;
+  };
 
-  // Collapsible group state, persisted per sidebar (admin vs settings) so the
-  // two surfaces don't share collapse state. Starts all-expanded to match SSR,
-  // then hydrates from localStorage.
-  const storageKey = `sidebar-collapsed:${brandHref}`;
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  // Which collapsible parents are open. Seeded with the active parent (SSR-safe,
+  // derived from the path), then merged with the persisted set after mount.
+  const storageKey = `sidebar-open:${brandHref}`;
+  const [openItems, setOpenItems] = useState<Set<string>>(activeParents);
 
   useEffect(() => {
-    let saved: string[] = [];
+    let saved: string[] | null = null;
     try {
-      saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      saved = JSON.parse(localStorage.getItem(storageKey) || "null");
     } catch {}
-    const next = new Set(saved);
-    if (activeGroupLabel) next.delete(activeGroupLabel);
-    setCollapsed(next);
+    setOpenItems(() => {
+      const next = saved ? new Set(saved) : new Set<string>();
+      for (const href of activeParents()) next.add(href);
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey]);
 
-  // Keep the active group open as the route changes, without touching others.
+  // Keep the active parent open as the route changes, without touching others.
   useEffect(() => {
-    if (!activeGroupLabel) return;
-    setCollapsed((prev) => {
-      if (!prev.has(activeGroupLabel)) return prev;
+    setOpenItems((prev) => {
+      let changed = false;
       const next = new Set(prev);
-      next.delete(activeGroupLabel);
-      return next;
+      for (const href of activeParents()) {
+        if (!next.has(href)) {
+          next.add(href);
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
     });
-  }, [activeGroupLabel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
-  function toggleGroup(label: string) {
-    setCollapsed((prev) => {
+  function toggleItem(href: string) {
+    setOpenItems((prev) => {
       const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
+      if (next.has(href)) next.delete(href);
+      else next.add(href);
       try {
         localStorage.setItem(storageKey, JSON.stringify([...next]));
       } catch {}
@@ -118,56 +143,73 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        {groups.map((group, gi) => {
-          const label = group.label;
-          const isCollapsed = !!label && collapsed.has(label);
-          return (
-            <SidebarGroup key={gi}>
-              {label && (
-                <SidebarGroupLabel
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => toggleGroup(label)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      toggleGroup(label);
-                    }
-                  }}
-                  aria-expanded={!isCollapsed}
-                  className="flex cursor-pointer select-none items-center justify-between pr-1 hover:text-sidebar-foreground"
-                >
-                  <span>{label}</span>
-                  <ChevronDown
-                    className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
-                      isCollapsed ? "-rotate-90" : ""
-                    }`}
-                  />
-                </SidebarGroupLabel>
-              )}
-              {!isCollapsed && (
-                <SidebarGroupContent className="flex flex-col gap-2">
-                  <SidebarMenu>
-                    {group.items.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = isItemActive(item);
-                      return (
-                        <SidebarMenuItem key={item.href}>
-                          <Link href={item.href}>
-                            <SidebarMenuButton tooltip={item.label} isActive={isActive}>
-                              <Icon />
-                              <span>{item.label}</span>
-                            </SidebarMenuButton>
-                          </Link>
-                        </SidebarMenuItem>
-                      );
-                    })}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              )}
-            </SidebarGroup>
-          );
-        })}
+        {groups.map((group, gi) => (
+          <SidebarGroup key={gi}>
+            {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+            <SidebarGroupContent className="flex flex-col gap-2">
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+
+                  // Collapsible parent with sub-items.
+                  if (item.items?.length) {
+                    const open = openItems.has(item.href);
+                    const childActive = item.items.some((sub) =>
+                      isActiveHref(sub.href)
+                    );
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                          tooltip={item.label}
+                          isActive={childActive && !open}
+                          aria-expanded={open}
+                          onClick={() => toggleItem(item.href)}
+                        >
+                          <Icon />
+                          <span>{item.label}</span>
+                          <ChevronRight
+                            className={`ml-auto size-4 shrink-0 text-muted-foreground transition-transform ${
+                              open ? "rotate-90" : ""
+                            }`}
+                          />
+                        </SidebarMenuButton>
+                        {open && (
+                          <SidebarMenuSub>
+                            {item.items.map((sub) => (
+                              <SidebarMenuSubItem key={sub.href}>
+                                <SidebarMenuSubButton
+                                  render={<Link href={sub.href} />}
+                                  isActive={isActiveHref(sub.href)}
+                                >
+                                  <span>{sub.label}</span>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        )}
+                      </SidebarMenuItem>
+                    );
+                  }
+
+                  // Plain link.
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <Link href={item.href}>
+                        <SidebarMenuButton
+                          tooltip={item.label}
+                          isActive={isActiveHref(item.href)}
+                        >
+                          <Icon />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      </Link>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter>

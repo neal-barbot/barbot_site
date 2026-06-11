@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { m } from "@/paraglide/messages.js";
-import { LayoutDashboard, Users, Shield, KeyRound, DollarSign, CreditCard, Coins, FolderOpen, FileText, Settings, Home, Ticket, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Shield, CreditCard, FolderOpen, Settings, Home, LifeBuoy } from "lucide-react";
 
 import { AppLayout } from "@/components/app-layout";
 import { envConfigs } from "@/config";
@@ -11,18 +11,43 @@ export const Route = createFileRoute('/admin')({
 
 function AdminLayout() {
     
+  const group = m["common.systems.admin"]();
   const navItems = [
-    { href: "/admin", label: m["admin.nav.overview"](), icon: LayoutDashboard, group: m["common.systems.admin"]() },
-    { href: "/admin/users", label: m["admin.nav.users"](), icon: Users, group: m["admin.nav.rbac"]() },
-    { href: "/admin/invite-codes", label: m["admin.nav.invite_codes"](), icon: Ticket, group: m["admin.nav.rbac"]() },
-    { href: "/admin/roles", label: m["admin.nav.roles"](), icon: Shield, group: m["admin.nav.rbac"]() },
-    { href: "/admin/permissions", label: m["admin.nav.permissions"](), icon: KeyRound, group: m["admin.nav.rbac"]() },
-    { href: "/admin/categories", label: m["admin.nav.categories"](), icon: FolderOpen, group: m["admin.nav.content"]() },
-    { href: "/admin/posts", label: m["admin.nav.posts"](), icon: FileText, group: m["admin.nav.content"]() },
-    { href: "/admin/payments", label: m["admin.nav.payments"](), icon: DollarSign, group: m["admin.nav.billing"]() },
-    { href: "/admin/subscriptions", label: m["admin.nav.subscriptions"](), icon: CreditCard, group: m["admin.nav.billing"]() },
-    { href: "/admin/credits", label: m["admin.nav.credits"](), icon: Coins, group: m["admin.nav.billing"]() },
-    { href: "/admin/tickets", label: m["admin.nav.tickets"](), icon: LifeBuoy, group: m["admin.nav.support"]() },
+    { href: "/admin", label: m["admin.nav.overview"](), icon: LayoutDashboard, group },
+    {
+      href: "/admin/users",
+      label: m["admin.nav.rbac"](),
+      icon: Shield,
+      group,
+      items: [
+        { href: "/admin/users", label: m["admin.nav.users"]() },
+        { href: "/admin/invite-codes", label: m["admin.nav.invite_codes"]() },
+        { href: "/admin/roles", label: m["admin.nav.roles"]() },
+        { href: "/admin/permissions", label: m["admin.nav.permissions"]() },
+      ],
+    },
+    {
+      href: "/admin/categories",
+      label: m["admin.nav.content"](),
+      icon: FolderOpen,
+      group,
+      items: [
+        { href: "/admin/categories", label: m["admin.nav.categories"]() },
+        { href: "/admin/posts", label: m["admin.nav.posts"]() },
+      ],
+    },
+    {
+      href: "/admin/payments",
+      label: m["admin.nav.billing"](),
+      icon: CreditCard,
+      group,
+      items: [
+        { href: "/admin/payments", label: m["admin.nav.payments"]() },
+        { href: "/admin/subscriptions", label: m["admin.nav.subscriptions"]() },
+        { href: "/admin/credits", label: m["admin.nav.credits"]() },
+      ],
+    },
+    { href: "/admin/tickets", label: m["admin.nav.tickets"](), icon: LifeBuoy, group },
   ];
 
   const footerNavItems = [
