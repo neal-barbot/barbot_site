@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsWikiAssistantRouteImport } from './routes/settings/wiki-assistant'
 import { Route as SettingsTicketsRouteImport } from './routes/settings/tickets'
 import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
@@ -140,6 +141,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRouteRoute,
+} as any)
+const SettingsChatRoute = SettingsChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsWikiAssistantRoute = SettingsWikiAssistantRouteImport.update({
   id: '/wiki-assistant',
@@ -542,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/tickets': typeof SettingsTicketsRoute
+  '/settings/chat': typeof SettingsChatRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -623,6 +630,7 @@ export interface FileRoutesByTo {
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/tickets': typeof SettingsTicketsRoute
+  '/settings/chat': typeof SettingsChatRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -708,6 +716,7 @@ export interface FileRoutesById {
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/tickets': typeof SettingsTicketsRoute
+  '/settings/chat': typeof SettingsChatRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -793,6 +802,7 @@ export interface FileRouteTypes {
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/tickets'
+    | '/settings/chat'
     | '/settings/wiki-assistant'
     | '/admin/'
     | '/blog/'
@@ -874,6 +884,7 @@ export interface FileRouteTypes {
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/tickets'
+    | '/settings/chat'
     | '/settings/wiki-assistant'
     | '/admin'
     | '/blog'
@@ -958,6 +969,7 @@ export interface FileRouteTypes {
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/tickets'
+    | '/settings/chat'
     | '/settings/wiki-assistant'
     | '/admin/'
     | '/blog/'
@@ -1138,6 +1150,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
+    }
+    '/settings/chat': {
+      id: '/settings/chat'
+      path: '/chat'
+      fullPath: '/settings/chat'
+      preLoaderRoute: typeof SettingsChatRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/settings/wiki-assistant': {
       id: '/settings/wiki-assistant'
@@ -1701,6 +1720,7 @@ interface SettingsRouteRouteChildren {
   SettingsPaymentsRoute: typeof SettingsPaymentsRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
   SettingsTicketsRoute: typeof SettingsTicketsRoute
+  SettingsChatRoute: typeof SettingsChatRoute
   SettingsWikiAssistantRoute: typeof SettingsWikiAssistantRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
@@ -1712,6 +1732,7 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsPaymentsRoute: SettingsPaymentsRoute,
   SettingsProfileRoute: SettingsProfileRoute,
   SettingsTicketsRoute: SettingsTicketsRoute,
+  SettingsChatRoute: SettingsChatRoute,
   SettingsWikiAssistantRoute: SettingsWikiAssistantRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }
