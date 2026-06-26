@@ -1,0 +1,11 @@
+{$VITE_APP_URL} {
+    # Doc-QA gateway (HTTP + WebSocket)
+    handle /agent/* {
+        reverse_proxy gateway:8520
+    }
+
+    # shipany app (everything else)
+    handle {
+        reverse_proxy shipany:3000
+    }
+}

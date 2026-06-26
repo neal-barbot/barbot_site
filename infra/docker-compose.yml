@@ -1,0 +1,130 @@
+name: docqa
+
+# Shared volume: mineru writes parsed .md files, pi-agent-web reads them.
+# shipany writes workspace dirs via the ingest route.
+volumes:
+  data:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+services:
+
+  # ── Database ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: shipany
+      POSTGRES_USER: shipany
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shipany}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shipany"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── shipany (auth, billing, ingest, admin) ────────────────────────────────
+  shipany:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        DATABASE_PROVIDER: postgres
+    restart: unless-stopped
+    env_file:
+      - env.docqa.template   # copy to .env and fill in before deploy
+    environment:
+      DATABASE_URL: postgresql://shipany:${POSTGRES_PASSWORD:-shipany}@postgres:5432/shipany
+      DATABASE_PROVIDER: postgres
+      WORKSPACES_ROOT: /data/workspaces
+      PI_AGENT_WEB_URL: http://pi-agent-web:8504
+      GATEWAY_PORT: "8520"
+      MINERU_URL: http://mineru:8530
+      SHIPANY_URL: http://shipany:3000
+    volumes:
+      - data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Auth-scoping HTTP+WS gateway ──────────────────────────────────────────
+  gateway:
+    image: node:22-alpine
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ../gateway:/app
+    command: sh -c "npm install && node server.mjs"
+    environment:
+      PI_AGENT_WEB_URL: http://pi-agent-web:8504
+      SHIPANY_URL: http://shipany:3000
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+      GATEWAY_PORT: "8520"
+    depends_on:
+      - shipany
+      - pi-agent-web
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8520/ || true"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── pi-agent-web (shared single instance, loopback-only inside compose net) ─
+  pi-agent-web:
+    build:
+      context: ../..
+      dockerfile: pi-agent/apps/pi-agent-web/Dockerfile
+    restart: unless-stopped
+    environment:
+      PI_AGENT_WEB_HOST: "0.0.0.0"
+      PI_AGENT_WEB_PORT: "8504"
+      PI_AGENT_WEB_DATA_DIR: /data/pi-agent-web
+      PI_AGENT_WEB_ALLOWED_ORIGINS: ${VITE_APP_URL}
+      PI_AGENT_WEB_ALLOWED_TOOLS: "Read,Grep,Glob,List"
+      LLM_BASE_URL: ${LLM_BASE_URL}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: ${LLM_MODEL}
+    volumes:
+      - data:/data
+    # pi-agent-web is NOT exposed to the host — only reachable via gateway
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8504/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── MinerU PDF→Markdown service ───────────────────────────────────────────
+  mineru:
+    build:
+      context: ../services/mineru
+    restart: unless-stopped
+    volumes:
+      - data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8530/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  # ── Caddy (TLS termination + routing) ─────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - shipany
+      - gateway
