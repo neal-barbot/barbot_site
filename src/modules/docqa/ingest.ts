@@ -4,6 +4,7 @@ import { getSnowId } from '@/lib/hash';
 import { envConfigs } from '@/config';
 import { ensureWorkspaceDir } from './workspace';
 import { putObject } from './storage';
+import { ensureAgentProject } from './agent-project';
 
 export interface IngestResult {
   docId: string;
@@ -39,6 +40,13 @@ export async function ingestDocument(userId: string, file: File): Promise<Ingest
   const docsDir = await ensureWorkspaceDir(userId);
   const mdPath = path.join(docsDir, `${docId}-${baseName}.md`);
   await writeFile(mdPath, markdown, 'utf-8');
+
+  // Idempotently register this workspace as a pi-agent-web project so the agent
+  // can find the docs directory. Fire-and-forget: if the registration fails it will
+  // be retried on the next ingest or chat open.
+  void ensureAgentProject(userId).catch((err: unknown) => {
+    console.error('[docqa/ingest] ensureAgentProject failed:', err);
+  });
 
   return { docId, rawKey, mdKey, mdPath };
 }
