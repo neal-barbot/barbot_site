@@ -60,6 +60,7 @@ import { Route as ApiUserInfoRouteImport } from './routes/api/user/info'
 import { Route as ApiUserCreditsRouteImport } from './routes/api/user/credits'
 import { Route as ApiTicketsIdRouteImport } from './routes/api/tickets/$id'
 import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
+import { Route as ApiInternalSessionRouteImport } from './routes/api/internal/session'
 import { Route as ApiStorageUploadImageRouteImport } from './routes/api/storage/upload-image'
 import { Route as ApiPaymentCheckoutRouteImport } from './routes/api/payment/checkout'
 import { Route as ApiPaymentCallbackRouteImport } from './routes/api/payment/callback'
@@ -344,6 +345,11 @@ const ApiDocqaIngestRoute = ApiDocqaIngestRouteImport.update({
   path: '/api/docqa/ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInternalSessionRoute = ApiInternalSessionRouteImport.update({
+  id: '/api/internal/session',
+  path: '/api/internal/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStorageUploadImageRoute = ApiStorageUploadImageRouteImport.update({
   id: '/api/storage/upload-image',
   path: '/api/storage/upload-image',
@@ -551,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
   '/api/payment/checkout': typeof ApiPaymentCheckoutRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/storage/upload-image': typeof ApiStorageUploadImageRoute
   '/api/tickets/$id': typeof ApiTicketsIdRoute
   '/api/user/credits': typeof ApiUserCreditsRoute
@@ -630,6 +637,7 @@ export interface FileRoutesByTo {
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
   '/api/payment/checkout': typeof ApiPaymentCheckoutRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/storage/upload-image': typeof ApiStorageUploadImageRoute
   '/api/tickets/$id': typeof ApiTicketsIdRoute
   '/api/user/credits': typeof ApiUserCreditsRoute
@@ -713,6 +721,7 @@ export interface FileRoutesById {
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
   '/api/payment/checkout': typeof ApiPaymentCheckoutRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/storage/upload-image': typeof ApiStorageUploadImageRoute
   '/api/tickets/$id': typeof ApiTicketsIdRoute
   '/api/user/credits': typeof ApiUserCreditsRoute
@@ -796,6 +805,7 @@ export interface FileRouteTypes {
     | '/api/payment/callback'
     | '/api/payment/checkout'
     | '/api/docqa/ingest'
+    | '/api/internal/session'
     | '/api/storage/upload-image'
     | '/api/tickets/$id'
     | '/api/user/credits'
@@ -875,6 +885,7 @@ export interface FileRouteTypes {
     | '/api/payment/callback'
     | '/api/payment/checkout'
     | '/api/docqa/ingest'
+    | '/api/internal/session'
     | '/api/storage/upload-image'
     | '/api/tickets/$id'
     | '/api/user/credits'
@@ -957,6 +968,7 @@ export interface FileRouteTypes {
     | '/api/payment/callback'
     | '/api/payment/checkout'
     | '/api/docqa/ingest'
+    | '/api/internal/session'
     | '/api/storage/upload-image'
     | '/api/tickets/$id'
     | '/api/user/credits'
@@ -1018,6 +1030,7 @@ export interface RootRouteChildren {
   ApiPaymentCallbackRoute: typeof ApiPaymentCallbackRoute
   ApiPaymentCheckoutRoute: typeof ApiPaymentCheckoutRoute
   ApiDocqaIngestRoute: typeof ApiDocqaIngestRoute
+  ApiInternalSessionRoute: typeof ApiInternalSessionRoute
   ApiStorageUploadImageRoute: typeof ApiStorageUploadImageRoute
   ApiUserCreditsRoute: typeof ApiUserCreditsRoute
   ApiUserInfoRoute: typeof ApiUserInfoRoute
@@ -1400,6 +1413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocqaIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/session': {
+      id: '/api/internal/session'
+      path: '/api/internal/session'
+      fullPath: '/api/internal/session'
+      preLoaderRoute: typeof ApiInternalSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/storage/upload-image': {
       id: '/api/storage/upload-image'
       path: '/api/storage/upload-image'
@@ -1751,6 +1771,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaymentCallbackRoute: ApiPaymentCallbackRoute,
   ApiPaymentCheckoutRoute: ApiPaymentCheckoutRoute,
   ApiDocqaIngestRoute: ApiDocqaIngestRoute,
+  ApiInternalSessionRoute: ApiInternalSessionRoute,
   ApiStorageUploadImageRoute: ApiStorageUploadImageRoute,
   ApiUserCreditsRoute: ApiUserCreditsRoute,
   ApiUserInfoRoute: ApiUserInfoRoute,

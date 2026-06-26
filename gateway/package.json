@@ -1,0 +1,9 @@
+{
+  "name": "docqa-gateway",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "http-proxy": "^1.18.1"
+  }
+}
