@@ -70,6 +70,25 @@ export const envConfigs: Record<string, string> = {
   storage_public_domain: procEnv.STORAGE_PUBLIC_DOMAIN ?? '',
   inline_image_max_kb: procEnv.INLINE_IMAGE_MAX_KB ?? '2048',
 
+  // Wiki / agent context
+  neal_wiki_root: procEnv.NEAL_WIKI_ROOT ?? '/Users/neal/Downloads/neal_wiki',
+  pi_agent_root: procEnv.PI_AGENT_ROOT ?? '/Users/neal/Downloads/Projects/AI-agent-project/pi-agent',
+  pi_agent_timeout_ms: procEnv.PI_AGENT_TIMEOUT_MS ?? '180000',
+  pi_agent_model: procEnv.PI_AGENT_MODEL ?? 'gpt-5.4-mini',
+  pi_agent_provider: procEnv.PI_AGENT_PROVIDER ?? 'openai-codex',
+
+  // Doc-QA
+  workspaces_root: procEnv.WORKSPACES_ROOT ?? '/data/workspaces',
+  pi_agent_web_url: procEnv.PI_AGENT_WEB_URL ?? 'http://127.0.0.1:8504',
+  gateway_port: procEnv.GATEWAY_PORT ?? '8520',
+  mineru_url: procEnv.MINERU_URL ?? 'http://127.0.0.1:8530',
+  internal_api_token: procEnv.INTERNAL_API_TOKEN ?? '',
+  credit_cost_per_prompt: procEnv.CREDIT_COST_PER_PROMPT ?? '1',
+  doc_qa_bucket: procEnv.DOC_QA_BUCKET ?? 'doc-qa',
+  llm_base_url: procEnv.LLM_BASE_URL ?? '',
+  llm_api_key: procEnv.LLM_API_KEY ?? '',
+  llm_model: procEnv.LLM_MODEL ?? '',
+
   // AI
   // OpenAI / Anthropic are admin-panel-only (like Gemini/Fal). No env fallback:
   // OPENAI_API_KEY / ANTHROPIC_API_KEY are common ambient vars, and falling back
