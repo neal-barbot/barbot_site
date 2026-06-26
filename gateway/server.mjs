@@ -44,6 +44,29 @@ function strip(url) {
   return url.replace(/^\/agent/, '') || '/';
 }
 
+async function checkCredits(userId) {
+  const r = await fetch(`${SHIPANY_URL}/api/internal/credits`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-internal-token': TOKEN },
+    body: JSON.stringify({ action: 'check', userId }),
+  });
+  if (!r.ok) return false;
+  const j = await r.json();
+  return j?.data?.ok === true;
+}
+
+async function consumeCredits(userId) {
+  await fetch(`${SHIPANY_URL}/api/internal/credits`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-internal-token': TOKEN },
+    body: JSON.stringify({ action: 'consume', userId }),
+  }).catch(() => {});
+}
+
+function isPromptPath(url) {
+  return /\/sessions\/[^/]+\/prompt$/.test(url);
+}
+
 const server = http.createServer(async (req, res) => {
   const userId = await resolveUser(req);
   if (!userId) {
@@ -54,6 +77,22 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(403, { 'content-type': 'text/plain' }).end('forbidden');
     return;
   }
+
+  // Credit metering: pre-check before prompt, consume after 2xx.
+  if (req.method === 'POST' && isPromptPath(req.url ?? '')) {
+    const ok = await checkCredits(userId);
+    if (!ok) {
+      res.writeHead(402, { 'content-type': 'text/plain' }).end('insufficient credits');
+      return;
+    }
+    req.url = strip(req.url ?? '/');
+    proxy.web(req, res, {}, () => { res.writeHead(502).end('bad gateway'); });
+    res.on('finish', () => {
+      if (res.statusCode < 300) void consumeCredits(userId);
+    });
+    return;
+  }
+
   req.url = strip(req.url ?? '/');
   proxy.web(req, res);
 });
