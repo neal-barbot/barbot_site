@@ -19,12 +19,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsWikiAssistantRouteImport } from './routes/settings/wiki-assistant'
 import { Route as SettingsTicketsRouteImport } from './routes/settings/tickets'
 import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPaymentsRouteImport } from './routes/settings/payments'
 import { Route as SettingsCreditsRouteImport } from './routes/settings/credits'
+import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsBillingRouteImport } from './routes/settings/billing'
 import { Route as SettingsApikeysRouteImport } from './routes/settings/apikeys'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
@@ -60,14 +60,14 @@ import { Route as ApiUserIsEmailVerifiedRouteImport } from './routes/api/user/is
 import { Route as ApiUserInfoRouteImport } from './routes/api/user/info'
 import { Route as ApiUserCreditsRouteImport } from './routes/api/user/credits'
 import { Route as ApiTicketsIdRouteImport } from './routes/api/tickets/$id'
-import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
-import { Route as ApiInternalCreditsRouteImport } from './routes/api/internal/credits'
-import { Route as ApiInternalSessionRouteImport } from './routes/api/internal/session'
 import { Route as ApiStorageUploadImageRouteImport } from './routes/api/storage/upload-image'
 import { Route as ApiPaymentCheckoutRouteImport } from './routes/api/payment/checkout'
 import { Route as ApiPaymentCallbackRouteImport } from './routes/api/payment/callback'
 import { Route as ApiInviteCodesValidateRouteImport } from './routes/api/invite-codes/validate'
 import { Route as ApiInviteCodesRedeemRouteImport } from './routes/api/invite-codes/redeem'
+import { Route as ApiInternalSessionRouteImport } from './routes/api/internal/session'
+import { Route as ApiInternalCreditsRouteImport } from './routes/api/internal/credits'
+import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
 import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
 import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -142,11 +142,6 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const SettingsChatRoute = SettingsChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => SettingsRouteRoute,
-} as any)
 const SettingsWikiAssistantRoute = SettingsWikiAssistantRouteImport.update({
   id: '/wiki-assistant',
   path: '/wiki-assistant',
@@ -170,6 +165,11 @@ const SettingsPaymentsRoute = SettingsPaymentsRouteImport.update({
 const SettingsCreditsRoute = SettingsCreditsRouteImport.update({
   id: '/credits',
   path: '/credits',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsChatRoute = SettingsChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsBillingRoute = SettingsBillingRouteImport.update({
@@ -347,21 +347,6 @@ const ApiTicketsIdRoute = ApiTicketsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiTicketsRoute,
 } as any)
-const ApiDocqaIngestRoute = ApiDocqaIngestRouteImport.update({
-  id: '/api/docqa/ingest',
-  path: '/api/docqa/ingest',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiInternalCreditsRoute = ApiInternalCreditsRouteImport.update({
-  id: '/api/internal/credits',
-  path: '/api/internal/credits',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiInternalSessionRoute = ApiInternalSessionRouteImport.update({
-  id: '/api/internal/session',
-  path: '/api/internal/session',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiStorageUploadImageRoute = ApiStorageUploadImageRouteImport.update({
   id: '/api/storage/upload-image',
   path: '/api/storage/upload-image',
@@ -385,6 +370,21 @@ const ApiInviteCodesValidateRoute = ApiInviteCodesValidateRouteImport.update({
 const ApiInviteCodesRedeemRoute = ApiInviteCodesRedeemRouteImport.update({
   id: '/api/invite-codes/redeem',
   path: '/api/invite-codes/redeem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalSessionRoute = ApiInternalSessionRouteImport.update({
+  id: '/api/internal/session',
+  path: '/api/internal/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalCreditsRoute = ApiInternalCreditsRouteImport.update({
+  id: '/api/internal/credits',
+  path: '/api/internal/credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocqaIngestRoute = ApiDocqaIngestRouteImport.update({
+  id: '/api/docqa/ingest',
+  path: '/api/docqa/ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiConfigPublicRoute = ApiConfigPublicRouteImport.update({
@@ -544,11 +544,11 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
+  '/settings/chat': typeof SettingsChatRoute
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/tickets': typeof SettingsTicketsRoute
-  '/settings/chat': typeof SettingsChatRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -565,13 +565,13 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
+  '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/credits': typeof ApiInternalCreditsRoute
+  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
   '/api/payment/checkout': typeof ApiPaymentCheckoutRoute
-  '/api/docqa/ingest': typeof ApiDocqaIngestRoute
-  '/api/internal/credits': typeof ApiInternalCreditsRoute
-  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/storage/upload-image': typeof ApiStorageUploadImageRoute
   '/api/tickets/$id': typeof ApiTicketsIdRoute
   '/api/user/credits': typeof ApiUserCreditsRoute
@@ -626,11 +626,11 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
+  '/settings/chat': typeof SettingsChatRoute
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/tickets': typeof SettingsTicketsRoute
-  '/settings/chat': typeof SettingsChatRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
@@ -647,13 +647,13 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
+  '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/credits': typeof ApiInternalCreditsRoute
+  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
   '/api/payment/checkout': typeof ApiPaymentCheckoutRoute
-  '/api/docqa/ingest': typeof ApiDocqaIngestRoute
-  '/api/internal/credits': typeof ApiInternalCreditsRoute
-  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/storage/upload-image': typeof ApiStorageUploadImageRoute
   '/api/tickets/$id': typeof ApiTicketsIdRoute
   '/api/user/credits': typeof ApiUserCreditsRoute
@@ -712,11 +712,11 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
+  '/settings/chat': typeof SettingsChatRoute
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/tickets': typeof SettingsTicketsRoute
-  '/settings/chat': typeof SettingsChatRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
@@ -733,13 +733,13 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
+  '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/credits': typeof ApiInternalCreditsRoute
+  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
   '/api/payment/checkout': typeof ApiPaymentCheckoutRoute
-  '/api/docqa/ingest': typeof ApiDocqaIngestRoute
-  '/api/internal/credits': typeof ApiInternalCreditsRoute
-  '/api/internal/session': typeof ApiInternalSessionRoute
   '/api/storage/upload-image': typeof ApiStorageUploadImageRoute
   '/api/tickets/$id': typeof ApiTicketsIdRoute
   '/api/user/credits': typeof ApiUserCreditsRoute
@@ -798,11 +798,11 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/settings/apikeys'
     | '/settings/billing'
+    | '/settings/chat'
     | '/settings/credits'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/tickets'
-    | '/settings/chat'
     | '/settings/wiki-assistant'
     | '/admin/'
     | '/blog/'
@@ -819,13 +819,13 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
+    | '/api/docqa/ingest'
+    | '/api/internal/credits'
+    | '/api/internal/session'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
     | '/api/payment/checkout'
-    | '/api/docqa/ingest'
-    | '/api/internal/credits'
-    | '/api/internal/session'
     | '/api/storage/upload-image'
     | '/api/tickets/$id'
     | '/api/user/credits'
@@ -880,11 +880,11 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/settings/apikeys'
     | '/settings/billing'
+    | '/settings/chat'
     | '/settings/credits'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/tickets'
-    | '/settings/chat'
     | '/settings/wiki-assistant'
     | '/admin'
     | '/blog'
@@ -901,13 +901,13 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
+    | '/api/docqa/ingest'
+    | '/api/internal/credits'
+    | '/api/internal/session'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
     | '/api/payment/checkout'
-    | '/api/docqa/ingest'
-    | '/api/internal/credits'
-    | '/api/internal/session'
     | '/api/storage/upload-image'
     | '/api/tickets/$id'
     | '/api/user/credits'
@@ -965,11 +965,11 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/settings/apikeys'
     | '/settings/billing'
+    | '/settings/chat'
     | '/settings/credits'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/tickets'
-    | '/settings/chat'
     | '/settings/wiki-assistant'
     | '/admin/'
     | '/blog/'
@@ -986,13 +986,13 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
+    | '/api/docqa/ingest'
+    | '/api/internal/credits'
+    | '/api/internal/session'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
     | '/api/payment/checkout'
-    | '/api/docqa/ingest'
-    | '/api/internal/credits'
-    | '/api/internal/session'
     | '/api/storage/upload-image'
     | '/api/tickets/$id'
     | '/api/user/credits'
@@ -1049,13 +1049,13 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthTokenRoute: typeof ApiAuthTokenRoute
   ApiConfigPublicRoute: typeof ApiConfigPublicRoute
+  ApiDocqaIngestRoute: typeof ApiDocqaIngestRoute
+  ApiInternalCreditsRoute: typeof ApiInternalCreditsRoute
+  ApiInternalSessionRoute: typeof ApiInternalSessionRoute
   ApiInviteCodesRedeemRoute: typeof ApiInviteCodesRedeemRoute
   ApiInviteCodesValidateRoute: typeof ApiInviteCodesValidateRoute
   ApiPaymentCallbackRoute: typeof ApiPaymentCallbackRoute
   ApiPaymentCheckoutRoute: typeof ApiPaymentCheckoutRoute
-  ApiDocqaIngestRoute: typeof ApiDocqaIngestRoute
-  ApiInternalCreditsRoute: typeof ApiInternalCreditsRoute
-  ApiInternalSessionRoute: typeof ApiInternalSessionRoute
   ApiStorageUploadImageRoute: typeof ApiStorageUploadImageRoute
   ApiUserCreditsRoute: typeof ApiUserCreditsRoute
   ApiUserInfoRoute: typeof ApiUserInfoRoute
@@ -1151,13 +1151,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/settings/chat': {
-      id: '/settings/chat'
-      path: '/chat'
-      fullPath: '/settings/chat'
-      preLoaderRoute: typeof SettingsChatRouteImport
-      parentRoute: typeof SettingsRouteRoute
-    }
     '/settings/wiki-assistant': {
       id: '/settings/wiki-assistant'
       path: '/wiki-assistant'
@@ -1191,6 +1184,13 @@ declare module '@tanstack/react-router' {
       path: '/credits'
       fullPath: '/settings/credits'
       preLoaderRoute: typeof SettingsCreditsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chat': {
+      id: '/settings/chat'
+      path: '/chat'
+      fullPath: '/settings/chat'
+      preLoaderRoute: typeof SettingsChatRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
     '/settings/billing': {
@@ -1438,27 +1438,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTicketsIdRouteImport
       parentRoute: typeof ApiTicketsRoute
     }
-    '/api/docqa/ingest': {
-      id: '/api/docqa/ingest'
-      path: '/api/docqa/ingest'
-      fullPath: '/api/docqa/ingest'
-      preLoaderRoute: typeof ApiDocqaIngestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/internal/credits': {
-      id: '/api/internal/credits'
-      path: '/api/internal/credits'
-      fullPath: '/api/internal/credits'
-      preLoaderRoute: typeof ApiInternalCreditsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/internal/session': {
-      id: '/api/internal/session'
-      path: '/api/internal/session'
-      fullPath: '/api/internal/session'
-      preLoaderRoute: typeof ApiInternalSessionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/storage/upload-image': {
       id: '/api/storage/upload-image'
       path: '/api/storage/upload-image'
@@ -1492,6 +1471,27 @@ declare module '@tanstack/react-router' {
       path: '/api/invite-codes/redeem'
       fullPath: '/api/invite-codes/redeem'
       preLoaderRoute: typeof ApiInviteCodesRedeemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/session': {
+      id: '/api/internal/session'
+      path: '/api/internal/session'
+      fullPath: '/api/internal/session'
+      preLoaderRoute: typeof ApiInternalSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/credits': {
+      id: '/api/internal/credits'
+      path: '/api/internal/credits'
+      fullPath: '/api/internal/credits'
+      preLoaderRoute: typeof ApiInternalCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/docqa/ingest': {
+      id: '/api/docqa/ingest'
+      path: '/api/docqa/ingest'
+      fullPath: '/api/docqa/ingest'
+      preLoaderRoute: typeof ApiDocqaIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/config/public': {
@@ -1716,11 +1716,11 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 interface SettingsRouteRouteChildren {
   SettingsApikeysRoute: typeof SettingsApikeysRoute
   SettingsBillingRoute: typeof SettingsBillingRoute
+  SettingsChatRoute: typeof SettingsChatRoute
   SettingsCreditsRoute: typeof SettingsCreditsRoute
   SettingsPaymentsRoute: typeof SettingsPaymentsRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
   SettingsTicketsRoute: typeof SettingsTicketsRoute
-  SettingsChatRoute: typeof SettingsChatRoute
   SettingsWikiAssistantRoute: typeof SettingsWikiAssistantRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
@@ -1728,11 +1728,11 @@ interface SettingsRouteRouteChildren {
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsApikeysRoute: SettingsApikeysRoute,
   SettingsBillingRoute: SettingsBillingRoute,
+  SettingsChatRoute: SettingsChatRoute,
   SettingsCreditsRoute: SettingsCreditsRoute,
   SettingsPaymentsRoute: SettingsPaymentsRoute,
   SettingsProfileRoute: SettingsProfileRoute,
   SettingsTicketsRoute: SettingsTicketsRoute,
-  SettingsChatRoute: SettingsChatRoute,
   SettingsWikiAssistantRoute: SettingsWikiAssistantRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }
@@ -1807,13 +1807,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthTokenRoute: ApiAuthTokenRoute,
   ApiConfigPublicRoute: ApiConfigPublicRoute,
+  ApiDocqaIngestRoute: ApiDocqaIngestRoute,
+  ApiInternalCreditsRoute: ApiInternalCreditsRoute,
+  ApiInternalSessionRoute: ApiInternalSessionRoute,
   ApiInviteCodesRedeemRoute: ApiInviteCodesRedeemRoute,
   ApiInviteCodesValidateRoute: ApiInviteCodesValidateRoute,
   ApiPaymentCallbackRoute: ApiPaymentCallbackRoute,
   ApiPaymentCheckoutRoute: ApiPaymentCheckoutRoute,
-  ApiDocqaIngestRoute: ApiDocqaIngestRoute,
-  ApiInternalCreditsRoute: ApiInternalCreditsRoute,
-  ApiInternalSessionRoute: ApiInternalSessionRoute,
   ApiStorageUploadImageRoute: ApiStorageUploadImageRoute,
   ApiUserCreditsRoute: ApiUserCreditsRoute,
   ApiUserInfoRoute: ApiUserInfoRoute,
