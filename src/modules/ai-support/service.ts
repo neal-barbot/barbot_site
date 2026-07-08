@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gt, isNull, or } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { ResendProvider } from '@/core/email/resend';
 import { envConfigs } from '@/config';
@@ -341,6 +341,14 @@ const DEFAULT_AGENT_SCOPES = [
   'lead.classify',
   'audit.read',
 ];
+
+function activeAgentTokenWhere(userId: string, now = new Date()) {
+  return and(
+    eq(aiAgentToken.userId, userId),
+    eq(aiAgentToken.status, 'active'),
+    or(isNull(aiAgentToken.expiresAt), gt(aiAgentToken.expiresAt, now))
+  );
+}
 
 const HUMAN_SUPPORT_SETTING_KEY = 'human_support.settings';
 const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
@@ -2124,6 +2132,7 @@ export async function createAgentTokenDraft(input: {
 }
 
 export async function listAgentTokens(userId: string): Promise<AiAgentTokenView[]> {
+  const now = Date.now();
   const rows = await db()
     .select({
       id: aiAgentToken.id,
@@ -2144,9 +2153,51 @@ export async function listAgentTokens(userId: string): Promise<AiAgentTokenView[
 
   return rows.map((row: (typeof rows)[number]) => ({
     ...row,
+    status:
+      row.status === 'active' && row.expiresAt && row.expiresAt.getTime() <= now
+        ? 'expired'
+        : row.status,
     scopes: parseJsonStringArray(row.scopes),
     chatbotIds: parseJsonStringArray(row.chatbotIds),
   }));
+}
+
+export async function revokeAgentToken(input: {
+  userId: string;
+  id: string;
+}): Promise<AiAgentTokenView> {
+  const now = new Date();
+
+  return db().transaction(async (tx: any) => {
+    const [row] = await tx
+      .update(aiAgentToken)
+      .set({
+        status: 'revoked',
+        revokedAt: now,
+        updatedAt: now,
+      })
+      .where(and(eq(aiAgentToken.id, input.id), eq(aiAgentToken.userId, input.userId)))
+      .returning();
+    if (!row) throw new Error('Agent token not found');
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_agent_token',
+      resourceId: input.id,
+      action: 'agent_token.revoke',
+      status: 'recorded',
+      metadata: {
+        name: row.name,
+        tokenPrefix: row.tokenPrefix,
+      },
+    });
+
+    return {
+      ...row,
+      scopes: parseJsonStringArray(row.scopes),
+      chatbotIds: parseJsonStringArray(row.chatbotIds),
+    };
+  });
 }
 
 export async function listAgentRuns(params: {
@@ -2379,7 +2430,7 @@ export async function getAiSupportOverview(userId: string): Promise<AiSupportOve
   );
   const activeAgentTokenCount = await getCount(
     aiAgentToken as any,
-    and(eq(aiAgentToken.userId, userId), eq(aiAgentToken.status, 'active'))
+    activeAgentTokenWhere(userId)
   );
   const pendingApprovalCount = await getCount(
     aiAgentRun as any,
@@ -2494,7 +2545,7 @@ export async function getAiSupportUsage(userId: string): Promise<AiSupportUsage>
     ),
     getCount(
       aiAgentToken as any,
-      and(eq(aiAgentToken.userId, userId), eq(aiAgentToken.status, 'active'))
+      activeAgentTokenWhere(userId, now)
     ),
     getCount(
       aiAgentRun as any,

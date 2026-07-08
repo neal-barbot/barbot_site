@@ -207,6 +207,8 @@ type AiAgentToken = {
   tokenPrefix: string;
   lastUsedAt: string | null;
   expiresAt: string | null;
+  createdAt: string;
+  revokedAt: string | null;
 };
 
 type AiAgentRun = {
@@ -846,21 +848,31 @@ function AgentTokenOperations({
   chatbots,
   tokens,
   pending,
+  revokePending,
   onCreate,
+  onRevoke,
 }: {
   chatbots: AiChatbot[];
   tokens: AiAgentToken[];
   pending: boolean;
-  onCreate: (input: { name: string; chatbotIds: string[] }) => Promise<void>;
+  revokePending: boolean;
+  onCreate: (input: { name: string; chatbotIds: string[]; expiresAt: string | null }) => Promise<void>;
+  onRevoke: (id: string) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('Codex Ops');
   const [chatbotId, setChatbotId] = useState('');
+  const [expiresInDays, setExpiresInDays] = useState('30');
 
   async function submit() {
+    const days = Number(expiresInDays);
+    const expiresAt = days > 0
+      ? new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+      : null;
     await onCreate({
       name,
       chatbotIds: (chatbotId || chatbots[0]?.id) ? [chatbotId || chatbots[0].id] : [],
+      expiresAt,
     });
     setOpen(false);
   }
@@ -900,6 +912,20 @@ function AgentTokenOperations({
                   ))}
                 </select>
               </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-token-expiry">{m['settings.ai_support.ops_token_expiry']()}</Label>
+                <select
+                  id="ai-token-expiry"
+                  className="h-8 rounded-lg border border-input bg-background px-2 text-sm"
+                  value={expiresInDays}
+                  onChange={(e) => setExpiresInDays(e.target.value)}
+                >
+                  <option value="7">{m['settings.ai_support.ops_token_expiry_7d']()}</option>
+                  <option value="30">{m['settings.ai_support.ops_token_expiry_30d']()}</option>
+                  <option value="90">{m['settings.ai_support.ops_token_expiry_90d']()}</option>
+                  <option value="0">{m['settings.ai_support.ops_token_expiry_never']()}</option>
+                </select>
+              </div>
             </div>
             <DialogFooter>
               <Button onClick={submit} disabled={pending || !name.trim()}>
@@ -913,18 +939,42 @@ function AgentTokenOperations({
         <CompactRows
           rows={tokens.slice(0, 5)}
           empty={m['settings.ai_support.ops_no_tokens']()}
-          render={(token) => (
-            <div key={token.id} className="flex flex-col gap-2 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
-              <div className="min-w-0">
-                <p className="font-medium">{token.name}</p>
-                <p className="text-sm text-muted-foreground">{token.tokenPrefix}... · {token.accessProfile}</p>
+          render={(token) => {
+            const expiresLabel = token.expiresAt
+              ? new Date(token.expiresAt).toLocaleDateString()
+              : m['settings.ai_support.ops_token_expiry_never']();
+            const lastUsedLabel = token.lastUsedAt
+              ? new Date(token.lastUsedAt).toLocaleString()
+              : m['settings.ai_support.ops_token_never_used']();
+
+            return (
+              <div key={token.id} className="flex flex-col gap-2 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <p className="font-medium">{token.name}</p>
+                  <p className="text-sm text-muted-foreground">{token.tokenPrefix}... · {token.accessProfile}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {m['settings.ai_support.ops_token_expires']()}: {expiresLabel} ·{' '}
+                    {m['settings.ai_support.ops_token_last_used']()}: {lastUsedLabel}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant={token.status === 'active' ? 'default' : 'outline'}>{token.status}</Badge>
+                  <Badge variant="outline">{token.scopes.length} scopes</Badge>
+                  {token.status === 'active' ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={revokePending}
+                      onClick={() => onRevoke(token.id)}
+                    >
+                      <LockKeyhole className="size-4" />
+                      {m['settings.ai_support.ops_revoke_token']()}
+                    </Button>
+                  ) : null}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">{token.status}</Badge>
-                <Badge variant="outline">{token.scopes.length} scopes</Badge>
-              </div>
-            </div>
-          )}
+            );
+          }}
         />
       </CardContent>
     </Card>
@@ -1798,11 +1848,23 @@ function AiSupportPage() {
     onError: (error: Error) => toast.error(error.message),
   });
   const createTokenMutation = useMutation({
-    mutationFn: (input: { name: string; chatbotIds: string[] }) =>
+    mutationFn: (input: { name: string; chatbotIds: string[]; expiresAt: string | null }) =>
       apiPost<{ token: string; record: AiAgentToken }>('/api/ai-support/agent-tokens', input),
     onSuccess: async (result) => {
       await navigator.clipboard.writeText(result.token);
       toast.success(m['settings.ai_support.ops_token_copied']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const revokeTokenMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiPatch<AiAgentToken>('/api/ai-support/agent-tokens', {
+        id,
+        action: 'revoke',
+      }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_token_revoked']());
       await refreshAiSupport();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -2146,7 +2208,9 @@ function AiSupportPage() {
               chatbots={chatbots}
               tokens={tokens}
               pending={createTokenMutation.isPending}
+              revokePending={revokeTokenMutation.isPending}
               onCreate={(input) => createTokenMutation.mutateAsync(input).then(() => undefined)}
+              onRevoke={(id) => revokeTokenMutation.mutateAsync(id).then(() => undefined)}
             />
           </div>
           <HumanSupportSettingsPanel
