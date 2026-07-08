@@ -134,6 +134,16 @@ export interface WidgetAppearanceSettings {
   primaryColor: string;
 }
 
+export interface LaunchOperationsSettings {
+  backupConfigured: boolean;
+  backupRunbookUrl: string;
+  errorAlertsEnabled: boolean;
+  errorAlertWebhookUrl: string;
+  logRetentionDays: number;
+  rateLimitEnabled: boolean;
+  domainWhitelistRequired: boolean;
+}
+
 export interface CreateChatbotInput {
   userId: string;
   name: string;
@@ -293,6 +303,12 @@ export interface UpdateWidgetAppearanceInput {
   settings: Partial<WidgetAppearanceSettings>;
 }
 
+export interface UpdateLaunchOperationsInput {
+  userId: string;
+  chatbotId: string;
+  settings: Partial<LaunchOperationsSettings>;
+}
+
 const KNOWLEDGE_TYPES: KnowledgeSourceType[] = [
   'custom_response',
   'text_snippet',
@@ -366,6 +382,7 @@ function activeAgentTokenWhere(userId: string, now = new Date()) {
 
 const HUMAN_SUPPORT_SETTING_KEY = 'human_support.settings';
 const WIDGET_APPEARANCE_SETTING_KEY = 'widget.appearance';
+const LAUNCH_OPERATIONS_SETTING_KEY = 'launch.operations';
 const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
   enabled: true,
   showEscalationButtons: true,
@@ -384,6 +401,15 @@ const DEFAULT_WIDGET_APPEARANCE: WidgetAppearanceSettings = {
   placeholder: 'How can we help?',
   launcherLabel: '?',
   primaryColor: '#2563eb',
+};
+const DEFAULT_LAUNCH_OPERATIONS: LaunchOperationsSettings = {
+  backupConfigured: false,
+  backupRunbookUrl: '',
+  errorAlertsEnabled: false,
+  errorAlertWebhookUrl: '',
+  logRetentionDays: 14,
+  rateLimitEnabled: true,
+  domainWhitelistRequired: true,
 };
 
 function assertKnowledgeType(type: string): asserts type is KnowledgeSourceType {
@@ -608,6 +634,65 @@ function normalizeWidgetAppearance(
   };
 }
 
+function parseLaunchOperations(raw: string | null): LaunchOperationsSettings {
+  const parsed = parseJsonObject(raw);
+  const logRetentionDays = Number(parsed.logRetentionDays);
+  return {
+    backupConfigured:
+      typeof parsed.backupConfigured === 'boolean'
+        ? parsed.backupConfigured
+        : DEFAULT_LAUNCH_OPERATIONS.backupConfigured,
+    backupRunbookUrl:
+      typeof parsed.backupRunbookUrl === 'string'
+        ? parsed.backupRunbookUrl
+        : DEFAULT_LAUNCH_OPERATIONS.backupRunbookUrl,
+    errorAlertsEnabled:
+      typeof parsed.errorAlertsEnabled === 'boolean'
+        ? parsed.errorAlertsEnabled
+        : DEFAULT_LAUNCH_OPERATIONS.errorAlertsEnabled,
+    errorAlertWebhookUrl:
+      typeof parsed.errorAlertWebhookUrl === 'string'
+        ? parsed.errorAlertWebhookUrl
+        : DEFAULT_LAUNCH_OPERATIONS.errorAlertWebhookUrl,
+    logRetentionDays:
+      Number.isFinite(logRetentionDays) && logRetentionDays > 0
+        ? Math.min(Math.floor(logRetentionDays), 365)
+        : DEFAULT_LAUNCH_OPERATIONS.logRetentionDays,
+    rateLimitEnabled:
+      typeof parsed.rateLimitEnabled === 'boolean'
+        ? parsed.rateLimitEnabled
+        : DEFAULT_LAUNCH_OPERATIONS.rateLimitEnabled,
+    domainWhitelistRequired:
+      typeof parsed.domainWhitelistRequired === 'boolean'
+        ? parsed.domainWhitelistRequired
+        : DEFAULT_LAUNCH_OPERATIONS.domainWhitelistRequired,
+  };
+}
+
+function normalizeLaunchOperations(
+  input: Partial<LaunchOperationsSettings>,
+  current: LaunchOperationsSettings
+): LaunchOperationsSettings {
+  const logRetentionDays = Number(input.logRetentionDays ?? current.logRetentionDays);
+  const backupRunbookUrl = (input.backupRunbookUrl ?? current.backupRunbookUrl).trim().slice(0, 500);
+  const errorAlertWebhookUrl = (input.errorAlertWebhookUrl ?? current.errorAlertWebhookUrl).trim().slice(0, 500);
+
+  return {
+    backupConfigured: input.backupConfigured ?? current.backupConfigured,
+    backupRunbookUrl: backupRunbookUrl ? normalizeOutboundHttpUrl(backupRunbookUrl, 'Backup runbook URL').toString() : '',
+    errorAlertsEnabled: input.errorAlertsEnabled ?? current.errorAlertsEnabled,
+    errorAlertWebhookUrl: errorAlertWebhookUrl
+      ? normalizeWebhookUrl(errorAlertWebhookUrl).toString()
+      : '',
+    logRetentionDays:
+      Number.isFinite(logRetentionDays) && logRetentionDays > 0
+        ? Math.min(Math.floor(logRetentionDays), 365)
+        : current.logRetentionDays,
+    rateLimitEnabled: input.rateLimitEnabled ?? current.rateLimitEnabled,
+    domainWhitelistRequired: input.domainWhitelistRequired ?? current.domainWhitelistRequired,
+  };
+}
+
 function normalizeOutboundHttpUrl(rawUrl: string, label: string, opts: { requireHttps?: boolean } = {}): URL {
   const trimmed = rawUrl.trim();
   if (!trimmed) throw new Error(`${label} is required`);
@@ -671,6 +756,17 @@ function redactHumanSupportSettingsContent(raw: string | null): string {
       typeof parsed.notificationWebhookUrl === 'string'
         ? redactSecretUrl(parsed.notificationWebhookUrl)
         : parsed.notificationWebhookUrl,
+  });
+}
+
+function redactLaunchOperationsContent(raw: string | null): string {
+  const parsed = parseJsonObject(raw);
+  return JSON.stringify({
+    ...parsed,
+    errorAlertWebhookUrl:
+      typeof parsed.errorAlertWebhookUrl === 'string'
+        ? redactSecretUrl(parsed.errorAlertWebhookUrl)
+        : parsed.errorAlertWebhookUrl,
   });
 }
 
@@ -1348,6 +1444,70 @@ export async function updateWidgetAppearanceSettings(
       metadata: {
         chatbotId: input.chatbotId,
         primaryColor: next.primaryColor,
+      },
+    });
+  });
+
+  return next;
+}
+
+export async function getLaunchOperationsSettings(params: {
+  userId: string;
+  chatbotId: string;
+}): Promise<LaunchOperationsSettings> {
+  await assertOwnsChatbot(params.userId, params.chatbotId);
+  const [latest] = await db()
+    .select({ content: aiConfigVersion.content })
+    .from(aiConfigVersion)
+    .where(
+      and(
+        eq(aiConfigVersion.userId, params.userId),
+        eq(aiConfigVersion.chatbotId, params.chatbotId),
+        eq(aiConfigVersion.settingKey, LAUNCH_OPERATIONS_SETTING_KEY),
+        eq(aiConfigVersion.status, 'published')
+      )
+    )
+    .orderBy(desc(aiConfigVersion.version))
+    .limit(1);
+
+  return latest ? parseLaunchOperations(latest.content) : DEFAULT_LAUNCH_OPERATIONS;
+}
+
+export async function updateLaunchOperationsSettings(
+  input: UpdateLaunchOperationsInput
+): Promise<LaunchOperationsSettings> {
+  await assertOwnsChatbot(input.userId, input.chatbotId);
+  const current = await getLaunchOperationsSettings({
+    userId: input.userId,
+    chatbotId: input.chatbotId,
+  });
+  const next = normalizeLaunchOperations(input.settings, current);
+
+  await db().transaction(async (tx: any) => {
+    const record = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: LAUNCH_OPERATIONS_SETTING_KEY,
+      content: JSON.stringify(next),
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_config_version',
+      resourceId: record.id,
+      action: 'launch.operations.update',
+      diff: {
+        ...next,
+        errorAlertWebhookUrl: redactSecretUrl(next.errorAlertWebhookUrl),
+      },
+      metadata: {
+        chatbotId: input.chatbotId,
+        backupConfigured: next.backupConfigured,
+        errorAlertsEnabled: next.errorAlertsEnabled,
+        logRetentionDays: next.logRetentionDays,
       },
     });
   });
@@ -2482,6 +2642,8 @@ export async function listConfigVersions(params: {
     content:
       row.settingKey === HUMAN_SUPPORT_SETTING_KEY
         ? redactHumanSupportSettingsContent(row.content)
+        : row.settingKey === LAUNCH_OPERATIONS_SETTING_KEY
+          ? redactLaunchOperationsContent(row.content)
         : row.content,
   }));
 }
@@ -2570,6 +2732,29 @@ export async function getAiSupportOverview(userId: string): Promise<AiSupportOve
     aiConfigVersion as any,
     and(eq(aiConfigVersion.userId, userId), eq(aiConfigVersion.status, 'published'))
   );
+  const [primaryChatbot] = await db()
+    .select({
+      id: aiChatbot.id,
+      allowedDomains: aiChatbot.allowedDomains,
+    })
+    .from(aiChatbot)
+    .where(and(eq(aiChatbot.userId, userId), isNull(aiChatbot.deletedAt)))
+    .orderBy(desc(aiChatbot.createdAt))
+    .limit(1);
+  const launchOperations = primaryChatbot
+    ? await getLaunchOperationsSettings({ userId, chatbotId: primaryChatbot.id })
+    : DEFAULT_LAUNCH_OPERATIONS;
+  const hasDomainWhitelist = primaryChatbot
+    ? parseJsonStringArray(primaryChatbot.allowedDomains).length > 0
+    : false;
+  const productionOpsReady =
+    launchOperations.backupConfigured &&
+    launchOperations.errorAlertsEnabled &&
+    Boolean(launchOperations.errorAlertWebhookUrl) &&
+    launchOperations.logRetentionDays >= 7 &&
+    launchOperations.rateLimitEnabled &&
+    launchOperations.domainWhitelistRequired &&
+    hasDomainWhitelist;
 
   const knowledgeSources = await Promise.all(
     KNOWLEDGE_TYPES.map(async (type) => {
@@ -2601,6 +2786,7 @@ export async function getAiSupportOverview(userId: string): Promise<AiSupportOve
     { key: 'human_support', status: openEscalationCount > 0 ? 'ready' : 'warning' },
     { key: 'agent_control', status: activeAgentTokenCount > 0 ? 'ready' : 'warning' },
     { key: 'versioning', status: publishedConfigCount > 0 ? 'ready' : 'warning' },
+    { key: 'production_ops', status: productionOpsReady ? 'ready' : 'warning' },
   ];
 
   const recentAgentRuns = await db()

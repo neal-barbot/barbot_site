@@ -76,6 +76,7 @@ import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/a
 import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/usage'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
+import { Route as ApiAiSupportLaunchOperationsRouteImport } from './routes/api/ai-support/launch-operations'
 import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/ai-support/knowledge-sources'
 import { Route as ApiAiSupportInstallCheckRouteImport } from './routes/api/ai-support/install-check'
 import { Route as ApiAiSupportHumanSupportSettingsRouteImport } from './routes/api/ai-support/human-support-settings'
@@ -448,6 +449,12 @@ const ApiAiSupportLeadsRoute = ApiAiSupportLeadsRouteImport.update({
   path: '/api/ai-support/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportLaunchOperationsRoute =
+  ApiAiSupportLaunchOperationsRouteImport.update({
+    id: '/api/ai-support/launch-operations',
+    path: '/api/ai-support/launch-operations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportKnowledgeSourcesRoute =
   ApiAiSupportKnowledgeSourcesRouteImport.update({
     id: '/api/ai-support/knowledge-sources',
@@ -705,6 +712,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
@@ -807,6 +815,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
@@ -913,6 +922,7 @@ export interface FileRoutesById {
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
@@ -1019,6 +1029,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/human-support-settings'
     | '/api/ai-support/install-check'
     | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
     | '/api/ai-support/usage'
@@ -1121,6 +1132,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/human-support-settings'
     | '/api/ai-support/install-check'
     | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
     | '/api/ai-support/usage'
@@ -1226,6 +1238,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/human-support-settings'
     | '/api/ai-support/install-check'
     | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
     | '/api/ai-support/usage'
@@ -1308,6 +1321,7 @@ export interface RootRouteChildren {
   ApiAiSupportHumanSupportSettingsRoute: typeof ApiAiSupportHumanSupportSettingsRoute
   ApiAiSupportInstallCheckRoute: typeof ApiAiSupportInstallCheckRoute
   ApiAiSupportKnowledgeSourcesRoute: typeof ApiAiSupportKnowledgeSourcesRoute
+  ApiAiSupportLaunchOperationsRoute: typeof ApiAiSupportLaunchOperationsRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
   ApiAiSupportUsageRoute: typeof ApiAiSupportUsageRoute
@@ -1817,6 +1831,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/launch-operations': {
+      id: '/api/ai-support/launch-operations'
+      path: '/api/ai-support/launch-operations'
+      fullPath: '/api/ai-support/launch-operations'
+      preLoaderRoute: typeof ApiAiSupportLaunchOperationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/knowledge-sources': {
       id: '/api/ai-support/knowledge-sources'
       path: '/api/ai-support/knowledge-sources'
@@ -2245,6 +2266,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportHumanSupportSettingsRoute: ApiAiSupportHumanSupportSettingsRoute,
   ApiAiSupportInstallCheckRoute: ApiAiSupportInstallCheckRoute,
   ApiAiSupportKnowledgeSourcesRoute: ApiAiSupportKnowledgeSourcesRoute,
+  ApiAiSupportLaunchOperationsRoute: ApiAiSupportLaunchOperationsRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
   ApiAiSupportUsageRoute: ApiAiSupportUsageRoute,

@@ -100,6 +100,7 @@ type OverviewChecklistKey =
   | 'knowledge'
   | 'human_support'
   | 'agent_control'
+  | 'production_ops'
   | 'versioning';
 type OverviewSourceType = 'custom_response' | 'text_snippet' | 'website_link' | 'file';
 
@@ -258,6 +259,16 @@ type WidgetAppearanceSettings = {
   primaryColor: string;
 };
 
+type LaunchOperationsSettings = {
+  backupConfigured: boolean;
+  backupRunbookUrl: string;
+  errorAlertsEnabled: boolean;
+  errorAlertWebhookUrl: string;
+  logRetentionDays: number;
+  rateLimitEnabled: boolean;
+  domainWhitelistRequired: boolean;
+};
+
 type AiSupportUsage = {
   generatedAt: string;
   resetAt: string;
@@ -350,6 +361,10 @@ const launchMeta: Record<OverviewChecklistKey, Omit<LaunchItem, 'status'>> = {
   agent_control: {
     label: m['settings.ai_support.launch_agent'](),
     description: m['settings.ai_support.launch_agent_desc'](),
+  },
+  production_ops: {
+    label: m['settings.ai_support.launch_production'](),
+    description: m['settings.ai_support.launch_production_desc'](),
   },
   versioning: {
     label: m['settings.ai_support.launch_security'](),
@@ -1570,6 +1585,139 @@ function WidgetAppearancePanel({
   );
 }
 
+function LaunchOperationsPanel({
+  chatbotId,
+  settings,
+  pending,
+  onSave,
+}: {
+  chatbotId: string;
+  settings: LaunchOperationsSettings | undefined;
+  pending: boolean;
+  onSave: (input: LaunchOperationsSettings) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<LaunchOperationsSettings | null>(null);
+  const value = draft ?? settings;
+
+  function update<K extends keyof LaunchOperationsSettings>(
+    key: K,
+    next: LaunchOperationsSettings[K]
+  ) {
+    setDraft({
+      ...(value ?? {
+        backupConfigured: false,
+        backupRunbookUrl: '',
+        errorAlertsEnabled: false,
+        errorAlertWebhookUrl: '',
+        logRetentionDays: 14,
+        rateLimitEnabled: true,
+        domainWhitelistRequired: true,
+      }),
+      [key]: next,
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m['settings.ai_support.ops_launch_ops_title']()}</CardTitle>
+        <CardDescription>{m['settings.ai_support.ops_launch_ops_desc']()}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {!chatbotId || !value ? (
+          <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            {m['settings.ai_support.ops_human_settings_empty']()}
+          </p>
+        ) : (
+          <>
+            <div className="grid gap-3 md:grid-cols-3">
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.backupConfigured}
+                  onChange={(event) => update('backupConfigured', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_backup_configured']()}
+              </label>
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.errorAlertsEnabled}
+                  onChange={(event) => update('errorAlertsEnabled', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_error_alerts_enabled']()}
+              </label>
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.rateLimitEnabled}
+                  onChange={(event) => update('rateLimitEnabled', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_rate_limit_enabled']()}
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-launch-backup-runbook">
+                  {m['settings.ai_support.ops_backup_runbook_url']()}
+                </Label>
+                <Input
+                  id="ai-launch-backup-runbook"
+                  value={value.backupRunbookUrl}
+                  onChange={(event) => update('backupRunbookUrl', event.target.value)}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-launch-alert-webhook">
+                  {m['settings.ai_support.ops_error_alert_webhook']()}
+                </Label>
+                <Input
+                  id="ai-launch-alert-webhook"
+                  value={value.errorAlertWebhookUrl}
+                  onChange={(event) => update('errorAlertWebhookUrl', event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-launch-log-retention">
+                  {m['settings.ai_support.ops_log_retention_days']()}
+                </Label>
+                <Input
+                  id="ai-launch-log-retention"
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={value.logRetentionDays}
+                  onChange={(event) =>
+                    update('logRetentionDays', Number.parseInt(event.target.value, 10) || 1)
+                  }
+                />
+              </div>
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.domainWhitelistRequired}
+                  onChange={(event) => update('domainWhitelistRequired', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_domain_whitelist_required']()}
+              </label>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                disabled={pending || !draft}
+                onClick={() => onSave(value).then(() => setDraft(null))}
+              >
+                {m['settings.ai_support.ops_save']()}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function parseCitations(raw: string): Array<{ title?: string; sourceUrl?: string; id?: string }> {
   try {
     const parsed = JSON.parse(raw);
@@ -1876,6 +2024,15 @@ function AiSupportPage() {
     enabled: Boolean(primaryChatbotId),
     retry: false,
   });
+  const launchOperationsQuery = useQuery({
+    queryKey: ['ai-support-launch-operations', primaryChatbotId],
+    queryFn: () =>
+      apiGet<LaunchOperationsSettings>(
+        `/api/ai-support/launch-operations?chatbotId=${encodeURIComponent(primaryChatbotId)}`
+      ),
+    enabled: Boolean(primaryChatbotId),
+    retry: false,
+  });
   const tokensQuery = useQuery({
     queryKey: ['ai-support-agent-tokens'],
     queryFn: () => apiGet<AiAgentToken[]>('/api/ai-support/agent-tokens'),
@@ -1926,6 +2083,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-config-versions'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-human-support-settings'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-widget-appearance'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-launch-operations'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-usage'] }),
@@ -2053,6 +2211,18 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const updateLaunchOperationsMutation = useMutation({
+    mutationFn: (input: LaunchOperationsSettings) =>
+      apiPatch<LaunchOperationsSettings>('/api/ai-support/launch-operations', {
+        chatbotId: primaryChatbotId,
+        ...input,
+      }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
   const retryEscalationNotificationsMutation = useMutation({
     mutationFn: (id: string) =>
       apiPatch<AiEscalation>('/api/ai-support/escalations', {
@@ -2073,6 +2243,7 @@ function AiSupportPage() {
   const escalations = escalationsQuery.data ?? [];
   const humanSupportSettings = humanSupportSettingsQuery.data;
   const widgetAppearance = widgetAppearanceQuery.data;
+  const launchOperations = launchOperationsQuery.data;
   const tokens = tokensQuery.data ?? [];
   const agentRuns = agentRunsQuery.data ?? [];
   const configVersions = configVersionsQuery.data ?? [];
@@ -2386,6 +2557,12 @@ function AiSupportPage() {
         </TabsContent>
 
         <TabsContent value="launch" className="space-y-4">
+          <LaunchOperationsPanel
+            chatbotId={primaryChatbotId}
+            settings={launchOperations}
+            pending={updateLaunchOperationsMutation.isPending}
+            onSave={(input) => updateLaunchOperationsMutation.mutateAsync(input).then(() => undefined)}
+          />
           <LaunchChecklist items={launchItems} />
         </TabsContent>
 
