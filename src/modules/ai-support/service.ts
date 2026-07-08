@@ -198,6 +198,19 @@ export interface UpdateKnowledgeSourceInput {
   metadata?: Record<string, unknown>;
 }
 
+export interface AiKnowledgeSyncJob {
+  id: string;
+  chatbotId: string;
+  sourceId: string;
+  sourceType: KnowledgeSourceType;
+  title: string;
+  status: 'pending' | 'synced' | 'failed';
+  attempts: number;
+  lastError: string | null;
+  lastSyncedAt: Date | null;
+  updatedAt: Date;
+}
+
 export interface CreateLeadInput {
   userId: string;
   chatbotId: string;
@@ -1001,6 +1014,31 @@ function readNotificationDeliveries(metadata: Record<string, unknown>): Notifica
   return deliveries;
 }
 
+function syncJobFromKnowledgeSource(source: AiKnowledgeSource): AiKnowledgeSyncJob {
+  const metadata = parseJsonObject(source.metadata);
+  const rawStatus = metadata.syncStatus;
+  const status: AiKnowledgeSyncJob['status'] =
+    rawStatus === 'failed'
+      ? 'failed'
+      : source.status === 'ready' && source.lastSyncedAt
+        ? 'synced'
+        : 'pending';
+  const attempts = Number(metadata.syncAttempts);
+
+  return {
+    id: source.id,
+    chatbotId: source.chatbotId,
+    sourceId: source.id,
+    sourceType: source.type as KnowledgeSourceType,
+    title: source.title,
+    status,
+    attempts: Number.isFinite(attempts) && attempts > 0 ? Math.floor(attempts) : 0,
+    lastError: typeof metadata.syncLastError === 'string' ? metadata.syncLastError : null,
+    lastSyncedAt: source.lastSyncedAt,
+    updatedAt: source.updatedAt,
+  };
+}
+
 async function deliverEscalationNotifications(input: {
   userId: string;
   chatbot: Pick<AiChatbot, 'id' | 'name'>;
@@ -1780,6 +1818,74 @@ export async function listKnowledgeSources(params: {
     .from(aiKnowledgeSource)
     .where(and(...conditions))
     .orderBy(desc(aiKnowledgeSource.updatedAt));
+}
+
+export async function listKnowledgeSyncJobs(params: {
+  userId: string;
+  chatbotId?: string;
+}): Promise<AiKnowledgeSyncJob[]> {
+  const rows = await listKnowledgeSources(params);
+  return rows.map(syncJobFromKnowledgeSource);
+}
+
+export async function runKnowledgeSyncJob(params: {
+  userId: string;
+  sourceId: string;
+}): Promise<AiKnowledgeSyncJob> {
+  const [existing] = await db()
+    .select()
+    .from(aiKnowledgeSource)
+    .where(
+      and(
+        eq(aiKnowledgeSource.id, params.sourceId),
+        eq(aiKnowledgeSource.userId, params.userId),
+        isNull(aiKnowledgeSource.deletedAt)
+      )
+    )
+    .limit(1);
+  if (!existing) throw new Error('Knowledge source not found');
+  await assertOwnsChatbot(params.userId, existing.chatbotId);
+
+  const now = new Date();
+  const metadata = parseJsonObject(existing.metadata);
+  const attempts = Math.max(Math.floor(Number(metadata.syncAttempts) || 0), 0) + 1;
+  const hasSyncableContent = Boolean(existing.content?.trim() || existing.sourceUrl?.trim());
+  const nextMetadata = {
+    ...metadata,
+    syncStatus: hasSyncableContent ? 'synced' : 'failed',
+    syncAttempts: attempts,
+    syncLastError: hasSyncableContent ? null : 'Knowledge source needs content or a source URL before syncing.',
+    syncLastRunAt: now.toISOString(),
+  };
+
+  return db().transaction(async (tx: any) => {
+    const [row] = await tx
+      .update(aiKnowledgeSource)
+      .set({
+        status: hasSyncableContent ? 'ready' : existing.status,
+        metadata: JSON.stringify(nextMetadata),
+        lastSyncedAt: hasSyncableContent ? now : existing.lastSyncedAt,
+        updatedAt: now,
+      })
+      .where(eq(aiKnowledgeSource.id, params.sourceId))
+      .returning();
+
+    await writeAudit(tx, {
+      userId: params.userId,
+      resourceType: 'ai_knowledge_source',
+      resourceId: params.sourceId,
+      action: hasSyncableContent ? 'knowledge.sync' : 'knowledge.sync.failed',
+      status: hasSyncableContent ? 'recorded' : 'failed',
+      metadata: {
+        chatbotId: existing.chatbotId,
+        type: existing.type,
+        attempts,
+        lastError: nextMetadata.syncLastError,
+      },
+    });
+
+    return syncJobFromKnowledgeSource(row);
+  });
 }
 
 export async function listConversations(params: {

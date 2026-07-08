@@ -149,6 +149,19 @@ type AiKnowledgeSource = {
   updatedAt: string;
 };
 
+type AiKnowledgeSyncJob = {
+  id: string;
+  chatbotId: string;
+  sourceId: string;
+  sourceType: OverviewSourceType;
+  title: string;
+  status: 'pending' | 'synced' | 'failed';
+  attempts: number;
+  lastError: string | null;
+  lastSyncedAt: string | null;
+  updatedAt: string;
+};
+
 type AiLead = {
   id: string;
   chatbotId: string;
@@ -906,6 +919,68 @@ function KnowledgeOperations({
                 <p className="text-sm text-muted-foreground">{source.type}</p>
               </div>
               <Badge variant="outline">{source.status}</Badge>
+            </div>
+          )}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
+function KnowledgeSyncOperations({
+  jobs,
+  pending,
+  onRun,
+}: {
+  jobs: AiKnowledgeSyncJob[];
+  pending: boolean;
+  onRun: (sourceId: string) => Promise<void>;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m['settings.ai_support.ops_sync_jobs_title']()}</CardTitle>
+        <CardDescription>{m['settings.ai_support.ops_sync_jobs_desc']()}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <CompactRows
+          rows={jobs.slice(0, 8)}
+          empty={m['settings.ai_support.ops_no_sync_jobs']()}
+          render={(job) => (
+            <div key={job.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate font-medium">{job.title}</p>
+                  <Badge variant={job.status === 'synced' ? 'secondary' : 'outline'}>{job.status}</Badge>
+                  <Badge variant="outline">{job.sourceType}</Badge>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {m['settings.ai_support.ops_sync_attempts']({ count: job.attempts })} ·{' '}
+                  {job.lastSyncedAt
+                    ? new Date(job.lastSyncedAt).toLocaleString()
+                    : m['settings.ai_support.ops_sync_never']()}
+                </p>
+                {job.lastError ? (
+                  <p className="mt-1 line-clamp-2 text-sm text-destructive">{job.lastError}</p>
+                ) : null}
+              </div>
+              <ConfirmAction
+                variant="outline"
+                disabled={pending}
+                title={m['settings.ai_support.ops_confirm_sync_title']()}
+                description={m['settings.ai_support.ops_confirm_sync_desc']()}
+                confirmLabel={
+                  job.status === 'failed'
+                    ? m['settings.ai_support.ops_retry_sync']()
+                    : m['settings.ai_support.ops_run_sync']()
+                }
+                onConfirm={() => onRun(job.sourceId)}
+              >
+                <RotateCcw className="size-4" />
+                {job.status === 'failed'
+                  ? m['settings.ai_support.ops_retry_sync']()
+                  : m['settings.ai_support.ops_run_sync']()}
+              </ConfirmAction>
             </div>
           )}
         />
@@ -2058,6 +2133,16 @@ function AiSupportPage() {
     queryFn: () => apiGet<AiKnowledgeSource[]>('/api/ai-support/knowledge-sources'),
     retry: false,
   });
+  const syncJobsQuery = useQuery({
+    queryKey: ['ai-support-sync-jobs', primaryChatbotId],
+    queryFn: () =>
+      apiGet<AiKnowledgeSyncJob[]>(
+        primaryChatbotId
+          ? `/api/ai-support/sync-jobs?chatbotId=${encodeURIComponent(primaryChatbotId)}`
+          : '/api/ai-support/sync-jobs'
+      ),
+    retry: false,
+  });
   const leadsQuery = useQuery({
     queryKey: ['ai-support-leads'],
     queryFn: () => apiGet<AiLead[]>('/api/ai-support/leads'),
@@ -2140,6 +2225,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-overview'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-chatbots'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-knowledge-sources'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-sync-jobs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-tokens'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-runs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-config-versions'] }),
@@ -2192,6 +2278,19 @@ function AiSupportPage() {
     }) => apiPost<AiKnowledgeSource>('/api/ai-support/knowledge-sources', input),
     onSuccess: async () => {
       toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const runSyncJobMutation = useMutation({
+    mutationFn: (sourceId: string) =>
+      apiPost<AiKnowledgeSyncJob>('/api/ai-support/sync-jobs', { sourceId }),
+    onSuccess: async (job) => {
+      toast[job.status === 'failed' ? 'warning' : 'success'](
+        job.status === 'failed'
+          ? m['settings.ai_support.ops_sync_failed']()
+          : m['settings.ai_support.ops_sync_complete']()
+      );
       await refreshAiSupport();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -2301,6 +2400,7 @@ function AiSupportPage() {
   const overview = overviewQuery.data;
   const chatbots = chatbotsQuery.data ?? [];
   const knowledgeSources = knowledgeQuery.data ?? [];
+  const syncJobs = syncJobsQuery.data ?? [];
   const leads = leadsQuery.data ?? [];
   const escalations = escalationsQuery.data ?? [];
   const humanSupportSettings = humanSupportSettingsQuery.data;
@@ -2629,6 +2729,11 @@ function AiSupportPage() {
         </TabsContent>
 
         <TabsContent value="knowledge" className="space-y-4">
+          <KnowledgeSyncOperations
+            jobs={syncJobs}
+            pending={runSyncJobMutation.isPending}
+            onRun={(sourceId) => runSyncJobMutation.mutateAsync(sourceId).then(() => undefined)}
+          />
           <KnowledgePanel sources={sources} />
         </TabsContent>
 

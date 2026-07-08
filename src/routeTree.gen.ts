@@ -74,6 +74,7 @@ import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
 import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/usage'
+import { Route as ApiAiSupportSyncJobsRouteImport } from './routes/api/ai-support/sync-jobs'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
 import { Route as ApiAiSupportLaunchOperationsRouteImport } from './routes/api/ai-support/launch-operations'
@@ -439,6 +440,11 @@ const ApiAiSupportUsageRoute = ApiAiSupportUsageRouteImport.update({
   path: '/api/ai-support/usage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportSyncJobsRoute = ApiAiSupportSyncJobsRouteImport.update({
+  id: '/api/ai-support/sync-jobs',
+  path: '/api/ai-support/sync-jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiSupportOverviewRoute = ApiAiSupportOverviewRouteImport.update({
   id: '/api/ai-support/overview',
   path: '/api/ai-support/overview',
@@ -715,6 +721,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
+  '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -818,6 +825,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
+  '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -925,6 +933,7 @@ export interface FileRoutesById {
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
+  '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -1032,6 +1041,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
+    | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
@@ -1135,6 +1145,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
+    | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
@@ -1241,6 +1252,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
+    | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
@@ -1324,6 +1336,7 @@ export interface RootRouteChildren {
   ApiAiSupportLaunchOperationsRoute: typeof ApiAiSupportLaunchOperationsRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
+  ApiAiSupportSyncJobsRoute: typeof ApiAiSupportSyncJobsRoute
   ApiAiSupportUsageRoute: typeof ApiAiSupportUsageRoute
   ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -1817,6 +1830,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportUsageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/sync-jobs': {
+      id: '/api/ai-support/sync-jobs'
+      path: '/api/ai-support/sync-jobs'
+      fullPath: '/api/ai-support/sync-jobs'
+      preLoaderRoute: typeof ApiAiSupportSyncJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/overview': {
       id: '/api/ai-support/overview'
       path: '/api/ai-support/overview'
@@ -2269,6 +2289,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportLaunchOperationsRoute: ApiAiSupportLaunchOperationsRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
+  ApiAiSupportSyncJobsRoute: ApiAiSupportSyncJobsRoute,
   ApiAiSupportUsageRoute: ApiAiSupportUsageRoute,
   ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
