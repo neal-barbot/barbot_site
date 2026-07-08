@@ -1184,11 +1184,7 @@ function SupportQueueOperations({
             empty={m['settings.ai_support.ops_no_escalations']()}
             render={(item) => {
               const metadata = parseObjectMetadata(item.metadata);
-              const notificationDelivery = parseObjectMetadata(metadata.notificationDelivery);
-              const deliveryStatus =
-                typeof notificationDelivery.status === 'string'
-                  ? notificationDelivery.status
-                  : undefined;
+              const deliveries = parseNotificationDeliveries(metadata);
 
               return (
                 <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
@@ -1197,13 +1193,20 @@ function SupportQueueOperations({
                     <p className="text-sm text-muted-foreground">{item.assigneeUserId || 'Unassigned'}</p>
                   </div>
                   <div className="flex flex-wrap justify-end gap-2">
-                    {deliveryStatus ? (
-                      <Badge variant={deliveryStatus === 'sent' ? 'secondary' : 'outline'}>
-                        {deliveryStatus === 'sent'
-                          ? m['settings.ai_support.ops_notification_sent']()
-                          : m['settings.ai_support.ops_notification_failed']()}
+                    {deliveries.map((delivery) => (
+                      <Badge
+                        key={`${delivery.channel}-${delivery.status}`}
+                        variant={delivery.status === 'sent' ? 'secondary' : 'outline'}
+                      >
+                        {delivery.channel === 'email'
+                          ? delivery.status === 'sent'
+                            ? m['settings.ai_support.ops_notification_email_sent']()
+                            : m['settings.ai_support.ops_notification_email_failed']()
+                          : delivery.status === 'sent'
+                            ? m['settings.ai_support.ops_notification_webhook_sent']()
+                            : m['settings.ai_support.ops_notification_webhook_failed']()}
                       </Badge>
-                    ) : null}
+                    ))}
                     <Badge variant="outline">{item.status}</Badge>
                   </div>
                 </div>
@@ -1214,6 +1217,28 @@ function SupportQueueOperations({
       </Card>
     </div>
   );
+}
+
+function parseNotificationDeliveries(metadata: Record<string, unknown>): Array<{
+  channel: 'email' | 'webhook';
+  status: 'sent' | 'failed';
+}> {
+  const rawDeliveries = Array.isArray(metadata.notificationDeliveries)
+    ? metadata.notificationDeliveries
+    : metadata.notificationDelivery
+      ? [metadata.notificationDelivery]
+      : [];
+
+  return rawDeliveries.flatMap((item) => {
+    const delivery = parseObjectMetadata(item);
+    const channel = delivery.channel === 'email' || delivery.channel === 'webhook'
+      ? delivery.channel
+      : null;
+    const status = delivery.status === 'sent' || delivery.status === 'failed'
+      ? delivery.status
+      : null;
+    return channel && status ? [{ channel, status }] : [];
+  });
 }
 
 function parseObjectMetadata(input: unknown): Record<string, unknown> {

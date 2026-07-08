@@ -1,5 +1,7 @@
 import { and, asc, count, desc, eq, isNull } from 'drizzle-orm';
 import { db } from '@/core/db';
+import { ResendProvider } from '@/core/email/resend';
+import { envConfigs } from '@/config';
 import {
   aiAgentRun,
   aiAgentToken,
@@ -11,6 +13,7 @@ import {
   aiHumanEscalation,
   aiKnowledgeSource,
   aiLead,
+  config,
   type AiChatbot,
   type AiAgentRun,
   type AiAuditLog,
@@ -21,6 +24,7 @@ import {
   type AiKnowledgeSource,
   type AiLead,
 } from '@/config/db/schema';
+import { decryptSecret, isEncryptedSecret } from '@/lib/crypto';
 import { getNonceStr, getUuid, md5 } from '@/lib/hash';
 
 export type AiSupportStatus = 'ready' | 'warning' | 'blocked';
@@ -105,6 +109,10 @@ export interface AiSupportUsage {
     openEscalations: number;
   }>;
 }
+
+type NotificationDelivery =
+  | { status: 'sent'; channel: 'webhook' | 'email'; statusCode?: number | null; messageId?: string; checkedAt: string }
+  | { status: 'failed'; channel: 'webhook' | 'email'; statusCode?: number | null; error: string; checkedAt: string };
 
 export interface HumanSupportSettings {
   enabled: boolean;
@@ -706,6 +714,78 @@ async function postJsonWebhook(url: URL, payload: unknown): Promise<{ ok: boolea
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function readEmailProviderConfigs(): Promise<{ apiKey: string; from: string; appName: string }> {
+  const dbConfigs: Record<string, string> = {};
+  try {
+    const rows = await db()
+      .select({
+        name: config.name,
+        value: config.value,
+      })
+      .from(config);
+
+    for (const row of rows) {
+      if (!row.name || !row.value) continue;
+      if (isEncryptedSecret(row.value)) {
+        const plain = await decryptSecret(row.value);
+        if (plain !== null) dbConfigs[row.name] = plain;
+      } else {
+        dbConfigs[row.name] = row.value;
+      }
+    }
+  } catch {
+    // Fall back to env configs; notification failure is recorded by the caller.
+  }
+
+  const merged = { ...envConfigs, ...dbConfigs };
+  return {
+    apiKey: merged.resend_api_key || '',
+    from: merged.resend_sender_email || '',
+    appName: merged.app_name || envConfigs.app_name || 'ShipAny',
+  };
+}
+
+async function sendEscalationEmail(input: {
+  to: string;
+  chatbotName: string;
+  escalation: AiHumanEscalation;
+}): Promise<{ ok: boolean; messageId?: string; error?: string }> {
+  const to = input.to.trim();
+  if (!to) return { ok: false, error: 'Notification email is not configured' };
+
+  const configs = await readEmailProviderConfigs();
+  if (!configs.apiKey || !configs.from) {
+    return { ok: false, error: 'Resend is not configured' };
+  }
+
+  const provider = new ResendProvider({
+    apiKey: configs.apiKey,
+    defaultFrom: configs.from,
+  });
+  const createdAt = input.escalation.createdAt?.toISOString?.() ?? String(input.escalation.createdAt ?? '');
+  const result = await provider.sendEmail({
+    to,
+    subject: `[${configs.appName}] Human support request - ${input.chatbotName}`,
+    text: [
+      `A visitor requested human support for ${input.chatbotName}.`,
+      '',
+      `Escalation ID: ${input.escalation.id}`,
+      `Status: ${input.escalation.status}`,
+      `Created: ${createdAt}`,
+      input.escalation.conversationId ? `Conversation ID: ${input.escalation.conversationId}` : '',
+      input.escalation.leadId ? `Lead ID: ${input.escalation.leadId}` : '',
+      '',
+      `Summary: ${redactPiiText(input.escalation.summary) || 'No summary provided.'}`,
+    ]
+      .filter(Boolean)
+      .join('\n'),
+  });
+
+  return result.success
+    ? { ok: true, messageId: result.messageId }
+    : { ok: false, error: result.error || 'Email delivery failed' };
 }
 
 function detectWidgetInstall(html: string, chatbot: Pick<AiChatbot, 'publicKey'>) {
@@ -1691,64 +1771,105 @@ export async function createPublicEscalation(input: Omit<CreateEscalationInput, 
       notificationEmail: settings.notificationsEnabled
         ? redactPiiText(settings.notificationEmail)
         : undefined,
+      notificationEmailConfigured: Boolean(settings.notificationEmail),
       notificationWebhookConfigured: Boolean(settings.notificationWebhookUrl),
     },
   });
 
-  if (!settings.notificationsEnabled || !settings.notificationWebhookUrl) {
+  if (!settings.notificationsEnabled) {
     return row;
   }
 
-  const deliveryCheckedAt = new Date();
-  let delivery:
-    | { status: 'sent'; channel: 'webhook'; statusCode: number | null; checkedAt: string }
-    | { status: 'failed'; channel: 'webhook'; statusCode: number | null; error: string; checkedAt: string };
+  const deliveries: NotificationDelivery[] = [];
 
-  try {
-    const webhookUrl = normalizeWebhookUrl(settings.notificationWebhookUrl);
-    const result = await postJsonWebhook(webhookUrl, {
-      event: 'ai_support.escalation.created',
-      escalation: {
-        id: row.id,
-        status: row.status,
-        summary: redactPiiText(row.summary),
-        leadId: row.leadId,
-        conversationId: row.conversationId,
-        createdAt: row.createdAt?.toISOString?.() ?? row.createdAt,
-      },
-      chatbot: {
-        id: chatbot.id,
-        name: chatbot.name,
-      },
-    });
+  if (settings.notificationEmail) {
+    const checkedAt = new Date().toISOString();
+    try {
+      const result = await sendEscalationEmail({
+        to: settings.notificationEmail,
+        chatbotName: chatbot.name,
+        escalation: row,
+      });
+      deliveries.push(
+        result.ok
+          ? {
+              status: 'sent',
+              channel: 'email',
+              messageId: result.messageId,
+              checkedAt,
+            }
+          : {
+              status: 'failed',
+              channel: 'email',
+              error: result.error || 'Email delivery failed',
+              checkedAt,
+            }
+      );
+    } catch (error: any) {
+      deliveries.push({
+        status: 'failed',
+        channel: 'email',
+        error: error?.message || 'Email delivery failed',
+        checkedAt,
+      });
+    }
+  }
 
-    delivery = result.ok
-      ? {
-          status: 'sent',
-          channel: 'webhook',
-          statusCode: result.statusCode,
-          checkedAt: deliveryCheckedAt.toISOString(),
-        }
-      : {
-          status: 'failed',
-          channel: 'webhook',
-          statusCode: result.statusCode,
-          error: result.error || 'Webhook delivery failed',
-          checkedAt: deliveryCheckedAt.toISOString(),
-        };
-  } catch (error: any) {
-    delivery = {
-      status: 'failed',
-      channel: 'webhook',
-      statusCode: null,
-      error: error?.message || 'Webhook delivery failed',
-      checkedAt: deliveryCheckedAt.toISOString(),
-    };
+  if (settings.notificationWebhookUrl) {
+    const checkedAt = new Date().toISOString();
+    try {
+      const webhookUrl = normalizeWebhookUrl(settings.notificationWebhookUrl);
+      const result = await postJsonWebhook(webhookUrl, {
+        event: 'ai_support.escalation.created',
+        escalation: {
+          id: row.id,
+          status: row.status,
+          summary: redactPiiText(row.summary),
+          leadId: row.leadId,
+          conversationId: row.conversationId,
+          createdAt: row.createdAt?.toISOString?.() ?? row.createdAt,
+        },
+        chatbot: {
+          id: chatbot.id,
+          name: chatbot.name,
+        },
+      });
+
+      deliveries.push(
+        result.ok
+          ? {
+              status: 'sent',
+              channel: 'webhook',
+              statusCode: result.statusCode,
+              checkedAt,
+            }
+          : {
+              status: 'failed',
+              channel: 'webhook',
+              statusCode: result.statusCode,
+              error: result.error || 'Webhook delivery failed',
+              checkedAt,
+            }
+      );
+    } catch (error: any) {
+      deliveries.push({
+        status: 'failed',
+        channel: 'webhook',
+        statusCode: null,
+        error: error?.message || 'Webhook delivery failed',
+        checkedAt,
+      });
+    }
+  }
+
+  if (deliveries.length === 0) {
+    return row;
   }
 
   const metadata = {
     ...parseJsonObject(row.metadata),
-    notificationDelivery: delivery,
+    notificationDelivery: deliveries[deliveries.length - 1],
+    notificationDeliveries: deliveries,
   };
 
   const [updated] = await db()
@@ -1761,22 +1882,29 @@ export async function createPublicEscalation(input: Omit<CreateEscalationInput, 
     .returning();
 
   await db().transaction(async (tx: any) => {
-    await writeAudit(tx, {
-      userId: chatbot.userId,
-      actorType: 'agent',
-      actorId: 'public_widget',
-      resourceType: 'ai_human_escalation',
-      resourceId: row.id,
-      action: 'escalation.notification.webhook',
-      status: delivery.status === 'sent' ? 'recorded' : 'failed',
-      metadata: {
-        chatbotId: chatbot.id,
-        channel: delivery.channel,
-        statusCode: delivery.statusCode,
-        webhook: redactSecretUrl(settings.notificationWebhookUrl),
-        error: delivery.status === 'failed' ? delivery.error : undefined,
-      },
-    });
+    for (const delivery of deliveries) {
+      await writeAudit(tx, {
+        userId: chatbot.userId,
+        actorType: 'agent',
+        actorId: 'public_widget',
+        resourceType: 'ai_human_escalation',
+        resourceId: row.id,
+        action: `escalation.notification.${delivery.channel}`,
+        status: delivery.status === 'sent' ? 'recorded' : 'failed',
+        metadata: {
+          chatbotId: chatbot.id,
+          channel: delivery.channel,
+          statusCode: 'statusCode' in delivery ? delivery.statusCode : undefined,
+          messageId: 'messageId' in delivery ? delivery.messageId : undefined,
+          email: delivery.channel === 'email' ? redactPiiText(settings.notificationEmail) : undefined,
+          webhook:
+            delivery.channel === 'webhook'
+              ? redactSecretUrl(settings.notificationWebhookUrl)
+              : undefined,
+          error: delivery.status === 'failed' ? delivery.error : undefined,
+        },
+      });
+    }
   });
 
   return updated ?? row;
