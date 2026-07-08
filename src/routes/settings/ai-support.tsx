@@ -250,6 +250,14 @@ type HumanSupportSettings = {
   notificationWebhookUrl: string;
 };
 
+type WidgetAppearanceSettings = {
+  displayName: string;
+  welcomeMessage: string;
+  placeholder: string;
+  launcherLabel: string;
+  primaryColor: string;
+};
+
 type AiSupportUsage = {
   generatedAt: string;
   resetAt: string;
@@ -1451,6 +1459,117 @@ function HumanSupportSettingsPanel({
   );
 }
 
+function WidgetAppearancePanel({
+  chatbotId,
+  settings,
+  pending,
+  onSave,
+}: {
+  chatbotId: string;
+  settings: WidgetAppearanceSettings | undefined;
+  pending: boolean;
+  onSave: (input: WidgetAppearanceSettings) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<WidgetAppearanceSettings | null>(null);
+  const value = draft ?? settings;
+
+  function update<K extends keyof WidgetAppearanceSettings>(key: K, next: WidgetAppearanceSettings[K]) {
+    setDraft({
+      ...(value ?? {
+        displayName: 'AI Support',
+        welcomeMessage: 'Leave your contact details and we will help from here.',
+        placeholder: 'How can we help?',
+        launcherLabel: '?',
+        primaryColor: '#2563eb',
+      }),
+      [key]: next,
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m['settings.ai_support.ops_appearance_title']()}</CardTitle>
+        <CardDescription>{m['settings.ai_support.ops_appearance_desc']()}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {!chatbotId || !value ? (
+          <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            {m['settings.ai_support.ops_human_settings_empty']()}
+          </p>
+        ) : (
+          <>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-widget-name">{m['settings.ai_support.ops_appearance_name']()}</Label>
+                <Input
+                  id="ai-widget-name"
+                  value={value.displayName}
+                  onChange={(event) => update('displayName', event.target.value)}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-widget-color">{m['settings.ai_support.ops_appearance_color']()}</Label>
+                <Input
+                  id="ai-widget-color"
+                  type="color"
+                  value={value.primaryColor}
+                  onChange={(event) => update('primaryColor', event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ai-widget-welcome">{m['settings.ai_support.ops_appearance_welcome']()}</Label>
+              <Textarea
+                id="ai-widget-welcome"
+                value={value.welcomeMessage}
+                onChange={(event) => update('welcomeMessage', event.target.value)}
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-widget-placeholder">{m['settings.ai_support.ops_appearance_placeholder']()}</Label>
+                <Input
+                  id="ai-widget-placeholder"
+                  value={value.placeholder}
+                  onChange={(event) => update('placeholder', event.target.value)}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-widget-launcher">{m['settings.ai_support.ops_appearance_launcher']()}</Label>
+                <Input
+                  id="ai-widget-launcher"
+                  value={value.launcherLabel}
+                  onChange={(event) => update('launcherLabel', event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-sm font-medium">{value.displayName}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{value.welcomeMessage}</p>
+              <Button
+                className="mt-3"
+                style={{ backgroundColor: value.primaryColor }}
+                size="sm"
+              >
+                {value.launcherLabel}
+              </Button>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                disabled={pending || !draft}
+                onClick={() => onSave(value).then(() => setDraft(null))}
+              >
+                {m['settings.ai_support.ops_save']()}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function parseCitations(raw: string): Array<{ title?: string; sourceUrl?: string; id?: string }> {
   try {
     const parsed = JSON.parse(raw);
@@ -1748,6 +1867,15 @@ function AiSupportPage() {
     enabled: Boolean(primaryChatbotId),
     retry: false,
   });
+  const widgetAppearanceQuery = useQuery({
+    queryKey: ['ai-support-widget-appearance', primaryChatbotId],
+    queryFn: () =>
+      apiGet<WidgetAppearanceSettings>(
+        `/api/ai-support/widget-appearance?chatbotId=${encodeURIComponent(primaryChatbotId)}`
+      ),
+    enabled: Boolean(primaryChatbotId),
+    retry: false,
+  });
   const tokensQuery = useQuery({
     queryKey: ['ai-support-agent-tokens'],
     queryFn: () => apiGet<AiAgentToken[]>('/api/ai-support/agent-tokens'),
@@ -1797,6 +1925,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-runs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-config-versions'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-human-support-settings'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-widget-appearance'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-usage'] }),
@@ -1912,6 +2041,18 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const updateWidgetAppearanceMutation = useMutation({
+    mutationFn: (input: WidgetAppearanceSettings) =>
+      apiPatch<WidgetAppearanceSettings>('/api/ai-support/widget-appearance', {
+        chatbotId: primaryChatbotId,
+        ...input,
+      }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
   const retryEscalationNotificationsMutation = useMutation({
     mutationFn: (id: string) =>
       apiPatch<AiEscalation>('/api/ai-support/escalations', {
@@ -1931,6 +2072,7 @@ function AiSupportPage() {
   const leads = leadsQuery.data ?? [];
   const escalations = escalationsQuery.data ?? [];
   const humanSupportSettings = humanSupportSettingsQuery.data;
+  const widgetAppearance = widgetAppearanceQuery.data;
   const tokens = tokensQuery.data ?? [];
   const agentRuns = agentRunsQuery.data ?? [];
   const configVersions = configVersionsQuery.data ?? [];
@@ -2293,6 +2435,12 @@ function AiSupportPage() {
         </TabsContent>
 
         <TabsContent value="surface" className="space-y-4">
+          <WidgetAppearancePanel
+            chatbotId={primaryChatbotId}
+            settings={widgetAppearance}
+            pending={updateWidgetAppearanceMutation.isPending}
+            onSave={(input) => updateWidgetAppearanceMutation.mutateAsync(input).then(() => undefined)}
+          />
           <FeatureGrid features={features} />
         </TabsContent>
       </Tabs>

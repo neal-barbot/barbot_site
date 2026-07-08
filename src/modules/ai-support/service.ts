@@ -126,6 +126,14 @@ export interface HumanSupportSettings {
   notificationWebhookUrl: string;
 }
 
+export interface WidgetAppearanceSettings {
+  displayName: string;
+  welcomeMessage: string;
+  placeholder: string;
+  launcherLabel: string;
+  primaryColor: string;
+}
+
 export interface CreateChatbotInput {
   userId: string;
   name: string;
@@ -279,6 +287,12 @@ export interface UpdateHumanSupportSettingsInput {
   settings: Partial<HumanSupportSettings>;
 }
 
+export interface UpdateWidgetAppearanceInput {
+  userId: string;
+  chatbotId: string;
+  settings: Partial<WidgetAppearanceSettings>;
+}
+
 const KNOWLEDGE_TYPES: KnowledgeSourceType[] = [
   'custom_response',
   'text_snippet',
@@ -351,6 +365,7 @@ function activeAgentTokenWhere(userId: string, now = new Date()) {
 }
 
 const HUMAN_SUPPORT_SETTING_KEY = 'human_support.settings';
+const WIDGET_APPEARANCE_SETTING_KEY = 'widget.appearance';
 const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
   enabled: true,
   showEscalationButtons: true,
@@ -362,6 +377,13 @@ const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
   notificationsEnabled: false,
   notificationEmail: '',
   notificationWebhookUrl: '',
+};
+const DEFAULT_WIDGET_APPEARANCE: WidgetAppearanceSettings = {
+  displayName: 'AI Support',
+  welcomeMessage: 'Leave your contact details and we will help from here.',
+  placeholder: 'How can we help?',
+  launcherLabel: '?',
+  primaryColor: '#2563eb',
 };
 
 function assertKnowledgeType(type: string): asserts type is KnowledgeSourceType {
@@ -539,6 +561,50 @@ function normalizeHumanSupportSettings(
     confirmationMessage: (input.confirmationMessage ?? current.confirmationMessage).trim().slice(0, 1000),
     notificationEmail: (input.notificationEmail ?? current.notificationEmail).trim().slice(0, 254),
     notificationWebhookUrl: (input.notificationWebhookUrl ?? current.notificationWebhookUrl).trim().slice(0, 500),
+  };
+}
+
+function normalizeWidgetColor(input: string): string {
+  const color = input.trim();
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_WIDGET_APPEARANCE.primaryColor;
+}
+
+function parseWidgetAppearance(raw: string | null): WidgetAppearanceSettings {
+  const parsed = parseJsonObject(raw);
+  return {
+    displayName:
+      typeof parsed.displayName === 'string'
+        ? parsed.displayName
+        : DEFAULT_WIDGET_APPEARANCE.displayName,
+    welcomeMessage:
+      typeof parsed.welcomeMessage === 'string'
+        ? parsed.welcomeMessage
+        : DEFAULT_WIDGET_APPEARANCE.welcomeMessage,
+    placeholder:
+      typeof parsed.placeholder === 'string'
+        ? parsed.placeholder
+        : DEFAULT_WIDGET_APPEARANCE.placeholder,
+    launcherLabel:
+      typeof parsed.launcherLabel === 'string'
+        ? parsed.launcherLabel
+        : DEFAULT_WIDGET_APPEARANCE.launcherLabel,
+    primaryColor:
+      typeof parsed.primaryColor === 'string'
+        ? normalizeWidgetColor(parsed.primaryColor)
+        : DEFAULT_WIDGET_APPEARANCE.primaryColor,
+  };
+}
+
+function normalizeWidgetAppearance(
+  input: Partial<WidgetAppearanceSettings>,
+  current: WidgetAppearanceSettings
+): WidgetAppearanceSettings {
+  return {
+    displayName: (input.displayName ?? current.displayName).trim().slice(0, 80) || current.displayName,
+    welcomeMessage: (input.welcomeMessage ?? current.welcomeMessage).trim().slice(0, 240) || current.welcomeMessage,
+    placeholder: (input.placeholder ?? current.placeholder).trim().slice(0, 120) || current.placeholder,
+    launcherLabel: (input.launcherLabel ?? current.launcherLabel).trim().slice(0, 16) || current.launcherLabel,
+    primaryColor: normalizeWidgetColor(input.primaryColor ?? current.primaryColor),
   };
 }
 
@@ -1211,6 +1277,10 @@ export async function getPublicWidgetConfig(publicKey: string) {
     userId: chatbot.userId,
     chatbotId: chatbot.id,
   });
+  const appearance = await getWidgetAppearanceSettings({
+    userId: chatbot.userId,
+    chatbotId: chatbot.id,
+  });
 
   return {
     chatbotId: chatbot.id,
@@ -1221,8 +1291,68 @@ export async function getPublicWidgetConfig(publicKey: string) {
     allowedDomains: parseJsonStringArray(chatbot.allowedDomains),
     humanSupportEnabled: humanSupport.enabled,
     humanSupport,
+    appearance,
     leadCaptureEnabled: true,
   };
+}
+
+export async function getWidgetAppearanceSettings(params: {
+  userId: string;
+  chatbotId: string;
+}): Promise<WidgetAppearanceSettings> {
+  await assertOwnsChatbot(params.userId, params.chatbotId);
+  const [latest] = await db()
+    .select({ content: aiConfigVersion.content })
+    .from(aiConfigVersion)
+    .where(
+      and(
+        eq(aiConfigVersion.userId, params.userId),
+        eq(aiConfigVersion.chatbotId, params.chatbotId),
+        eq(aiConfigVersion.settingKey, WIDGET_APPEARANCE_SETTING_KEY),
+        eq(aiConfigVersion.status, 'published')
+      )
+    )
+    .orderBy(desc(aiConfigVersion.version))
+    .limit(1);
+
+  return latest ? parseWidgetAppearance(latest.content) : DEFAULT_WIDGET_APPEARANCE;
+}
+
+export async function updateWidgetAppearanceSettings(
+  input: UpdateWidgetAppearanceInput
+): Promise<WidgetAppearanceSettings> {
+  await assertOwnsChatbot(input.userId, input.chatbotId);
+  const current = await getWidgetAppearanceSettings({
+    userId: input.userId,
+    chatbotId: input.chatbotId,
+  });
+  const next = normalizeWidgetAppearance(input.settings, current);
+
+  await db().transaction(async (tx: any) => {
+    const record = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: WIDGET_APPEARANCE_SETTING_KEY,
+      content: JSON.stringify(next),
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_config_version',
+      resourceId: record.id,
+      action: 'widget.appearance.update',
+      diff: next,
+      metadata: {
+        chatbotId: input.chatbotId,
+        primaryColor: next.primaryColor,
+      },
+    });
+  });
+
+  return next;
 }
 
 export async function getHumanSupportSettings(params: {

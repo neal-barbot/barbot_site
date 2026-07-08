@@ -72,6 +72,7 @@ import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
 import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
 import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
 import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/usage'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
@@ -426,6 +427,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportWidgetAppearanceRoute =
+  ApiAiSupportWidgetAppearanceRouteImport.update({
+    id: '/api/ai-support/widget-appearance',
+    path: '/api/ai-support/widget-appearance',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportUsageRoute = ApiAiSupportUsageRouteImport.update({
   id: '/api/ai-support/usage',
   path: '/api/ai-support/usage',
@@ -701,6 +708,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
+  '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -802,6 +810,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
+  '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -907,6 +916,7 @@ export interface FileRoutesById {
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
+  '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -1012,6 +1022,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
     | '/api/ai-support/usage'
+    | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
@@ -1113,6 +1124,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
     | '/api/ai-support/usage'
+    | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
@@ -1217,6 +1229,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
     | '/api/ai-support/usage'
+    | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
@@ -1298,6 +1311,7 @@ export interface RootRouteChildren {
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
   ApiAiSupportUsageRoute: typeof ApiAiSupportUsageRoute
+  ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthTokenRoute: typeof ApiAuthTokenRoute
   ApiConfigPublicRoute: typeof ApiConfigPublicRoute
@@ -1775,6 +1789,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/widget-appearance': {
+      id: '/api/ai-support/widget-appearance'
+      path: '/api/ai-support/widget-appearance'
+      fullPath: '/api/ai-support/widget-appearance'
+      preLoaderRoute: typeof ApiAiSupportWidgetAppearanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/usage': {
       id: '/api/ai-support/usage'
       path: '/api/ai-support/usage'
@@ -2227,6 +2248,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
   ApiAiSupportUsageRoute: ApiAiSupportUsageRoute,
+  ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthTokenRoute: ApiAuthTokenRoute,
   ApiConfigPublicRoute: ApiConfigPublicRoute,

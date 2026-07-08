@@ -49,7 +49,7 @@
     var style = el('style', { id: 'ai-support-widget-style' });
     style.textContent = [
       '.ai-support-root{position:fixed;right:20px;bottom:20px;z-index:2147483000;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111827}',
-      '.ai-support-button{width:56px;height:56px;border:0;border-radius:999px;background:#2563eb;color:white;box-shadow:0 16px 40px rgba(37,99,235,.35);cursor:pointer;font-weight:700}',
+      '.ai-support-button{min-width:56px;height:56px;border:0;border-radius:999px;background:var(--ai-support-primary,#2563eb);color:white;box-shadow:0 16px 40px rgba(37,99,235,.35);cursor:pointer;font-weight:700;padding:0 16px}',
       '.ai-support-panel{position:absolute;right:0;bottom:72px;width:min(360px,calc(100vw - 32px));border:1px solid #e5e7eb;border-radius:16px;background:white;box-shadow:0 24px 70px rgba(15,23,42,.18);overflow:hidden}',
       '.ai-support-header{padding:16px;border-bottom:1px solid #eef2f7;background:#f8fafc}',
       '.ai-support-title{margin:0;font-size:15px;font-weight:700}',
@@ -57,12 +57,12 @@
       '.ai-support-body{padding:14px;display:grid;gap:10px}',
       '.ai-support-transcript{display:grid;gap:8px;max-height:220px;overflow:auto;padding-right:2px}',
       '.ai-support-message{border-radius:12px;padding:9px 10px;font-size:13px;line-height:1.45}',
-      '.ai-support-user{background:#eff6ff;color:#1e3a8a;margin-left:28px}',
+      '.ai-support-user{background:#eff6ff;color:#1e3a8a;margin-left:28px;border:1px solid color-mix(in srgb,var(--ai-support-primary,#2563eb) 25%,#dbeafe)}',
       '.ai-support-assistant{background:#f8fafc;color:#111827;margin-right:28px;border:1px solid #e5e7eb}',
       '.ai-support-citation{display:block;margin-top:6px;color:#64748b;font-size:11px}',
       '.ai-support-input,.ai-support-textarea{box-sizing:border-box;width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 11px;font:inherit;font-size:13px}',
       '.ai-support-textarea{min-height:84px;resize:vertical}',
-      '.ai-support-submit{border:0;border-radius:10px;background:#111827;color:white;padding:10px 12px;font-weight:700;cursor:pointer}',
+      '.ai-support-submit{border:0;border-radius:10px;background:var(--ai-support-primary,#111827);color:white;padding:10px 12px;font-weight:700;cursor:pointer}',
       '.ai-support-secondary{border:1px solid #d1d5db;border-radius:10px;background:white;color:#111827;padding:10px 12px;font-weight:700;cursor:pointer}',
       '.ai-support-status{font-size:12px;line-height:1.4;color:#64748b;min-height:18px}',
       '.ai-support-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}',
@@ -73,6 +73,7 @@
   function render(config) {
     injectStyles();
     var humanSupport = config.humanSupport || {};
+    var appearance = config.appearance || {};
     var humanSupportEnabled =
       config.humanSupportEnabled !== false &&
       humanSupport.enabled !== false &&
@@ -80,14 +81,25 @@
     var requestPrompt = humanSupport.requestPrompt || 'Human';
     var confirmationMessage =
       humanSupport.confirmationMessage || 'A human support request was created.';
+    var displayName = appearance.displayName || config.name || 'AI Support';
+    var welcomeMessage =
+      appearance.welcomeMessage ||
+      config.description ||
+      'Leave your contact details and we will help from here.';
+    var placeholder = appearance.placeholder || 'How can we help?';
+    var launcherLabel = appearance.launcherLabel || '?';
+    var primaryColor = /^#[0-9a-f]{6}$/i.test(appearance.primaryColor || '')
+      ? appearance.primaryColor
+      : '#2563eb';
 
     var root = el('div', { id: rootId, className: 'ai-support-root' });
+    root.style.setProperty('--ai-support-primary', primaryColor);
     var panel = el('div', { className: 'ai-support-panel', hidden: 'true' });
     var status = el('div', { className: 'ai-support-status' });
     var transcript = el('div', { className: 'ai-support-transcript' });
     var name = el('input', { className: 'ai-support-input', placeholder: 'Name' });
     var email = el('input', { className: 'ai-support-input', placeholder: 'Email', type: 'email' });
-    var message = el('textarea', { className: 'ai-support-textarea', placeholder: 'How can we help?' });
+    var message = el('textarea', { className: 'ai-support-textarea', placeholder: placeholder });
 
     function setStatus(text) {
       status.textContent = text;
@@ -127,10 +139,10 @@
     }
 
     panel.appendChild(el('div', { className: 'ai-support-header' }, [
-      el('p', { className: 'ai-support-title', text: config.name || 'AI Support' }),
+      el('p', { className: 'ai-support-title', text: displayName }),
       el('p', {
         className: 'ai-support-desc',
-        text: config.description || 'Leave your contact details and we will help from here.',
+        text: welcomeMessage,
       }),
     ]));
     panel.appendChild(el('div', { className: 'ai-support-body' }, [
@@ -210,7 +222,7 @@
     var button = el('button', {
       className: 'ai-support-button',
       type: 'button',
-      text: '?',
+      text: launcherLabel,
       onClick: function () {
         panel.hidden = !panel.hidden;
       },
