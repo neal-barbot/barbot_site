@@ -164,6 +164,7 @@ type AiEscalation = {
   status: string;
   assigneeUserId: string | null;
   summary: string;
+  metadata: string;
   createdAt: string;
 };
 
@@ -1149,20 +1150,52 @@ function SupportQueueOperations({
           <CompactRows
             rows={escalations.slice(0, 5)}
             empty={m['settings.ai_support.ops_no_escalations']()}
-            render={(item) => (
-              <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{item.summary || item.id}</p>
-                  <p className="text-sm text-muted-foreground">{item.assigneeUserId || 'Unassigned'}</p>
+            render={(item) => {
+              const metadata = parseObjectMetadata(item.metadata);
+              const notificationDelivery = parseObjectMetadata(metadata.notificationDelivery);
+              const deliveryStatus =
+                typeof notificationDelivery.status === 'string'
+                  ? notificationDelivery.status
+                  : undefined;
+
+              return (
+                <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{item.summary || item.id}</p>
+                    <p className="text-sm text-muted-foreground">{item.assigneeUserId || 'Unassigned'}</p>
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {deliveryStatus ? (
+                      <Badge variant={deliveryStatus === 'sent' ? 'secondary' : 'outline'}>
+                        {deliveryStatus === 'sent'
+                          ? m['settings.ai_support.ops_notification_sent']()
+                          : m['settings.ai_support.ops_notification_failed']()}
+                      </Badge>
+                    ) : null}
+                    <Badge variant="outline">{item.status}</Badge>
+                  </div>
                 </div>
-                <Badge variant="outline">{item.status}</Badge>
-              </div>
-            )}
+              );
+            }}
           />
         </CardContent>
       </Card>
     </div>
   );
+}
+
+function parseObjectMetadata(input: unknown): Record<string, unknown> {
+  if (!input) return {};
+  if (typeof input === 'object' && !Array.isArray(input)) return input as Record<string, unknown>;
+  if (typeof input !== 'string') return {};
+  try {
+    const parsed = JSON.parse(input);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
 }
 
 function HumanSupportSettingsPanel({

@@ -495,10 +495,10 @@ function normalizeHumanSupportSettings(
   };
 }
 
-function normalizePublicUrl(rawUrl: string): URL {
+function normalizeOutboundHttpUrl(rawUrl: string, label: string, opts: { requireHttps?: boolean } = {}): URL {
   const trimmed = rawUrl.trim();
-  if (!trimmed) throw new Error('Installation URL is required');
-  if (trimmed.length > 2048) throw new Error('Installation URL is too long');
+  if (!trimmed) throw new Error(`${label} is required`);
+  if (trimmed.length > 2048) throw new Error(`${label} is too long`);
 
   const withProtocol = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)
     ? trimmed
@@ -507,22 +507,58 @@ function normalizePublicUrl(rawUrl: string): URL {
   try {
     url = new URL(withProtocol);
   } catch {
-    throw new Error('Installation URL is invalid');
+    throw new Error(`${label} is invalid`);
   }
 
   if (!['http:', 'https:'].includes(url.protocol)) {
-    throw new Error('Installation URL must use http or https');
+    throw new Error(`${label} must use http or https`);
+  }
+  if (opts.requireHttps && url.protocol !== 'https:') {
+    throw new Error(`${label} must use https`);
   }
   if (url.username || url.password) {
-    throw new Error('Installation URL cannot include credentials');
+    throw new Error(`${label} cannot include credentials`);
   }
 
   const hostname = url.hostname.toLowerCase();
   if (isBlockedInstallHostname(hostname)) {
-    throw new Error('Installation URL cannot target localhost or private network hosts');
+    throw new Error(`${label} cannot target localhost or private network hosts`);
   }
 
   return url;
+}
+
+function normalizePublicUrl(rawUrl: string): URL {
+  return normalizeOutboundHttpUrl(rawUrl, 'Installation URL');
+}
+
+function normalizeWebhookUrl(rawUrl: string): URL {
+  return normalizeOutboundHttpUrl(rawUrl, 'Notification webhook URL', { requireHttps: true });
+}
+
+function redactSecretUrl(rawUrl: string | null | undefined): string {
+  if (!rawUrl) return '';
+  try {
+    const url = new URL(rawUrl);
+    return `${url.origin}${url.pathname.slice(0, 24)}${url.pathname.length > 24 ? '...' : ''}`;
+  } catch {
+    return rawUrl.slice(0, 12) ? `${rawUrl.slice(0, 12)}...` : '';
+  }
+}
+
+function redactHumanSupportSettingsContent(raw: string | null): string {
+  const parsed = parseJsonObject(raw);
+  return JSON.stringify({
+    ...parsed,
+    notificationEmail:
+      typeof parsed.notificationEmail === 'string'
+        ? redactPiiText(parsed.notificationEmail)
+        : parsed.notificationEmail,
+    notificationWebhookUrl:
+      typeof parsed.notificationWebhookUrl === 'string'
+        ? redactSecretUrl(parsed.notificationWebhookUrl)
+        : parsed.notificationWebhookUrl,
+  });
 }
 
 function isBlockedInstallHostname(hostname: string): boolean {
@@ -609,6 +645,36 @@ async function fetchInstallCheckPage(url: URL, signal: AbortSignal): Promise<Res
   }
 
   throw new Error('Installation check followed too many redirects');
+}
+
+async function postJsonWebhook(url: URL, payload: unknown): Promise<{ ok: boolean; statusCode: number | null; error?: string }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5_000);
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      redirect: 'error',
+      signal: controller.signal,
+      headers: {
+        'content-type': 'application/json',
+        'user-agent': 'ShipAny-AI-Support-Webhook/1.0',
+      },
+      body: JSON.stringify(payload),
+    });
+    return {
+      ok: response.ok,
+      statusCode: response.status,
+      error: response.ok ? undefined : `Webhook returned HTTP ${response.status}`,
+    };
+  } catch (error: any) {
+    return {
+      ok: false,
+      statusCode: null,
+      error: error?.name === 'AbortError' ? 'Webhook delivery timed out' : error?.message || 'Webhook delivery failed',
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function detectWidgetInstall(html: string, chatbot: Pick<AiChatbot, 'publicKey'>) {
@@ -893,11 +959,13 @@ export async function updateHumanSupportSettings(
       diff: {
         ...next,
         notificationEmail: redactPiiText(next.notificationEmail),
+        notificationWebhookUrl: redactSecretUrl(next.notificationWebhookUrl),
       },
       metadata: {
         chatbotId: input.chatbotId,
         notificationsEnabled: next.notificationsEnabled,
         notificationEmail: redactPiiText(next.notificationEmail),
+        notificationWebhookConfigured: Boolean(next.notificationWebhookUrl),
       },
     });
   });
@@ -1575,7 +1643,7 @@ export async function createPublicEscalation(input: Omit<CreateEscalationInput, 
   const settings = await getHumanSupportSettings({ userId: chatbot.userId, chatbotId: chatbot.id });
   if (!settings.enabled) throw new Error('Human support is disabled');
 
-  return createEscalation({
+  const row = await createEscalation({
     userId: chatbot.userId,
     chatbotId: chatbot.id,
     leadId: input.leadId,
@@ -1591,6 +1659,92 @@ export async function createPublicEscalation(input: Omit<CreateEscalationInput, 
       notificationWebhookConfigured: Boolean(settings.notificationWebhookUrl),
     },
   });
+
+  if (!settings.notificationsEnabled || !settings.notificationWebhookUrl) {
+    return row;
+  }
+
+  const deliveryCheckedAt = new Date();
+  let delivery:
+    | { status: 'sent'; channel: 'webhook'; statusCode: number | null; checkedAt: string }
+    | { status: 'failed'; channel: 'webhook'; statusCode: number | null; error: string; checkedAt: string };
+
+  try {
+    const webhookUrl = normalizeWebhookUrl(settings.notificationWebhookUrl);
+    const result = await postJsonWebhook(webhookUrl, {
+      event: 'ai_support.escalation.created',
+      escalation: {
+        id: row.id,
+        status: row.status,
+        summary: redactPiiText(row.summary),
+        leadId: row.leadId,
+        conversationId: row.conversationId,
+        createdAt: row.createdAt?.toISOString?.() ?? row.createdAt,
+      },
+      chatbot: {
+        id: chatbot.id,
+        name: chatbot.name,
+      },
+    });
+
+    delivery = result.ok
+      ? {
+          status: 'sent',
+          channel: 'webhook',
+          statusCode: result.statusCode,
+          checkedAt: deliveryCheckedAt.toISOString(),
+        }
+      : {
+          status: 'failed',
+          channel: 'webhook',
+          statusCode: result.statusCode,
+          error: result.error || 'Webhook delivery failed',
+          checkedAt: deliveryCheckedAt.toISOString(),
+        };
+  } catch (error: any) {
+    delivery = {
+      status: 'failed',
+      channel: 'webhook',
+      statusCode: null,
+      error: error?.message || 'Webhook delivery failed',
+      checkedAt: deliveryCheckedAt.toISOString(),
+    };
+  }
+
+  const metadata = {
+    ...parseJsonObject(row.metadata),
+    notificationDelivery: delivery,
+  };
+
+  const [updated] = await db()
+    .update(aiHumanEscalation)
+    .set({
+      metadata: JSON.stringify(metadata),
+      updatedAt: new Date(),
+    })
+    .where(eq(aiHumanEscalation.id, row.id))
+    .returning();
+
+  await db().transaction(async (tx: any) => {
+    await writeAudit(tx, {
+      userId: chatbot.userId,
+      actorType: 'agent',
+      actorId: 'public_widget',
+      resourceType: 'ai_human_escalation',
+      resourceId: row.id,
+      action: 'escalation.notification.webhook',
+      status: delivery.status === 'sent' ? 'recorded' : 'failed',
+      metadata: {
+        chatbotId: chatbot.id,
+        channel: delivery.channel,
+        statusCode: delivery.statusCode,
+        webhook: redactSecretUrl(settings.notificationWebhookUrl),
+        error: delivery.status === 'failed' ? delivery.error : undefined,
+      },
+    });
+  });
+
+  return updated ?? row;
 }
 
 export async function updateEscalation(
@@ -1860,7 +2014,7 @@ export async function listConfigVersions(params: {
     ...row,
     content:
       row.settingKey === HUMAN_SUPPORT_SETTING_KEY
-        ? redactPiiText(row.content)
+        ? redactHumanSupportSettingsContent(row.content)
         : row.content,
   }));
 }
