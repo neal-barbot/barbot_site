@@ -20,6 +20,14 @@ export interface WikiContextItem {
   }>;
 }
 
+interface LoadedWikiContext {
+  id: string;
+  type: WikiContextType;
+  title: string;
+  path: string;
+  content: string;
+}
+
 export interface WikiAnswer {
   answer: string;
   contextMarkdown: string;
@@ -258,7 +266,7 @@ export async function readWikiAsset(params: {
   };
 }
 
-export async function readWikiContext(id: string) {
+export async function readWikiContext(id: string): Promise<LoadedWikiContext> {
   const { type, filename } = parseContextId(id);
   const content = await fs.readFile(safeContextPath(type, filename), 'utf8');
   return {
@@ -277,11 +285,11 @@ export async function askWiki(params: {
 }): Promise<WikiAnswer> {
   const selected = await Promise.all(params.contextIds.slice(0, 8).map((id) => readWikiContext(id)));
   const contexts = selected.length > 0 ? selected : (await listWikiContexts()).slice(0, 3);
-  const loaded =
+  const loaded: LoadedWikiContext[] =
     contexts.length === 0
       ? []
       : 'content' in contexts[0]
-        ? contexts
+        ? (contexts as LoadedWikiContext[])
         : await Promise.all(contexts.map((item) => readWikiContext(item.id)));
 
   const contextMarkdown = [

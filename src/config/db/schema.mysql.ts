@@ -567,3 +567,224 @@ export type NewTicketMessage = typeof ticketMessage.$inferInsert;
 
 // ─── Custom tables ───────────────────────────────────────────────────────────
 // Add your own tables below this line.
+
+// ─── AI Support ──────────────────────────────────────────────────────────────
+
+export const aiChatbot = table(
+  'ai_chatbot',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description').notNull().default(''),
+    status: varchar('status', { length: 50 }).notNull().default('draft'),
+    installStatus: varchar('install_status', { length: 50 }).notNull().default('not_installed'),
+    publicKey: varchar191('public_key').notNull().unique(),
+    allowedDomains: longtext('allowed_domains').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (t) => [
+    index('idx_ai_chatbot_user_status').on(t.userId, t.status),
+    index('idx_ai_chatbot_public_key').on(t.publicKey),
+  ]
+);
+
+export const aiKnowledgeSource = table(
+  'ai_knowledge_source',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    type: varchar('type', { length: 50 }).notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('draft'),
+    content: longtext('content'),
+    sourceUrl: text('source_url'),
+    metadata: longtext('metadata').notNull(),
+    lastSyncedAt: timestamp('last_synced_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (t) => [
+    index('idx_ai_knowledge_chatbot_type').on(t.chatbotId, t.type),
+    index('idx_ai_knowledge_status').on(t.status),
+  ]
+);
+
+export const aiLead = table(
+  'ai_lead',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    conversationId: varchar191('conversation_id'),
+    name: varchar('name', { length: 255 }),
+    email: varchar('email', { length: 255 }),
+    phone: varchar('phone', { length: 100 }),
+    sourceUrl: text('source_url'),
+    status: varchar('status', { length: 50 }).notNull().default('new'),
+    priority: varchar('priority', { length: 50 }).notNull().default('normal'),
+    metadata: longtext('metadata').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_lead_chatbot_status').on(t.chatbotId, t.status),
+    index('idx_ai_lead_user_created').on(t.userId, t.createdAt),
+  ]
+);
+
+export const aiHumanEscalation = table(
+  'ai_human_escalation',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    leadId: varchar191('lead_id').references(() => aiLead.id),
+    conversationId: varchar191('conversation_id'),
+    status: varchar('status', { length: 50 }).notNull().default('open'),
+    assigneeUserId: varchar191('assignee_user_id').references(() => user.id),
+    summary: text('summary').notNull().default(''),
+    metadata: longtext('metadata').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_escalation_chatbot_status').on(t.chatbotId, t.status),
+    index('idx_ai_escalation_assignee').on(t.assigneeUserId),
+  ]
+);
+
+export const aiAgentToken = table(
+  'ai_agent_token',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 255 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('active'),
+    accessProfile: varchar('access_profile', { length: 50 }).notNull().default('standard'),
+    scopes: longtext('scopes').notNull(),
+    chatbotIds: longtext('chatbot_ids').notNull(),
+    tokenPrefix: varchar('token_prefix', { length: 32 }).notNull(),
+    tokenHash: varchar('token_hash', { length: 191 }).notNull(),
+    expiresAt: timestamp('expires_at'),
+    lastUsedAt: timestamp('last_used_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    revokedAt: timestamp('revoked_at'),
+  },
+  (t) => [
+    index('idx_ai_agent_token_user_status').on(t.userId, t.status),
+    index('idx_ai_agent_token_hash').on(t.tokenHash),
+  ]
+);
+
+export const aiAgentRun = table(
+  'ai_agent_run',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    agentTokenId: varchar191('agent_token_id').references(() => aiAgentToken.id),
+    chatbotId: varchar191('chatbot_id').references(() => aiChatbot.id),
+    action: varchar('action', { length: 191 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('queued'),
+    approvalRequired: boolean('approval_required').notNull().default(false),
+    summary: text('summary').notNull().default(''),
+    diff: longtext('diff'),
+    metadata: longtext('metadata').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    completedAt: timestamp('completed_at'),
+  },
+  (t) => [
+    index('idx_ai_agent_run_user_status').on(t.userId, t.status),
+    index('idx_ai_agent_run_chatbot').on(t.chatbotId),
+  ]
+);
+
+export const aiConfigVersion = table(
+  'ai_config_version',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    settingKey: varchar('setting_key', { length: 191 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('draft'),
+    version: int('version').notNull().default(1),
+    content: longtext('content').notNull(),
+    createdByType: varchar('created_by_type', { length: 50 }).notNull().default('user'),
+    createdById: varchar191('created_by_id'),
+    approvedByUserId: varchar191('approved_by_user_id').references(() => user.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    publishedAt: timestamp('published_at'),
+  },
+  (t) => [
+    index('idx_ai_config_version_chatbot_key').on(t.chatbotId, t.settingKey),
+    index('idx_ai_config_version_status').on(t.status),
+  ]
+);
+
+export const aiAuditLog = table(
+  'ai_audit_log',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    actorType: varchar('actor_type', { length: 50 }).notNull(),
+    actorId: varchar191('actor_id').notNull(),
+    resourceType: varchar('resource_type', { length: 100 }).notNull(),
+    resourceId: varchar191('resource_id').notNull(),
+    action: varchar('action', { length: 191 }).notNull(),
+    requiresApproval: boolean('requires_approval').notNull().default(false),
+    status: varchar('status', { length: 50 }).notNull().default('recorded'),
+    diff: longtext('diff'),
+    metadata: longtext('metadata').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_audit_user_created').on(t.userId, t.createdAt),
+    index('idx_ai_audit_resource').on(t.resourceType, t.resourceId),
+  ]
+);
+
+export type AiChatbot = typeof aiChatbot.$inferSelect;
+export type NewAiChatbot = typeof aiChatbot.$inferInsert;
+export type AiKnowledgeSource = typeof aiKnowledgeSource.$inferSelect;
+export type NewAiKnowledgeSource = typeof aiKnowledgeSource.$inferInsert;
+export type AiLead = typeof aiLead.$inferSelect;
+export type NewAiLead = typeof aiLead.$inferInsert;
+export type AiHumanEscalation = typeof aiHumanEscalation.$inferSelect;
+export type NewAiHumanEscalation = typeof aiHumanEscalation.$inferInsert;
+export type AiAgentToken = typeof aiAgentToken.$inferSelect;
+export type NewAiAgentToken = typeof aiAgentToken.$inferInsert;
+export type AiAgentRun = typeof aiAgentRun.$inferSelect;
+export type NewAiAgentRun = typeof aiAgentRun.$inferInsert;
+export type AiConfigVersion = typeof aiConfigVersion.$inferSelect;
+export type NewAiConfigVersion = typeof aiConfigVersion.$inferInsert;
+export type AiAuditLog = typeof aiAuditLog.$inferSelect;
+export type NewAiAuditLog = typeof aiAuditLog.$inferInsert;

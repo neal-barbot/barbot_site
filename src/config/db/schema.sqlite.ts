@@ -652,6 +652,262 @@ export type NewTicketMessage = typeof ticketMessage.$inferInsert;
 // ─── Custom tables ───────────────────────────────────────────────────────────
 // Add your own tables below this line.
 
+// ─── AI Support ──────────────────────────────────────────────────────────────
+
+export const aiChatbot = table(
+  'ai_chatbot',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description').notNull().default(''),
+    status: text('status').notNull().default('draft'),
+    installStatus: text('install_status').notNull().default('not_installed'),
+    publicKey: text('public_key').notNull().unique(),
+    allowedDomains: text('allowed_domains').notNull().default('[]'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: integer('deleted_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [
+    index('idx_ai_chatbot_user_status').on(t.userId, t.status),
+    index('idx_ai_chatbot_public_key').on(t.publicKey),
+  ]
+);
+
+export const aiKnowledgeSource = table(
+  'ai_knowledge_source',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(),
+    title: text('title').notNull(),
+    status: text('status').notNull().default('draft'),
+    content: text('content'),
+    sourceUrl: text('source_url'),
+    metadata: text('metadata').notNull().default('{}'),
+    lastSyncedAt: integer('last_synced_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: integer('deleted_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [
+    index('idx_ai_knowledge_chatbot_type').on(t.chatbotId, t.type),
+    index('idx_ai_knowledge_status').on(t.status),
+  ]
+);
+
+export const aiLead = table(
+  'ai_lead',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    conversationId: text('conversation_id'),
+    name: text('name'),
+    email: text('email'),
+    phone: text('phone'),
+    sourceUrl: text('source_url'),
+    status: text('status').notNull().default('new'),
+    priority: text('priority').notNull().default('normal'),
+    metadata: text('metadata').notNull().default('{}'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_lead_chatbot_status').on(t.chatbotId, t.status),
+    index('idx_ai_lead_user_created').on(t.userId, t.createdAt),
+  ]
+);
+
+export const aiHumanEscalation = table(
+  'ai_human_escalation',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    leadId: text('lead_id').references(() => aiLead.id),
+    conversationId: text('conversation_id'),
+    status: text('status').notNull().default('open'),
+    assigneeUserId: text('assignee_user_id').references(() => user.id),
+    summary: text('summary').notNull().default(''),
+    metadata: text('metadata').notNull().default('{}'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_escalation_chatbot_status').on(t.chatbotId, t.status),
+    index('idx_ai_escalation_assignee').on(t.assigneeUserId),
+  ]
+);
+
+export const aiAgentToken = table(
+  'ai_agent_token',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    status: text('status').notNull().default('active'),
+    accessProfile: text('access_profile').notNull().default('standard'),
+    scopes: text('scopes').notNull().default('[]'),
+    chatbotIds: text('chatbot_ids').notNull().default('[]'),
+    tokenPrefix: text('token_prefix').notNull(),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }),
+    lastUsedAt: integer('last_used_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .$onUpdate(() => new Date())
+      .notNull(),
+    revokedAt: integer('revoked_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [
+    index('idx_ai_agent_token_user_status').on(t.userId, t.status),
+    index('idx_ai_agent_token_hash').on(t.tokenHash),
+  ]
+);
+
+export const aiAgentRun = table(
+  'ai_agent_run',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    agentTokenId: text('agent_token_id').references(() => aiAgentToken.id),
+    chatbotId: text('chatbot_id').references(() => aiChatbot.id),
+    action: text('action').notNull(),
+    status: text('status').notNull().default('queued'),
+    approvalRequired: integer('approval_required', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    summary: text('summary').notNull().default(''),
+    diff: text('diff'),
+    metadata: text('metadata').notNull().default('{}'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    completedAt: integer('completed_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [
+    index('idx_ai_agent_run_user_status').on(t.userId, t.status),
+    index('idx_ai_agent_run_chatbot').on(t.chatbotId),
+  ]
+);
+
+export const aiConfigVersion = table(
+  'ai_config_version',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    settingKey: text('setting_key').notNull(),
+    status: text('status').notNull().default('draft'),
+    version: integer('version').notNull().default(1),
+    content: text('content').notNull(),
+    createdByType: text('created_by_type').notNull().default('user'),
+    createdById: text('created_by_id'),
+    approvedByUserId: text('approved_by_user_id').references(() => user.id),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    publishedAt: integer('published_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [
+    index('idx_ai_config_version_chatbot_key').on(t.chatbotId, t.settingKey),
+    index('idx_ai_config_version_status').on(t.status),
+  ]
+);
+
+export const aiAuditLog = table(
+  'ai_audit_log',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    actorType: text('actor_type').notNull(),
+    actorId: text('actor_id').notNull(),
+    resourceType: text('resource_type').notNull(),
+    resourceId: text('resource_id').notNull(),
+    action: text('action').notNull(),
+    requiresApproval: integer('requires_approval', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    status: text('status').notNull().default('recorded'),
+    diff: text('diff'),
+    metadata: text('metadata').notNull().default('{}'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_audit_user_created').on(t.userId, t.createdAt),
+    index('idx_ai_audit_resource').on(t.resourceType, t.resourceId),
+  ]
+);
+
+export type AiChatbot = typeof aiChatbot.$inferSelect;
+export type NewAiChatbot = typeof aiChatbot.$inferInsert;
+export type AiKnowledgeSource = typeof aiKnowledgeSource.$inferSelect;
+export type NewAiKnowledgeSource = typeof aiKnowledgeSource.$inferInsert;
+export type AiLead = typeof aiLead.$inferSelect;
+export type NewAiLead = typeof aiLead.$inferInsert;
+export type AiHumanEscalation = typeof aiHumanEscalation.$inferSelect;
+export type NewAiHumanEscalation = typeof aiHumanEscalation.$inferInsert;
+export type AiAgentToken = typeof aiAgentToken.$inferSelect;
+export type NewAiAgentToken = typeof aiAgentToken.$inferInsert;
+export type AiAgentRun = typeof aiAgentRun.$inferSelect;
+export type NewAiAgentRun = typeof aiAgentRun.$inferInsert;
+export type AiConfigVersion = typeof aiConfigVersion.$inferSelect;
+export type NewAiConfigVersion = typeof aiConfigVersion.$inferInsert;
+export type AiAuditLog = typeof aiAuditLog.$inferSelect;
+export type NewAiAuditLog = typeof aiAuditLog.$inferInsert;
+
 // ─── Invite Codes ────────────────────────────────────────────────────────────
 
 export const inviteCode = table(

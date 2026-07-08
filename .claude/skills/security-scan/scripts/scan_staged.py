@@ -169,7 +169,7 @@ IGNORE_PROBES = [
 def check_gitignore_coverage() -> None:
     for probe, level in IGNORE_PROBES:
         rc = subprocess.run(
-            ["git", "check-ignore", "-q", probe], capture_output=True
+            ["git", "check-ignore", "--no-index", "-q", probe], capture_output=True
         ).returncode
         if rc != 0:
             add(level, ".gitignore", f"does not ignore `{probe}`")

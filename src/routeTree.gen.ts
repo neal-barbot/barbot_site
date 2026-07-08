@@ -27,6 +27,7 @@ import { Route as SettingsCreditsRouteImport } from './routes/settings/credits'
 import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsBillingRouteImport } from './routes/settings/billing'
 import { Route as SettingsApikeysRouteImport } from './routes/settings/apikeys'
+import { Route as SettingsAiSupportRouteImport } from './routes/settings/ai-support'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as ApiTicketsRouteImport } from './routes/api/tickets'
 import { Route as ApiCreditsRouteImport } from './routes/api/credits'
@@ -71,6 +72,13 @@ import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
 import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
 import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
+import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
+import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/ai-support/knowledge-sources'
+import { Route as ApiAiSupportEscalationsRouteImport } from './routes/api/ai-support/escalations'
+import { Route as ApiAiSupportChatbotsRouteImport } from './routes/api/ai-support/chatbots'
+import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-support/audit-logs'
+import { Route as ApiAiSupportAgentTokensRouteImport } from './routes/api/ai-support/agent-tokens'
 import { Route as ApiAdminTicketsRouteImport } from './routes/api/admin/tickets'
 import { Route as ApiAdminSubscriptionsRouteImport } from './routes/api/admin/subscriptions'
 import { Route as ApiAdminPostsRouteImport } from './routes/api/admin/posts'
@@ -86,12 +94,15 @@ import { Route as ApiAdminRolesIndexRouteImport } from './routes/api/admin/roles
 import { Route as ApiUserSubscriptionsCurrentRouteImport } from './routes/api/user/subscriptions/current'
 import { Route as ApiUserSubscriptionsCancelRouteImport } from './routes/api/user/subscriptions/cancel'
 import { Route as ApiPaymentNotifyProviderRouteImport } from './routes/api/payment/notify/$provider'
+import { Route as ApiAiSupportWidgetPublicKeyRouteImport } from './routes/api/ai-support/widget/$publicKey'
 import { Route as ApiAdminUsersCreditsRouteImport } from './routes/api/admin/users/credits'
 import { Route as ApiAdminTicketsIdRouteImport } from './routes/api/admin/tickets/$id'
 import { Route as ApiAdminSettingsTestRouteImport } from './routes/api/admin/settings/test'
 import { Route as ApiAdminRolesPermissionsRouteImport } from './routes/api/admin/roles/permissions'
 import { Route as ApiAdminRolesAssignRouteImport } from './routes/api/admin/roles/assign'
 import { Route as ApiAdminConfigCustomRouteImport } from './routes/api/admin/config/custom'
+import { Route as ApiAiSupportWidgetPublicKeyLeadsRouteImport } from './routes/api/ai-support/widget/$publicKey/leads'
+import { Route as ApiAiSupportWidgetPublicKeyEscalationsRouteImport } from './routes/api/ai-support/widget/$publicKey/escalations'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -180,6 +191,11 @@ const SettingsBillingRoute = SettingsBillingRouteImport.update({
 const SettingsApikeysRoute = SettingsApikeysRouteImport.update({
   id: '/apikeys',
   path: '/apikeys',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsAiSupportRoute = SettingsAiSupportRouteImport.update({
+  id: '/ai-support',
+  path: '/ai-support',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
@@ -402,6 +418,42 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportOverviewRoute = ApiAiSupportOverviewRouteImport.update({
+  id: '/api/ai-support/overview',
+  path: '/api/ai-support/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportLeadsRoute = ApiAiSupportLeadsRouteImport.update({
+  id: '/api/ai-support/leads',
+  path: '/api/ai-support/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportKnowledgeSourcesRoute =
+  ApiAiSupportKnowledgeSourcesRouteImport.update({
+    id: '/api/ai-support/knowledge-sources',
+    path: '/api/ai-support/knowledge-sources',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAiSupportEscalationsRoute = ApiAiSupportEscalationsRouteImport.update({
+  id: '/api/ai-support/escalations',
+  path: '/api/ai-support/escalations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportChatbotsRoute = ApiAiSupportChatbotsRouteImport.update({
+  id: '/api/ai-support/chatbots',
+  path: '/api/ai-support/chatbots',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportAuditLogsRoute = ApiAiSupportAuditLogsRouteImport.update({
+  id: '/api/ai-support/audit-logs',
+  path: '/api/ai-support/audit-logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportAgentTokensRoute = ApiAiSupportAgentTokensRouteImport.update({
+  id: '/api/ai-support/agent-tokens',
+  path: '/api/ai-support/agent-tokens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminTicketsRoute = ApiAdminTicketsRouteImport.update({
   id: '/api/admin/tickets',
   path: '/api/admin/tickets',
@@ -481,6 +533,12 @@ const ApiPaymentNotifyProviderRoute =
     path: '/api/payment/notify/$provider',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiSupportWidgetPublicKeyRoute =
+  ApiAiSupportWidgetPublicKeyRouteImport.update({
+    id: '/api/ai-support/widget/$publicKey',
+    path: '/api/ai-support/widget/$publicKey',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminUsersCreditsRoute = ApiAdminUsersCreditsRouteImport.update({
   id: '/api/admin/users/credits',
   path: '/api/admin/users/credits',
@@ -512,6 +570,18 @@ const ApiAdminConfigCustomRoute = ApiAdminConfigCustomRouteImport.update({
   path: '/custom',
   getParentRoute: () => ApiAdminConfigRoute,
 } as any)
+const ApiAiSupportWidgetPublicKeyLeadsRoute =
+  ApiAiSupportWidgetPublicKeyLeadsRouteImport.update({
+    id: '/leads',
+    path: '/leads',
+    getParentRoute: () => ApiAiSupportWidgetPublicKeyRoute,
+  } as any)
+const ApiAiSupportWidgetPublicKeyEscalationsRoute =
+  ApiAiSupportWidgetPublicKeyEscalationsRouteImport.update({
+    id: '/escalations',
+    path: '/escalations',
+    getParentRoute: () => ApiAiSupportWidgetPublicKeyRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -542,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/api/credits': typeof ApiCreditsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
@@ -562,6 +633,13 @@ export interface FileRoutesByFullPath {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
+  '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
+  '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
+  '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
+  '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -590,12 +668,15 @@ export interface FileRoutesByFullPath {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
+  '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
+  '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -624,6 +705,7 @@ export interface FileRoutesByTo {
   '/api/credits': typeof ApiCreditsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
@@ -644,6 +726,13 @@ export interface FileRoutesByTo {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
+  '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
+  '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
+  '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
+  '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -672,12 +761,15 @@ export interface FileRoutesByTo {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
   '/api/admin/roles': typeof ApiAdminRolesIndexRoute
   '/api/admin/users': typeof ApiAdminUsersIndexRoute
   '/api/user/subscriptions': typeof ApiUserSubscriptionsIndexRoute
+  '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
+  '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -710,6 +802,7 @@ export interface FileRoutesById {
   '/api/credits': typeof ApiCreditsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
@@ -730,6 +823,13 @@ export interface FileRoutesById {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
+  '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
+  '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
+  '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
+  '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -758,12 +858,15 @@ export interface FileRoutesById {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
+  '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
+  '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -796,6 +899,7 @@ export interface FileRouteTypes {
     | '/api/credits'
     | '/api/tickets'
     | '/blog/$slug'
+    | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
@@ -816,6 +920,13 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/ai-support/agent-tokens'
+    | '/api/ai-support/audit-logs'
+    | '/api/ai-support/chatbots'
+    | '/api/ai-support/escalations'
+    | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/leads'
+    | '/api/ai-support/overview'
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
@@ -844,12 +955,15 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/ai-support/widget/$publicKey'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
     | '/api/admin/roles/'
     | '/api/admin/users/'
     | '/api/user/subscriptions/'
+    | '/api/ai-support/widget/$publicKey/escalations'
+    | '/api/ai-support/widget/$publicKey/leads'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -878,6 +992,7 @@ export interface FileRouteTypes {
     | '/api/credits'
     | '/api/tickets'
     | '/blog/$slug'
+    | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
@@ -898,6 +1013,13 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/ai-support/agent-tokens'
+    | '/api/ai-support/audit-logs'
+    | '/api/ai-support/chatbots'
+    | '/api/ai-support/escalations'
+    | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/leads'
+    | '/api/ai-support/overview'
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
@@ -926,12 +1048,15 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/ai-support/widget/$publicKey'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
     | '/api/admin/roles'
     | '/api/admin/users'
     | '/api/user/subscriptions'
+    | '/api/ai-support/widget/$publicKey/escalations'
+    | '/api/ai-support/widget/$publicKey/leads'
   id:
     | '__root__'
     | '/'
@@ -963,6 +1088,7 @@ export interface FileRouteTypes {
     | '/api/credits'
     | '/api/tickets'
     | '/blog/$slug'
+    | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
@@ -983,6 +1109,13 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/ai-support/agent-tokens'
+    | '/api/ai-support/audit-logs'
+    | '/api/ai-support/chatbots'
+    | '/api/ai-support/escalations'
+    | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/leads'
+    | '/api/ai-support/overview'
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/config/public'
@@ -1011,12 +1144,15 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/ai-support/widget/$publicKey'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
     | '/api/admin/roles/'
     | '/api/admin/users/'
     | '/api/user/subscriptions/'
+    | '/api/ai-support/widget/$publicKey/escalations'
+    | '/api/ai-support/widget/$publicKey/leads'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1046,6 +1182,13 @@ export interface RootRouteChildren {
   ApiAdminPostsRoute: typeof ApiAdminPostsRoute
   ApiAdminSubscriptionsRoute: typeof ApiAdminSubscriptionsRoute
   ApiAdminTicketsRoute: typeof ApiAdminTicketsRouteWithChildren
+  ApiAiSupportAgentTokensRoute: typeof ApiAiSupportAgentTokensRoute
+  ApiAiSupportAuditLogsRoute: typeof ApiAiSupportAuditLogsRoute
+  ApiAiSupportChatbotsRoute: typeof ApiAiSupportChatbotsRoute
+  ApiAiSupportEscalationsRoute: typeof ApiAiSupportEscalationsRoute
+  ApiAiSupportKnowledgeSourcesRoute: typeof ApiAiSupportKnowledgeSourcesRoute
+  ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
+  ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthTokenRoute: typeof ApiAuthTokenRoute
   ApiConfigPublicRoute: typeof ApiConfigPublicRoute
@@ -1071,6 +1214,7 @@ export interface RootRouteChildren {
   ApiAdminRolesPermissionsRoute: typeof ApiAdminRolesPermissionsRoute
   ApiAdminSettingsTestRoute: typeof ApiAdminSettingsTestRoute
   ApiAdminUsersCreditsRoute: typeof ApiAdminUsersCreditsRoute
+  ApiAiSupportWidgetPublicKeyRoute: typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   ApiPaymentNotifyProviderRoute: typeof ApiPaymentNotifyProviderRoute
   ApiUserSubscriptionsCancelRoute: typeof ApiUserSubscriptionsCancelRoute
   ApiUserSubscriptionsCurrentRoute: typeof ApiUserSubscriptionsCurrentRoute
@@ -1205,6 +1349,13 @@ declare module '@tanstack/react-router' {
       path: '/apikeys'
       fullPath: '/settings/apikeys'
       preLoaderRoute: typeof SettingsApikeysRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/ai-support': {
+      id: '/settings/ai-support'
+      path: '/ai-support'
+      fullPath: '/settings/ai-support'
+      preLoaderRoute: typeof SettingsAiSupportRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
     '/blog/$slug': {
@@ -1515,6 +1666,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/overview': {
+      id: '/api/ai-support/overview'
+      path: '/api/ai-support/overview'
+      fullPath: '/api/ai-support/overview'
+      preLoaderRoute: typeof ApiAiSupportOverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/leads': {
+      id: '/api/ai-support/leads'
+      path: '/api/ai-support/leads'
+      fullPath: '/api/ai-support/leads'
+      preLoaderRoute: typeof ApiAiSupportLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/knowledge-sources': {
+      id: '/api/ai-support/knowledge-sources'
+      path: '/api/ai-support/knowledge-sources'
+      fullPath: '/api/ai-support/knowledge-sources'
+      preLoaderRoute: typeof ApiAiSupportKnowledgeSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/escalations': {
+      id: '/api/ai-support/escalations'
+      path: '/api/ai-support/escalations'
+      fullPath: '/api/ai-support/escalations'
+      preLoaderRoute: typeof ApiAiSupportEscalationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/chatbots': {
+      id: '/api/ai-support/chatbots'
+      path: '/api/ai-support/chatbots'
+      fullPath: '/api/ai-support/chatbots'
+      preLoaderRoute: typeof ApiAiSupportChatbotsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/audit-logs': {
+      id: '/api/ai-support/audit-logs'
+      path: '/api/ai-support/audit-logs'
+      fullPath: '/api/ai-support/audit-logs'
+      preLoaderRoute: typeof ApiAiSupportAuditLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/agent-tokens': {
+      id: '/api/ai-support/agent-tokens'
+      path: '/api/ai-support/agent-tokens'
+      fullPath: '/api/ai-support/agent-tokens'
+      preLoaderRoute: typeof ApiAiSupportAgentTokensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/tickets': {
       id: '/api/admin/tickets'
       path: '/api/admin/tickets'
@@ -1620,6 +1820,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPaymentNotifyProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/widget/$publicKey': {
+      id: '/api/ai-support/widget/$publicKey'
+      path: '/api/ai-support/widget/$publicKey'
+      fullPath: '/api/ai-support/widget/$publicKey'
+      preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/users/credits': {
       id: '/api/admin/users/credits'
       path: '/api/admin/users/credits'
@@ -1661,6 +1868,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/config/custom'
       preLoaderRoute: typeof ApiAdminConfigCustomRouteImport
       parentRoute: typeof ApiAdminConfigRoute
+    }
+    '/api/ai-support/widget/$publicKey/leads': {
+      id: '/api/ai-support/widget/$publicKey/leads'
+      path: '/leads'
+      fullPath: '/api/ai-support/widget/$publicKey/leads'
+      preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyLeadsRouteImport
+      parentRoute: typeof ApiAiSupportWidgetPublicKeyRoute
+    }
+    '/api/ai-support/widget/$publicKey/escalations': {
+      id: '/api/ai-support/widget/$publicKey/escalations'
+      path: '/escalations'
+      fullPath: '/api/ai-support/widget/$publicKey/escalations'
+      preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyEscalationsRouteImport
+      parentRoute: typeof ApiAiSupportWidgetPublicKeyRoute
     }
   }
 }
@@ -1714,6 +1935,7 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 )
 
 interface SettingsRouteRouteChildren {
+  SettingsAiSupportRoute: typeof SettingsAiSupportRoute
   SettingsApikeysRoute: typeof SettingsApikeysRoute
   SettingsBillingRoute: typeof SettingsBillingRoute
   SettingsChatRoute: typeof SettingsChatRoute
@@ -1726,6 +1948,7 @@ interface SettingsRouteRouteChildren {
 }
 
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
+  SettingsAiSupportRoute: SettingsAiSupportRoute,
   SettingsApikeysRoute: SettingsApikeysRoute,
   SettingsBillingRoute: SettingsBillingRoute,
   SettingsChatRoute: SettingsChatRoute,
@@ -1777,6 +2000,24 @@ const ApiAdminTicketsRouteWithChildren = ApiAdminTicketsRoute._addFileChildren(
   ApiAdminTicketsRouteChildren,
 )
 
+interface ApiAiSupportWidgetPublicKeyRouteChildren {
+  ApiAiSupportWidgetPublicKeyEscalationsRoute: typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
+  ApiAiSupportWidgetPublicKeyLeadsRoute: typeof ApiAiSupportWidgetPublicKeyLeadsRoute
+}
+
+const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRouteChildren =
+  {
+    ApiAiSupportWidgetPublicKeyEscalationsRoute:
+      ApiAiSupportWidgetPublicKeyEscalationsRoute,
+    ApiAiSupportWidgetPublicKeyLeadsRoute:
+      ApiAiSupportWidgetPublicKeyLeadsRoute,
+  }
+
+const ApiAiSupportWidgetPublicKeyRouteWithChildren =
+  ApiAiSupportWidgetPublicKeyRoute._addFileChildren(
+    ApiAiSupportWidgetPublicKeyRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   pagesRouteRoute: pagesRouteRouteWithChildren,
@@ -1804,6 +2045,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminPostsRoute: ApiAdminPostsRoute,
   ApiAdminSubscriptionsRoute: ApiAdminSubscriptionsRoute,
   ApiAdminTicketsRoute: ApiAdminTicketsRouteWithChildren,
+  ApiAiSupportAgentTokensRoute: ApiAiSupportAgentTokensRoute,
+  ApiAiSupportAuditLogsRoute: ApiAiSupportAuditLogsRoute,
+  ApiAiSupportChatbotsRoute: ApiAiSupportChatbotsRoute,
+  ApiAiSupportEscalationsRoute: ApiAiSupportEscalationsRoute,
+  ApiAiSupportKnowledgeSourcesRoute: ApiAiSupportKnowledgeSourcesRoute,
+  ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
+  ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthTokenRoute: ApiAuthTokenRoute,
   ApiConfigPublicRoute: ApiConfigPublicRoute,
@@ -1829,6 +2077,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminRolesPermissionsRoute: ApiAdminRolesPermissionsRoute,
   ApiAdminSettingsTestRoute: ApiAdminSettingsTestRoute,
   ApiAdminUsersCreditsRoute: ApiAdminUsersCreditsRoute,
+  ApiAiSupportWidgetPublicKeyRoute:
+    ApiAiSupportWidgetPublicKeyRouteWithChildren,
   ApiPaymentNotifyProviderRoute: ApiPaymentNotifyProviderRoute,
   ApiUserSubscriptionsCancelRoute: ApiUserSubscriptionsCancelRoute,
   ApiUserSubscriptionsCurrentRoute: ApiUserSubscriptionsCurrentRoute,
