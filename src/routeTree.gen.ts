@@ -76,6 +76,8 @@ import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-suppor
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
 import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/ai-support/knowledge-sources'
 import { Route as ApiAiSupportEscalationsRouteImport } from './routes/api/ai-support/escalations'
+import { Route as ApiAiSupportConversationsRouteImport } from './routes/api/ai-support/conversations'
+import { Route as ApiAiSupportConversationMessagesRouteImport } from './routes/api/ai-support/conversation-messages'
 import { Route as ApiAiSupportChatbotsRouteImport } from './routes/api/ai-support/chatbots'
 import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-support/audit-logs'
 import { Route as ApiAiSupportAgentTokensRouteImport } from './routes/api/ai-support/agent-tokens'
@@ -101,6 +103,7 @@ import { Route as ApiAdminSettingsTestRouteImport } from './routes/api/admin/set
 import { Route as ApiAdminRolesPermissionsRouteImport } from './routes/api/admin/roles/permissions'
 import { Route as ApiAdminRolesAssignRouteImport } from './routes/api/admin/roles/assign'
 import { Route as ApiAdminConfigCustomRouteImport } from './routes/api/admin/config/custom'
+import { Route as ApiAiSupportWidgetPublicKeyMessagesRouteImport } from './routes/api/ai-support/widget/$publicKey/messages'
 import { Route as ApiAiSupportWidgetPublicKeyLeadsRouteImport } from './routes/api/ai-support/widget/$publicKey/leads'
 import { Route as ApiAiSupportWidgetPublicKeyEscalationsRouteImport } from './routes/api/ai-support/widget/$publicKey/escalations'
 
@@ -439,6 +442,18 @@ const ApiAiSupportEscalationsRoute = ApiAiSupportEscalationsRouteImport.update({
   path: '/api/ai-support/escalations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportConversationsRoute =
+  ApiAiSupportConversationsRouteImport.update({
+    id: '/api/ai-support/conversations',
+    path: '/api/ai-support/conversations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAiSupportConversationMessagesRoute =
+  ApiAiSupportConversationMessagesRouteImport.update({
+    id: '/api/ai-support/conversation-messages',
+    path: '/api/ai-support/conversation-messages',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportChatbotsRoute = ApiAiSupportChatbotsRouteImport.update({
   id: '/api/ai-support/chatbots',
   path: '/api/ai-support/chatbots',
@@ -570,6 +585,12 @@ const ApiAdminConfigCustomRoute = ApiAdminConfigCustomRouteImport.update({
   path: '/custom',
   getParentRoute: () => ApiAdminConfigRoute,
 } as any)
+const ApiAiSupportWidgetPublicKeyMessagesRoute =
+  ApiAiSupportWidgetPublicKeyMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => ApiAiSupportWidgetPublicKeyRoute,
+  } as any)
 const ApiAiSupportWidgetPublicKeyLeadsRoute =
   ApiAiSupportWidgetPublicKeyLeadsRouteImport.update({
     id: '/leads',
@@ -636,6 +657,8 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
+  '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
@@ -677,6 +700,7 @@ export interface FileRoutesByFullPath {
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
+  '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -729,6 +753,8 @@ export interface FileRoutesByTo {
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
+  '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
@@ -770,6 +796,7 @@ export interface FileRoutesByTo {
   '/api/user/subscriptions': typeof ApiUserSubscriptionsIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
+  '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -826,6 +853,8 @@ export interface FileRoutesById {
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
+  '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
@@ -867,6 +896,7 @@ export interface FileRoutesById {
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
+  '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -923,6 +953,8 @@ export interface FileRouteTypes {
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
+    | '/api/ai-support/conversation-messages'
+    | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
@@ -964,6 +996,7 @@ export interface FileRouteTypes {
     | '/api/user/subscriptions/'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
+    | '/api/ai-support/widget/$publicKey/messages'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1016,6 +1049,8 @@ export interface FileRouteTypes {
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
+    | '/api/ai-support/conversation-messages'
+    | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
@@ -1057,6 +1092,7 @@ export interface FileRouteTypes {
     | '/api/user/subscriptions'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
+    | '/api/ai-support/widget/$publicKey/messages'
   id:
     | '__root__'
     | '/'
@@ -1112,6 +1148,8 @@ export interface FileRouteTypes {
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
+    | '/api/ai-support/conversation-messages'
+    | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
@@ -1153,6 +1191,7 @@ export interface FileRouteTypes {
     | '/api/user/subscriptions/'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
+    | '/api/ai-support/widget/$publicKey/messages'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1185,6 +1224,8 @@ export interface RootRouteChildren {
   ApiAiSupportAgentTokensRoute: typeof ApiAiSupportAgentTokensRoute
   ApiAiSupportAuditLogsRoute: typeof ApiAiSupportAuditLogsRoute
   ApiAiSupportChatbotsRoute: typeof ApiAiSupportChatbotsRoute
+  ApiAiSupportConversationMessagesRoute: typeof ApiAiSupportConversationMessagesRoute
+  ApiAiSupportConversationsRoute: typeof ApiAiSupportConversationsRoute
   ApiAiSupportEscalationsRoute: typeof ApiAiSupportEscalationsRoute
   ApiAiSupportKnowledgeSourcesRoute: typeof ApiAiSupportKnowledgeSourcesRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
@@ -1694,6 +1735,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportEscalationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/conversations': {
+      id: '/api/ai-support/conversations'
+      path: '/api/ai-support/conversations'
+      fullPath: '/api/ai-support/conversations'
+      preLoaderRoute: typeof ApiAiSupportConversationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/conversation-messages': {
+      id: '/api/ai-support/conversation-messages'
+      path: '/api/ai-support/conversation-messages'
+      fullPath: '/api/ai-support/conversation-messages'
+      preLoaderRoute: typeof ApiAiSupportConversationMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/chatbots': {
       id: '/api/ai-support/chatbots'
       path: '/api/ai-support/chatbots'
@@ -1869,6 +1924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminConfigCustomRouteImport
       parentRoute: typeof ApiAdminConfigRoute
     }
+    '/api/ai-support/widget/$publicKey/messages': {
+      id: '/api/ai-support/widget/$publicKey/messages'
+      path: '/messages'
+      fullPath: '/api/ai-support/widget/$publicKey/messages'
+      preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyMessagesRouteImport
+      parentRoute: typeof ApiAiSupportWidgetPublicKeyRoute
+    }
     '/api/ai-support/widget/$publicKey/leads': {
       id: '/api/ai-support/widget/$publicKey/leads'
       path: '/leads'
@@ -2003,6 +2065,7 @@ const ApiAdminTicketsRouteWithChildren = ApiAdminTicketsRoute._addFileChildren(
 interface ApiAiSupportWidgetPublicKeyRouteChildren {
   ApiAiSupportWidgetPublicKeyEscalationsRoute: typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   ApiAiSupportWidgetPublicKeyLeadsRoute: typeof ApiAiSupportWidgetPublicKeyLeadsRoute
+  ApiAiSupportWidgetPublicKeyMessagesRoute: typeof ApiAiSupportWidgetPublicKeyMessagesRoute
 }
 
 const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRouteChildren =
@@ -2011,6 +2074,8 @@ const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRoute
       ApiAiSupportWidgetPublicKeyEscalationsRoute,
     ApiAiSupportWidgetPublicKeyLeadsRoute:
       ApiAiSupportWidgetPublicKeyLeadsRoute,
+    ApiAiSupportWidgetPublicKeyMessagesRoute:
+      ApiAiSupportWidgetPublicKeyMessagesRoute,
   }
 
 const ApiAiSupportWidgetPublicKeyRouteWithChildren =
@@ -2048,6 +2113,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportAgentTokensRoute: ApiAiSupportAgentTokensRoute,
   ApiAiSupportAuditLogsRoute: ApiAiSupportAuditLogsRoute,
   ApiAiSupportChatbotsRoute: ApiAiSupportChatbotsRoute,
+  ApiAiSupportConversationMessagesRoute: ApiAiSupportConversationMessagesRoute,
+  ApiAiSupportConversationsRoute: ApiAiSupportConversationsRoute,
   ApiAiSupportEscalationsRoute: ApiAiSupportEscalationsRoute,
   ApiAiSupportKnowledgeSourcesRoute: ApiAiSupportKnowledgeSourcesRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,

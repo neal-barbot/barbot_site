@@ -1,4 +1,4 @@
-import { and, count, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, isNull } from 'drizzle-orm';
 import { db } from '@/core/db';
 import {
   aiAgentRun,
@@ -6,11 +6,15 @@ import {
   aiAuditLog,
   aiChatbot,
   aiConfigVersion,
+  aiConversation,
+  aiConversationMessage,
   aiHumanEscalation,
   aiKnowledgeSource,
   aiLead,
   type AiChatbot,
   type AiAuditLog,
+  type AiConversation,
+  type AiConversationMessage,
   type AiHumanEscalation,
   type AiKnowledgeSource,
   type AiLead,
@@ -140,6 +144,27 @@ export interface UpdateEscalationInput {
   assigneeUserId?: string | null;
   summary?: string;
   metadata?: Record<string, unknown>;
+}
+
+export interface AiConversationWithMessages extends AiConversation {
+  messages: AiConversationMessage[];
+}
+
+export interface PublicConversationMessageInput {
+  publicKey: string;
+  conversationId?: string;
+  message: string;
+  visitorId?: string;
+  sourceUrl?: string;
+  contactName?: string;
+  contactEmail?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface PublicConversationMessageResult {
+  conversation: AiConversation;
+  userMessage: AiConversationMessage;
+  assistantMessage: AiConversationMessage;
 }
 
 export interface AiAgentTokenView {
@@ -278,6 +303,83 @@ function parseJsonStringArray(raw: string | null): string[] {
   } catch {
     return [];
   }
+}
+
+function parseJsonObject(raw: string | null): Record<string, unknown> {
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function buildCitation(source: AiKnowledgeSource) {
+  return {
+    id: source.id,
+    type: source.type,
+    title: source.title,
+    sourceUrl: source.sourceUrl,
+  };
+}
+
+async function draftKnowledgeReply(params: {
+  userId: string;
+  chatbotId: string;
+  message: string;
+}): Promise<{ content: string; citations: Array<ReturnType<typeof buildCitation>> }> {
+  const sources: AiKnowledgeSource[] = await db()
+    .select()
+    .from(aiKnowledgeSource)
+    .where(
+      and(
+        eq(aiKnowledgeSource.userId, params.userId),
+        eq(aiKnowledgeSource.chatbotId, params.chatbotId),
+        eq(aiKnowledgeSource.status, 'ready'),
+        isNull(aiKnowledgeSource.deletedAt)
+      )
+    )
+    .orderBy(desc(aiKnowledgeSource.updatedAt))
+    .limit(20);
+
+  const normalizedMessage = params.message.toLowerCase();
+  const matched =
+    sources.find((source) => {
+      const title = source.title.toLowerCase();
+      return (
+        source.type === 'custom_response' &&
+        (normalizedMessage.includes(title) || title.includes(normalizedMessage))
+      );
+    }) ??
+    sources.find((source) => {
+      const searchable = `${source.title}\n${source.content ?? ''}`.toLowerCase();
+      return normalizedMessage
+        .split(/\s+/)
+        .filter((word) => word.length > 2)
+        .some((word) => searchable.includes(word));
+    }) ??
+    sources[0];
+
+  if (!matched) {
+    return {
+      content:
+        "I don't have enough knowledge configured yet. Please leave your contact details or request human support.",
+      citations: [],
+    };
+  }
+
+  const content =
+    matched.type === 'custom_response' && matched.content
+      ? matched.content
+      : `I found this in ${matched.title}: ${matched.content?.slice(0, 360) || matched.sourceUrl || 'configured knowledge source.'}`;
+
+  return {
+    content,
+    citations: [buildCitation(matched)],
+  };
 }
 
 async function getCount(table: any, where: any): Promise<number> {
@@ -460,6 +562,174 @@ export async function listKnowledgeSources(params: {
     .from(aiKnowledgeSource)
     .where(and(...conditions))
     .orderBy(desc(aiKnowledgeSource.updatedAt));
+}
+
+export async function listConversations(params: {
+  userId: string;
+  chatbotId?: string;
+  status?: string;
+}): Promise<AiConversation[]> {
+  const conditions = [eq(aiConversation.userId, params.userId)];
+  if (params.chatbotId) conditions.push(eq(aiConversation.chatbotId, params.chatbotId));
+  if (params.status) conditions.push(eq(aiConversation.status, params.status));
+
+  return db()
+    .select()
+    .from(aiConversation)
+    .where(and(...conditions))
+    .orderBy(desc(aiConversation.updatedAt))
+    .limit(50);
+}
+
+export async function getConversationWithMessages(params: {
+  userId: string;
+  conversationId: string;
+}): Promise<AiConversationWithMessages> {
+  const [conversation] = await db()
+    .select()
+    .from(aiConversation)
+    .where(and(eq(aiConversation.id, params.conversationId), eq(aiConversation.userId, params.userId)))
+    .limit(1);
+  if (!conversation) throw new Error('Conversation not found');
+
+  const messages = await db()
+    .select()
+    .from(aiConversationMessage)
+    .where(eq(aiConversationMessage.conversationId, params.conversationId))
+    .orderBy(asc(aiConversationMessage.createdAt));
+
+  return { ...conversation, messages };
+}
+
+export async function createPublicConversationMessage(
+  input: PublicConversationMessageInput
+): Promise<PublicConversationMessageResult> {
+  const chatbot = await getPublicChatbot(input.publicKey);
+  if (!chatbot) throw new Error('Chatbot not found');
+
+  const message = input.message.trim();
+  if (!message) throw new Error('Message is required');
+  if (message.length > 4000) throw new Error('Message is too long');
+
+  const existingConversation = input.conversationId
+    ? await db()
+        .select()
+        .from(aiConversation)
+        .where(
+          and(
+            eq(aiConversation.id, input.conversationId),
+            eq(aiConversation.userId, chatbot.userId),
+            eq(aiConversation.chatbotId, chatbot.id)
+          )
+        )
+        .limit(1)
+    : [];
+
+  const reply = await draftKnowledgeReply({
+    userId: chatbot.userId,
+    chatbotId: chatbot.id,
+    message,
+  });
+
+  const now = new Date();
+
+  return db().transaction(async (tx: any) => {
+    const conversation =
+      existingConversation[0] ??
+      (
+        await tx
+          .insert(aiConversation)
+          .values({
+            id: getUuid(),
+            userId: chatbot.userId,
+            chatbotId: chatbot.id,
+            status: 'open',
+            sourceUrl: input.sourceUrl?.trim() || null,
+            visitorId: input.visitorId?.trim() || null,
+            contactName: input.contactName?.trim() || null,
+            contactEmail: input.contactEmail?.trim() || null,
+            lastMessage: '',
+            messageCount: 0,
+            metadata: JSON.stringify(input.metadata ?? {}),
+            createdAt: now,
+            updatedAt: now,
+          })
+          .returning()
+      )[0];
+
+    const [userMessage] = await tx
+      .insert(aiConversationMessage)
+      .values({
+        id: getUuid(),
+        userId: chatbot.userId,
+        chatbotId: chatbot.id,
+        conversationId: conversation.id,
+        role: 'user',
+        content: message,
+        citations: JSON.stringify([]),
+        metadata: JSON.stringify({
+          sourceUrl: input.sourceUrl,
+          visitorId: input.visitorId,
+        }),
+        createdAt: now,
+      })
+      .returning();
+
+    const [assistantMessage] = await tx
+      .insert(aiConversationMessage)
+      .values({
+        id: getUuid(),
+        userId: chatbot.userId,
+        chatbotId: chatbot.id,
+        conversationId: conversation.id,
+        role: 'assistant',
+        content: reply.content,
+        citations: JSON.stringify(reply.citations),
+        metadata: JSON.stringify({ mode: 'knowledge_draft' }),
+        createdAt: now,
+      })
+      .returning();
+
+    const metadata = {
+      ...parseJsonObject(conversation.metadata),
+      ...(input.metadata ?? {}),
+    };
+
+    const [updatedConversation] = await tx
+      .update(aiConversation)
+      .set({
+        status: 'open',
+        sourceUrl: input.sourceUrl?.trim() || conversation.sourceUrl,
+        visitorId: input.visitorId?.trim() || conversation.visitorId,
+        contactName: input.contactName?.trim() || conversation.contactName,
+        contactEmail: input.contactEmail?.trim() || conversation.contactEmail,
+        lastMessage: message,
+        messageCount: Number(conversation.messageCount ?? 0) + 2,
+        metadata: JSON.stringify(metadata),
+        updatedAt: now,
+      })
+      .where(eq(aiConversation.id, conversation.id))
+      .returning();
+
+    await writeAudit(tx, {
+      userId: chatbot.userId,
+      actorType: 'agent',
+      actorId: chatbot.publicKey,
+      resourceType: 'ai_conversation',
+      resourceId: conversation.id,
+      action: 'conversation.reply',
+      metadata: {
+        source: 'public_widget',
+        citationCount: reply.citations.length,
+      },
+    });
+
+    return {
+      conversation: updatedConversation,
+      userMessage,
+      assistantMessage,
+    };
+  });
 }
 
 export async function createKnowledgeSource(

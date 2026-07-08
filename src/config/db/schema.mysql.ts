@@ -620,6 +620,60 @@ export const aiKnowledgeSource = table(
   ]
 );
 
+export const aiConversation = table(
+  'ai_conversation',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    status: varchar('status', { length: 50 }).notNull().default('open'),
+    sourceUrl: text('source_url'),
+    visitorId: varchar191('visitor_id'),
+    contactName: varchar('contact_name', { length: 255 }),
+    contactEmail: varchar('contact_email', { length: 255 }),
+    lastMessage: text('last_message').notNull().default(''),
+    messageCount: int('message_count').notNull().default(0),
+    feedback: varchar('feedback', { length: 50 }),
+    metadata: longtext('metadata').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_conversation_chatbot_status').on(t.chatbotId, t.status),
+    index('idx_ai_conversation_user_created').on(t.userId, t.createdAt),
+  ]
+);
+
+export const aiConversationMessage = table(
+  'ai_conversation_message',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    conversationId: varchar191('conversation_id')
+      .notNull()
+      .references(() => aiConversation.id, { onDelete: 'cascade' }),
+    role: varchar('role', { length: 50 }).notNull(),
+    content: longtext('content').notNull(),
+    citations: longtext('citations').notNull(),
+    feedback: varchar('feedback', { length: 50 }),
+    metadata: longtext('metadata').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_conversation_message_conversation').on(t.conversationId, t.createdAt),
+    index('idx_ai_conversation_message_chatbot').on(t.chatbotId, t.createdAt),
+  ]
+);
+
 export const aiLead = table(
   'ai_lead',
   {
@@ -776,6 +830,10 @@ export type AiChatbot = typeof aiChatbot.$inferSelect;
 export type NewAiChatbot = typeof aiChatbot.$inferInsert;
 export type AiKnowledgeSource = typeof aiKnowledgeSource.$inferSelect;
 export type NewAiKnowledgeSource = typeof aiKnowledgeSource.$inferInsert;
+export type AiConversation = typeof aiConversation.$inferSelect;
+export type NewAiConversation = typeof aiConversation.$inferInsert;
+export type AiConversationMessage = typeof aiConversationMessage.$inferSelect;
+export type NewAiConversationMessage = typeof aiConversationMessage.$inferInsert;
 export type AiLead = typeof aiLead.$inferSelect;
 export type NewAiLead = typeof aiLead.$inferInsert;
 export type AiHumanEscalation = typeof aiHumanEscalation.$inferSelect;

@@ -156,6 +156,34 @@ type AiEscalation = {
   createdAt: string;
 };
 
+type AiConversation = {
+  id: string;
+  chatbotId: string;
+  status: string;
+  sourceUrl: string | null;
+  visitorId: string | null;
+  contactName: string | null;
+  contactEmail: string | null;
+  lastMessage: string;
+  messageCount: number;
+  feedback: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type AiConversationMessage = {
+  id: string;
+  role: string;
+  content: string;
+  citations: string;
+  feedback: string | null;
+  createdAt: string;
+};
+
+type AiConversationWithMessages = AiConversation & {
+  messages: AiConversationMessage[];
+};
+
 type AiAgentToken = {
   id: string;
   name: string;
@@ -826,6 +854,114 @@ function SupportQueueOperations({
   );
 }
 
+function parseCitations(raw: string): Array<{ title?: string; sourceUrl?: string; id?: string }> {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function ChatHistoryOperations({
+  conversations,
+  selected,
+  selectedId,
+  onSelect,
+}: {
+  conversations: AiConversation[];
+  selected: AiConversationWithMessages | undefined;
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <Card>
+        <CardHeader>
+          <CardTitle>{m['settings.ai_support.ops_conversations_title']()}</CardTitle>
+          <CardDescription>{m['settings.ai_support.ops_conversations_desc']()}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CompactRows
+            rows={conversations.slice(0, 10)}
+            empty={m['settings.ai_support.ops_no_conversations']()}
+            render={(conversation) => (
+              <button
+                key={conversation.id}
+                type="button"
+                className={cn(
+                  'w-full rounded-lg border border-border p-3 text-left transition hover:bg-muted/50',
+                  selectedId === conversation.id && 'border-primary bg-primary/5'
+                )}
+                onClick={() => onSelect(conversation.id)}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="truncate font-medium">
+                    {conversation.contactName || conversation.contactEmail || conversation.visitorId || conversation.id}
+                  </p>
+                  <Badge variant="outline">{conversation.status}</Badge>
+                </div>
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                  {conversation.lastMessage || m['settings.ai_support.ops_no_last_message']()}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  <span>{conversation.messageCount} messages</span>
+                  {conversation.sourceUrl ? <span className="truncate">{conversation.sourceUrl}</span> : null}
+                </div>
+              </button>
+            )}
+          />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{m['settings.ai_support.ops_transcript_title']()}</CardTitle>
+          <CardDescription>{m['settings.ai_support.ops_transcript_desc']()}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!selected ? (
+            <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+              {m['settings.ai_support.ops_select_conversation']()}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {selected.messages.map((message) => {
+                const citations = parseCitations(message.citations);
+                return (
+                  <div
+                    key={message.id}
+                    className={cn(
+                      'rounded-lg border p-3',
+                      message.role === 'user' ? 'bg-primary/5' : 'bg-muted/40'
+                    )}
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <Badge variant="outline">{message.role}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(message.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                    {citations.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {citations.map((citation) => (
+                          <Badge key={citation.id || citation.title} variant="secondary">
+                            {citation.title || citation.sourceUrl || citation.id}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function AuditLogOperations({ logs }: { logs: AiAuditLog[] }) {
   return (
     <Card>
@@ -867,6 +1003,7 @@ function AuditLogOperations({ logs }: { logs: AiAuditLog[] }) {
 
 function AiSupportPage() {
   const queryClient = useQueryClient();
+  const [selectedConversationId, setSelectedConversationId] = useState('');
   const overviewQuery = useQuery({
     queryKey: ['ai-support-overview'],
     queryFn: () => apiGet<AiSupportOverview>('/api/ai-support/overview'),
@@ -902,6 +1039,20 @@ function AiSupportPage() {
     queryFn: () => apiGet<AiAuditLog[]>('/api/ai-support/audit-logs?limit=20'),
     retry: false,
   });
+  const conversationsQuery = useQuery({
+    queryKey: ['ai-support-conversations'],
+    queryFn: () => apiGet<AiConversation[]>('/api/ai-support/conversations'),
+    retry: false,
+  });
+  const selectedConversationQuery = useQuery({
+    queryKey: ['ai-support-conversation-messages', selectedConversationId],
+    queryFn: () =>
+      apiGet<AiConversationWithMessages>(
+        `/api/ai-support/conversation-messages?conversationId=${encodeURIComponent(selectedConversationId)}`
+      ),
+    enabled: Boolean(selectedConversationId),
+    retry: false,
+  });
 
   async function refreshAiSupport() {
     await Promise.all([
@@ -910,6 +1061,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-knowledge-sources'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-tokens'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
     ]);
   }
 
@@ -967,6 +1119,8 @@ function AiSupportPage() {
   const escalations = escalationsQuery.data ?? [];
   const tokens = tokensQuery.data ?? [];
   const auditLogs = auditLogsQuery.data ?? [];
+  const conversations = conversationsQuery.data ?? [];
+  const selectedConversation = selectedConversationQuery.data;
 
   const metrics: Metric[] = overview?.metrics.length
     ? overview.metrics.map((metric) => ({
@@ -1209,6 +1363,7 @@ function AiSupportPage() {
       <Tabs defaultValue="launch" className="space-y-4">
         <TabsList className="flex-wrap">
           <TabsTrigger value="operations">{m['settings.ai_support.tab_operations']()}</TabsTrigger>
+          <TabsTrigger value="history">{m['settings.ai_support.tab_history']()}</TabsTrigger>
           <TabsTrigger value="launch">{m['settings.ai_support.tab_launch']()}</TabsTrigger>
           <TabsTrigger value="knowledge">{m['settings.ai_support.tab_knowledge']()}</TabsTrigger>
           <TabsTrigger value="agent">{m['settings.ai_support.tab_agent']()}</TabsTrigger>
@@ -1238,6 +1393,15 @@ function AiSupportPage() {
           </div>
           <SupportQueueOperations leads={leads} escalations={escalations} />
           <AuditLogOperations logs={auditLogs} />
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          <ChatHistoryOperations
+            conversations={conversations}
+            selected={selectedConversation}
+            selectedId={selectedConversationId}
+            onSelect={setSelectedConversationId}
+          />
         </TabsContent>
 
         <TabsContent value="launch" className="space-y-4">
