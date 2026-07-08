@@ -570,6 +570,53 @@ function CompactRows<T>({
   return <div className="space-y-2">{rows.map(render)}</div>;
 }
 
+function ConfirmAction({
+  title,
+  description,
+  confirmLabel,
+  disabled,
+  variant = 'outline',
+  onConfirm,
+  children,
+}: {
+  title: string;
+  description: string;
+  confirmLabel: string;
+  disabled?: boolean;
+  variant?: 'default' | 'outline' | 'destructive';
+  onConfirm: () => Promise<void>;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  async function confirm() {
+    await onConfirm();
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button size="sm" variant={variant} disabled={disabled} />}>
+        {children}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            {m['settings.ai_support.ops_confirm_cancel']()}
+          </Button>
+          <Button variant={variant === 'destructive' ? 'destructive' : 'default'} onClick={confirm} disabled={disabled}>
+            {confirmLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ChatbotOperations({
   chatbots,
   pending,
@@ -984,15 +1031,17 @@ function AgentTokenOperations({
                   <Badge variant={token.status === 'active' ? 'default' : 'outline'}>{token.status}</Badge>
                   <Badge variant="outline">{token.scopes.length} scopes</Badge>
                   {token.status === 'active' ? (
-                    <Button
-                      size="sm"
+                    <ConfirmAction
                       variant="outline"
                       disabled={revokePending}
-                      onClick={() => onRevoke(token.id)}
+                      title={m['settings.ai_support.ops_confirm_revoke_token_title']()}
+                      description={m['settings.ai_support.ops_confirm_revoke_token_desc']()}
+                      confirmLabel={m['settings.ai_support.ops_revoke_token']()}
+                      onConfirm={() => onRevoke(token.id)}
                     >
                       <LockKeyhole className="size-4" />
                       {m['settings.ai_support.ops_revoke_token']()}
-                    </Button>
+                    </ConfirmAction>
                   ) : null}
                 </div>
               </div>
@@ -1132,19 +1181,28 @@ function AgentApprovalOperations({
                   </div>
                   {run.status === 'pending_approval' ? (
                     <div className="flex shrink-0 gap-2">
-                      <Button size="sm" disabled={pending} onClick={() => onReview({ id: run.id, decision: 'approve' })}>
+                      <ConfirmAction
+                        disabled={pending}
+                        variant="default"
+                        title={m['settings.ai_support.ops_confirm_agent_approve_title']()}
+                        description={m['settings.ai_support.ops_confirm_agent_approve_desc']()}
+                        confirmLabel={m['settings.ai_support.ops_approve']()}
+                        onConfirm={() => onReview({ id: run.id, decision: 'approve' })}
+                      >
                         <CheckCircle2 className="size-4" />
                         {m['settings.ai_support.ops_approve']()}
-                      </Button>
-                      <Button
-                        size="sm"
+                      </ConfirmAction>
+                      <ConfirmAction
                         variant="outline"
                         disabled={pending}
-                        onClick={() => onReview({ id: run.id, decision: 'reject' })}
+                        title={m['settings.ai_support.ops_confirm_agent_reject_title']()}
+                        description={m['settings.ai_support.ops_confirm_agent_reject_desc']()}
+                        confirmLabel={m['settings.ai_support.ops_reject']()}
+                        onConfirm={() => onReview({ id: run.id, decision: 'reject' })}
                       >
                         <AlertTriangle className="size-4" />
                         {m['settings.ai_support.ops_reject']()}
-                      </Button>
+                      </ConfirmAction>
                     </div>
                   ) : null}
                 </div>
@@ -1196,15 +1254,17 @@ function ConfigVersionOperations({
                   {new Date(version.createdAt).toLocaleString()}
                 </p>
               </div>
-              <Button
-                size="sm"
+              <ConfirmAction
                 variant="outline"
                 disabled={pending || version.status === 'published'}
-                onClick={() => onRollback(version.id)}
+                title={m['settings.ai_support.ops_confirm_rollback_title']()}
+                description={m['settings.ai_support.ops_confirm_rollback_desc']()}
+                confirmLabel={m['settings.ai_support.ops_rollback']()}
+                onConfirm={() => onRollback(version.id)}
               >
                 <RotateCcw className="size-4" />
                 {m['settings.ai_support.ops_rollback']()}
-              </Button>
+              </ConfirmAction>
             </div>
           )}
         />
@@ -1287,15 +1347,17 @@ function SupportQueueOperations({
                     ))}
                     <Badge variant="outline">{item.status}</Badge>
                     {hasFailedDelivery ? (
-                      <Button
-                        size="sm"
+                      <ConfirmAction
                         variant="outline"
                         disabled={retryPending}
-                        onClick={() => onRetryNotifications(item.id)}
+                        title={m['settings.ai_support.ops_confirm_retry_notification_title']()}
+                        description={m['settings.ai_support.ops_confirm_retry_notification_desc']()}
+                        confirmLabel={m['settings.ai_support.ops_retry_notifications']()}
+                        onConfirm={() => onRetryNotifications(item.id)}
                       >
                         <RotateCcw className="size-4" />
                         {m['settings.ai_support.ops_retry_notifications']()}
-                      </Button>
+                      </ConfirmAction>
                     ) : null}
                   </div>
                 </div>
