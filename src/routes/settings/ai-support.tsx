@@ -9,6 +9,7 @@ import {
   Clipboard,
   CreditCard,
   DatabaseZap,
+  Download,
   FileText,
   Globe2,
   Headphones,
@@ -245,6 +246,37 @@ type HumanSupportSettings = {
   notificationsEnabled: boolean;
   notificationEmail: string;
   notificationWebhookUrl: string;
+};
+
+type AiSupportUsage = {
+  generatedAt: string;
+  resetAt: string;
+  totals: {
+    chatbots: number;
+    installedChatbots: number;
+    knowledgeSources: number;
+    readyKnowledgeSources: number;
+    conversations: number;
+    messages: number;
+    leads: number;
+    escalations: number;
+    openEscalations: number;
+    activeAgentTokens: number;
+    pendingApprovals: number;
+    auditEvents: number;
+  };
+  byChatbot: Array<{
+    chatbotId: string;
+    name: string;
+    status: string;
+    installStatus: string;
+    knowledgeSources: number;
+    conversations: number;
+    messages: number;
+    leads: number;
+    escalations: number;
+    openEscalations: number;
+  }>;
 };
 
 type AiAuditLog = {
@@ -1475,6 +1507,118 @@ function AuditLogOperations({ logs }: { logs: AiAuditLog[] }) {
   );
 }
 
+function UsageOperations({ usage }: { usage: AiSupportUsage | undefined }) {
+  const totals = usage?.totals;
+  const summary = [
+    {
+      label: m['settings.ai_support.usage_chatbots'](),
+      value: totals?.chatbots ?? 0,
+      detail: m['settings.ai_support.usage_installed']({ count: totals?.installedChatbots ?? 0 }),
+    },
+    {
+      label: m['settings.ai_support.usage_messages'](),
+      value: totals?.messages ?? 0,
+      detail: m['settings.ai_support.usage_conversations']({ count: totals?.conversations ?? 0 }),
+    },
+    {
+      label: m['settings.ai_support.usage_leads'](),
+      value: totals?.leads ?? 0,
+      detail: m['settings.ai_support.usage_escalations']({ count: totals?.openEscalations ?? 0 }),
+    },
+    {
+      label: m['settings.ai_support.usage_agent_controls'](),
+      value: totals?.activeAgentTokens ?? 0,
+      detail: m['settings.ai_support.usage_pending_approvals']({ count: totals?.pendingApprovals ?? 0 }),
+    },
+  ];
+
+  function exportCsv() {
+    if (typeof window === 'undefined') return;
+    window.location.href = '/api/ai-support/usage?format=csv';
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div>
+          <CardTitle>{m['settings.ai_support.usage_title']()}</CardTitle>
+          <CardDescription>{m['settings.ai_support.usage_desc']()}</CardDescription>
+        </div>
+        <Button size="sm" variant="outline" onClick={exportCsv}>
+          <Download className="size-4" />
+          {m['settings.ai_support.usage_export_csv']()}
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {summary.map((item) => (
+            <div key={item.label} className="rounded-lg border border-border p-3">
+              <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">{item.value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>
+            {m['settings.ai_support.usage_generated_at']()}:{' '}
+            {usage?.generatedAt ? new Date(usage.generatedAt).toLocaleString() : '-'}
+          </span>
+          <span>
+            {m['settings.ai_support.usage_reset_at']()}:{' '}
+            {usage?.resetAt ? new Date(usage.resetAt).toLocaleDateString() : '-'}
+          </span>
+        </div>
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="border-b bg-muted/40 text-left text-muted-foreground">
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_chatbot']()}</th>
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_status']()}</th>
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_knowledge']()}</th>
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_conversations']()}</th>
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_messages']()}</th>
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_leads']()}</th>
+                <th className="px-3 py-2 font-medium">{m['settings.ai_support.usage_col_escalations']()}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usage?.byChatbot.length ? (
+                usage.byChatbot.map((row) => (
+                  <tr key={row.chatbotId} className="border-b last:border-0">
+                    <td className="px-3 py-3 font-medium">{row.name}</td>
+                    <td className="px-3 py-3 text-muted-foreground">
+                      {row.status} · {row.installStatus}
+                    </td>
+                    <td className="px-3 py-3 tabular-nums">{row.knowledgeSources}</td>
+                    <td className="px-3 py-3 tabular-nums">{row.conversations}</td>
+                    <td className="px-3 py-3 tabular-nums">{row.messages}</td>
+                    <td className="px-3 py-3 tabular-nums">{row.leads}</td>
+                    <td className="px-3 py-3 tabular-nums">
+                      {row.escalations}
+                      {row.openEscalations > 0 ? (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {m['settings.ai_support.usage_open_escalations']({ count: row.openEscalations })}
+                        </span>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="px-3 py-6 text-center text-muted-foreground">
+                    {m['settings.ai_support.usage_empty']()}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function AiSupportPage() {
   const queryClient = useQueryClient();
   const [selectedConversationId, setSelectedConversationId] = useState('');
@@ -1533,6 +1677,11 @@ function AiSupportPage() {
     queryFn: () => apiGet<AiAuditLog[]>('/api/ai-support/audit-logs?limit=20'),
     retry: false,
   });
+  const usageQuery = useQuery({
+    queryKey: ['ai-support-usage'],
+    queryFn: () => apiGet<AiSupportUsage>('/api/ai-support/usage'),
+    retry: false,
+  });
   const conversationsQuery = useQuery({
     queryKey: ['ai-support-conversations'],
     queryFn: () => apiGet<AiConversation[]>('/api/ai-support/conversations'),
@@ -1559,6 +1708,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-human-support-settings'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-usage'] }),
     ]);
   }
 
@@ -1670,6 +1820,7 @@ function AiSupportPage() {
   const agentRuns = agentRunsQuery.data ?? [];
   const configVersions = configVersionsQuery.data ?? [];
   const auditLogs = auditLogsQuery.data ?? [];
+  const usage = usageQuery.data;
   const conversations = conversationsQuery.data ?? [];
   const selectedConversation = selectedConversationQuery.data;
 
@@ -1915,6 +2066,7 @@ function AiSupportPage() {
         <TabsList className="flex-wrap">
           <TabsTrigger value="operations">{m['settings.ai_support.tab_operations']()}</TabsTrigger>
           <TabsTrigger value="history">{m['settings.ai_support.tab_history']()}</TabsTrigger>
+          <TabsTrigger value="usage">{m['settings.ai_support.tab_usage']()}</TabsTrigger>
           <TabsTrigger value="launch">{m['settings.ai_support.tab_launch']()}</TabsTrigger>
           <TabsTrigger value="knowledge">{m['settings.ai_support.tab_knowledge']()}</TabsTrigger>
           <TabsTrigger value="agent">{m['settings.ai_support.tab_agent']()}</TabsTrigger>
@@ -1961,6 +2113,10 @@ function AiSupportPage() {
             selectedId={selectedConversationId}
             onSelect={setSelectedConversationId}
           />
+        </TabsContent>
+
+        <TabsContent value="usage" className="space-y-4">
+          <UsageOperations usage={usage} />
         </TabsContent>
 
         <TabsContent value="launch" className="space-y-4">

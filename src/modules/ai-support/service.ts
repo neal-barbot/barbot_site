@@ -75,6 +75,37 @@ export interface AiSupportOverview {
   }>;
 }
 
+export interface AiSupportUsage {
+  generatedAt: string;
+  resetAt: string;
+  totals: {
+    chatbots: number;
+    installedChatbots: number;
+    knowledgeSources: number;
+    readyKnowledgeSources: number;
+    conversations: number;
+    messages: number;
+    leads: number;
+    escalations: number;
+    openEscalations: number;
+    activeAgentTokens: number;
+    pendingApprovals: number;
+    auditEvents: number;
+  };
+  byChatbot: Array<{
+    chatbotId: string;
+    name: string;
+    status: string;
+    installStatus: string;
+    knowledgeSources: number;
+    conversations: number;
+    messages: number;
+    leads: number;
+    escalations: number;
+    openEscalations: number;
+  }>;
+}
+
 export interface HumanSupportSettings {
   enabled: boolean;
   showEscalationButtons: boolean;
@@ -850,6 +881,10 @@ function readinessFrom(items: AiSupportChecklistItem[]): number {
     return sum;
   }, 0);
   return Math.round((score / items.length) * 100);
+}
+
+function nextMonthResetDate(now = new Date()): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0));
 }
 
 export async function listChatbots(userId: string): Promise<AiChatbot[]> {
@@ -2167,5 +2202,132 @@ export async function getAiSupportOverview(userId: string): Promise<AiSupportOve
     agentPolicies: STANDARD_AGENT_POLICIES,
     pendingApprovals: pendingApprovalCount,
     recentAgentRuns,
+  };
+}
+
+export async function getAiSupportUsage(userId: string): Promise<AiSupportUsage> {
+  const now = new Date();
+  const chatbots = await listChatbots(userId);
+
+  const [
+    knowledgeSources,
+    readyKnowledgeSources,
+    conversations,
+    messages,
+    leads,
+    escalations,
+    openEscalations,
+    activeAgentTokens,
+    pendingApprovals,
+    auditEvents,
+  ] = await Promise.all([
+    getCount(
+      aiKnowledgeSource as any,
+      and(eq(aiKnowledgeSource.userId, userId), isNull(aiKnowledgeSource.deletedAt))
+    ),
+    getCount(
+      aiKnowledgeSource as any,
+      and(
+        eq(aiKnowledgeSource.userId, userId),
+        eq(aiKnowledgeSource.status, 'ready'),
+        isNull(aiKnowledgeSource.deletedAt)
+      )
+    ),
+    getCount(aiConversation as any, eq(aiConversation.userId, userId)),
+    getCount(aiConversationMessage as any, eq(aiConversationMessage.userId, userId)),
+    getCount(aiLead as any, eq(aiLead.userId, userId)),
+    getCount(aiHumanEscalation as any, eq(aiHumanEscalation.userId, userId)),
+    getCount(
+      aiHumanEscalation as any,
+      and(eq(aiHumanEscalation.userId, userId), eq(aiHumanEscalation.status, 'open'))
+    ),
+    getCount(
+      aiAgentToken as any,
+      and(eq(aiAgentToken.userId, userId), eq(aiAgentToken.status, 'active'))
+    ),
+    getCount(
+      aiAgentRun as any,
+      and(eq(aiAgentRun.userId, userId), eq(aiAgentRun.status, 'pending_approval'))
+    ),
+    getCount(aiAuditLog as any, eq(aiAuditLog.userId, userId)),
+  ]);
+
+  const byChatbot = await Promise.all(
+    chatbots.map(async (chatbot) => {
+      const [
+        chatbotKnowledgeSources,
+        chatbotConversations,
+        chatbotMessages,
+        chatbotLeads,
+        chatbotEscalations,
+        chatbotOpenEscalations,
+      ] = await Promise.all([
+        getCount(
+          aiKnowledgeSource as any,
+          and(
+            eq(aiKnowledgeSource.userId, userId),
+            eq(aiKnowledgeSource.chatbotId, chatbot.id),
+            isNull(aiKnowledgeSource.deletedAt)
+          )
+        ),
+        getCount(
+          aiConversation as any,
+          and(eq(aiConversation.userId, userId), eq(aiConversation.chatbotId, chatbot.id))
+        ),
+        getCount(
+          aiConversationMessage as any,
+          and(eq(aiConversationMessage.userId, userId), eq(aiConversationMessage.chatbotId, chatbot.id))
+        ),
+        getCount(
+          aiLead as any,
+          and(eq(aiLead.userId, userId), eq(aiLead.chatbotId, chatbot.id))
+        ),
+        getCount(
+          aiHumanEscalation as any,
+          and(eq(aiHumanEscalation.userId, userId), eq(aiHumanEscalation.chatbotId, chatbot.id))
+        ),
+        getCount(
+          aiHumanEscalation as any,
+          and(
+            eq(aiHumanEscalation.userId, userId),
+            eq(aiHumanEscalation.chatbotId, chatbot.id),
+            eq(aiHumanEscalation.status, 'open')
+          )
+        ),
+      ]);
+
+      return {
+        chatbotId: chatbot.id,
+        name: chatbot.name,
+        status: chatbot.status,
+        installStatus: chatbot.installStatus,
+        knowledgeSources: chatbotKnowledgeSources,
+        conversations: chatbotConversations,
+        messages: chatbotMessages,
+        leads: chatbotLeads,
+        escalations: chatbotEscalations,
+        openEscalations: chatbotOpenEscalations,
+      };
+    })
+  );
+
+  return {
+    generatedAt: now.toISOString(),
+    resetAt: nextMonthResetDate(now).toISOString(),
+    totals: {
+      chatbots: chatbots.length,
+      installedChatbots: chatbots.filter((chatbot) => chatbot.installStatus === 'installed').length,
+      knowledgeSources,
+      readyKnowledgeSources,
+      conversations,
+      messages,
+      leads,
+      escalations,
+      openEscalations,
+      activeAgentTokens,
+      pendingApprovals,
+      auditEvents,
+    },
+    byChatbot,
   };
 }
