@@ -3,6 +3,7 @@ import { getAuth } from '@/core/auth';
 import {
   createEscalation,
   listEscalations,
+  retryEscalationNotifications,
   updateEscalation,
 } from '@/modules/ai-support/service';
 import { respData, respErr } from '@/lib/resp';
@@ -61,6 +62,13 @@ async function PATCH({ request }: { request: Request }) {
     const body = await request.json().catch(() => ({}));
     const id = typeof body.id === 'string' ? body.id : '';
     if (!id) return respErr('Escalation id is required');
+    if (body.action === 'retryNotifications') {
+      const row = await retryEscalationNotifications({
+        userId: session.user.id,
+        id,
+      });
+      return respData(row);
+    }
 
     const row = await updateEscalation({
       userId: session.user.id,

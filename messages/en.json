@@ -969,6 +969,8 @@
   "settings.ai_support.ops_notification_email_failed": "Email failed",
   "settings.ai_support.ops_notification_webhook_sent": "Webhook sent",
   "settings.ai_support.ops_notification_webhook_failed": "Webhook failed",
+  "settings.ai_support.ops_retry_notifications": "Retry",
+  "settings.ai_support.ops_notifications_retried": "Notification retry queued",
   "settings.ai_support.ops_leads_title": "Lead queue",
   "settings.ai_support.ops_leads_desc": "Recent captured contacts and qualification status.",
   "settings.ai_support.ops_no_leads": "No leads captured yet.",

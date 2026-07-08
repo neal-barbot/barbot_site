@@ -1143,9 +1143,13 @@ function ConfigVersionOperations({
 function SupportQueueOperations({
   leads,
   escalations,
+  retryPending,
+  onRetryNotifications,
 }: {
   leads: AiLead[];
   escalations: AiEscalation[];
+  retryPending: boolean;
+  onRetryNotifications: (id: string) => Promise<void>;
 }) {
   return (
     <div className="grid gap-4 xl:grid-cols-2">
@@ -1185,9 +1189,10 @@ function SupportQueueOperations({
             render={(item) => {
               const metadata = parseObjectMetadata(item.metadata);
               const deliveries = parseNotificationDeliveries(metadata);
+              const hasFailedDelivery = deliveries.some((delivery) => delivery.status === 'failed');
 
               return (
-                <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                <div key={item.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{item.summary || item.id}</p>
                     <p className="text-sm text-muted-foreground">{item.assigneeUserId || 'Unassigned'}</p>
@@ -1208,6 +1213,17 @@ function SupportQueueOperations({
                       </Badge>
                     ))}
                     <Badge variant="outline">{item.status}</Badge>
+                    {hasFailedDelivery ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={retryPending}
+                        onClick={() => onRetryNotifications(item.id)}
+                      >
+                        <RotateCcw className="size-4" />
+                        {m['settings.ai_support.ops_retry_notifications']()}
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               );
@@ -1834,6 +1850,18 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const retryEscalationNotificationsMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiPatch<AiEscalation>('/api/ai-support/escalations', {
+        id,
+        action: 'retryNotifications',
+      }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_notifications_retried']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const overview = overviewQuery.data;
   const chatbots = chatbotsQuery.data ?? [];
@@ -2127,7 +2155,14 @@ function AiSupportPage() {
             pending={updateHumanSupportSettingsMutation.isPending}
             onSave={(input) => updateHumanSupportSettingsMutation.mutateAsync(input).then(() => undefined)}
           />
-          <SupportQueueOperations leads={leads} escalations={escalations} />
+          <SupportQueueOperations
+            leads={leads}
+            escalations={escalations}
+            retryPending={retryEscalationNotificationsMutation.isPending}
+            onRetryNotifications={(id) =>
+              retryEscalationNotificationsMutation.mutateAsync(id).then(() => undefined)
+            }
+          />
           <AuditLogOperations logs={auditLogs} />
         </TabsContent>
 

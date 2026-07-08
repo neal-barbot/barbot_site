@@ -969,6 +969,8 @@
   "settings.ai_support.ops_notification_email_failed": "Email 失败",
   "settings.ai_support.ops_notification_webhook_sent": "Webhook 已发送",
   "settings.ai_support.ops_notification_webhook_failed": "Webhook 失败",
+  "settings.ai_support.ops_retry_notifications": "重试",
+  "settings.ai_support.ops_notifications_retried": "通知重试已触发",
   "settings.ai_support.ops_leads_title": "线索队列",
   "settings.ai_support.ops_leads_desc": "最近捕获的联系人和线索状态。",
   "settings.ai_support.ops_no_leads": "还没有捕获线索。",
