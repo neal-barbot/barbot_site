@@ -223,6 +223,18 @@ type AiConfigVersion = {
   publishedAt: string | null;
 };
 
+type HumanSupportSettings = {
+  enabled: boolean;
+  showEscalationButtons: boolean;
+  replaceSuggestions: boolean;
+  positivePrompt: string;
+  requestPrompt: string;
+  confirmationMessage: string;
+  notificationsEnabled: boolean;
+  notificationEmail: string;
+  notificationWebhookUrl: string;
+};
+
 type AiAuditLog = {
   id: string;
   actorType: string;
@@ -1090,6 +1102,136 @@ function SupportQueueOperations({
   );
 }
 
+function HumanSupportSettingsPanel({
+  chatbotId,
+  settings,
+  pending,
+  onSave,
+}: {
+  chatbotId: string;
+  settings: HumanSupportSettings | undefined;
+  pending: boolean;
+  onSave: (input: HumanSupportSettings) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<HumanSupportSettings | null>(null);
+  const value = draft ?? settings;
+
+  function update<K extends keyof HumanSupportSettings>(key: K, next: HumanSupportSettings[K]) {
+    setDraft({
+      ...(value ?? {
+        enabled: true,
+        showEscalationButtons: true,
+        replaceSuggestions: false,
+        positivePrompt: 'That answered my question 👍',
+        requestPrompt: 'Connect to an agent 👤',
+        confirmationMessage:
+          'Your request has been forwarded to our human support team. They will respond soon.',
+        notificationsEnabled: false,
+        notificationEmail: '',
+        notificationWebhookUrl: '',
+      }),
+      [key]: next,
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m['settings.ai_support.ops_human_settings_title']()}</CardTitle>
+        <CardDescription>{m['settings.ai_support.ops_human_settings_desc']()}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {!chatbotId || !value ? (
+          <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            {m['settings.ai_support.ops_human_settings_empty']()}
+          </p>
+        ) : (
+          <>
+            <div className="grid gap-3 md:grid-cols-3">
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.enabled}
+                  onChange={(event) => update('enabled', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_human_enabled']()}
+              </label>
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.showEscalationButtons}
+                  onChange={(event) => update('showEscalationButtons', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_human_buttons']()}
+              </label>
+              <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={value.notificationsEnabled}
+                  onChange={(event) => update('notificationsEnabled', event.target.checked)}
+                />
+                {m['settings.ai_support.ops_human_notifications']()}
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-human-positive">{m['settings.ai_support.ops_positive_prompt']()}</Label>
+                <Input
+                  id="ai-human-positive"
+                  value={value.positivePrompt}
+                  onChange={(event) => update('positivePrompt', event.target.value)}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-human-request">{m['settings.ai_support.ops_request_prompt']()}</Label>
+                <Input
+                  id="ai-human-request"
+                  value={value.requestPrompt}
+                  onChange={(event) => update('requestPrompt', event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ai-human-confirmation">{m['settings.ai_support.ops_confirmation_message']()}</Label>
+              <Textarea
+                id="ai-human-confirmation"
+                value={value.confirmationMessage}
+                onChange={(event) => update('confirmationMessage', event.target.value)}
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-human-email">{m['settings.ai_support.ops_notification_email']()}</Label>
+                <Input
+                  id="ai-human-email"
+                  value={value.notificationEmail}
+                  onChange={(event) => update('notificationEmail', event.target.value)}
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-human-webhook">{m['settings.ai_support.ops_notification_webhook']()}</Label>
+                <Input
+                  id="ai-human-webhook"
+                  value={value.notificationWebhookUrl}
+                  onChange={(event) => update('notificationWebhookUrl', event.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                disabled={pending || !draft}
+                onClick={() => onSave(value).then(() => setDraft(null))}
+              >
+                {m['settings.ai_support.ops_save']()}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function parseCitations(raw: string): Array<{ title?: string; sourceUrl?: string; id?: string }> {
   try {
     const parsed = JSON.parse(raw);
@@ -1250,6 +1392,7 @@ function AiSupportPage() {
     queryFn: () => apiGet<AiChatbot[]>('/api/ai-support/chatbots'),
     retry: false,
   });
+  const primaryChatbotId = chatbotsQuery.data?.[0]?.id ?? '';
   const knowledgeQuery = useQuery({
     queryKey: ['ai-support-knowledge-sources'],
     queryFn: () => apiGet<AiKnowledgeSource[]>('/api/ai-support/knowledge-sources'),
@@ -1263,6 +1406,15 @@ function AiSupportPage() {
   const escalationsQuery = useQuery({
     queryKey: ['ai-support-escalations'],
     queryFn: () => apiGet<AiEscalation[]>('/api/ai-support/escalations'),
+    retry: false,
+  });
+  const humanSupportSettingsQuery = useQuery({
+    queryKey: ['ai-support-human-support-settings', primaryChatbotId],
+    queryFn: () =>
+      apiGet<HumanSupportSettings>(
+        `/api/ai-support/human-support-settings?chatbotId=${encodeURIComponent(primaryChatbotId)}`
+      ),
+    enabled: Boolean(primaryChatbotId),
     retry: false,
   });
   const tokensQuery = useQuery({
@@ -1308,6 +1460,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-tokens'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-runs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-config-versions'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-human-support-settings'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
     ]);
@@ -1390,12 +1543,25 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const updateHumanSupportSettingsMutation = useMutation({
+    mutationFn: (input: HumanSupportSettings) =>
+      apiPatch<HumanSupportSettings>('/api/ai-support/human-support-settings', {
+        chatbotId: primaryChatbotId,
+        ...input,
+      }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const overview = overviewQuery.data;
   const chatbots = chatbotsQuery.data ?? [];
   const knowledgeSources = knowledgeQuery.data ?? [];
   const leads = leadsQuery.data ?? [];
   const escalations = escalationsQuery.data ?? [];
+  const humanSupportSettings = humanSupportSettingsQuery.data;
   const tokens = tokensQuery.data ?? [];
   const agentRuns = agentRunsQuery.data ?? [];
   const configVersions = configVersionsQuery.data ?? [];
@@ -1672,6 +1838,12 @@ function AiSupportPage() {
               onCreate={(input) => createTokenMutation.mutateAsync(input).then(() => undefined)}
             />
           </div>
+          <HumanSupportSettingsPanel
+            chatbotId={primaryChatbotId}
+            settings={humanSupportSettings}
+            pending={updateHumanSupportSettingsMutation.isPending}
+            onSave={(input) => updateHumanSupportSettingsMutation.mutateAsync(input).then(() => undefined)}
+          />
           <SupportQueueOperations leads={leads} escalations={escalations} />
           <AuditLogOperations logs={auditLogs} />
         </TabsContent>

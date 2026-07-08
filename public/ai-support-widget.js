@@ -72,6 +72,14 @@
 
   function render(config) {
     injectStyles();
+    var humanSupport = config.humanSupport || {};
+    var humanSupportEnabled =
+      config.humanSupportEnabled !== false &&
+      humanSupport.enabled !== false &&
+      humanSupport.showEscalationButtons !== false;
+    var requestPrompt = humanSupport.requestPrompt || 'Human';
+    var confirmationMessage =
+      humanSupport.confirmationMessage || 'A human support request was created.';
 
     var root = el('div', { id: rootId, className: 'ai-support-root' });
     var panel = el('div', { className: 'ai-support-panel', hidden: 'true' });
@@ -170,10 +178,10 @@
               });
           },
         }),
-        el('button', {
+        humanSupportEnabled ? el('button', {
           className: 'ai-support-secondary',
           type: 'button',
-          text: 'Human',
+          text: requestPrompt,
           onClick: function () {
             setStatus('Escalating...');
             request('/api/ai-support/widget/' + publicKey + '/escalations', {
@@ -188,13 +196,13 @@
               },
             })
               .then(function () {
-                setStatus('A human support request was created.');
+                setStatus(confirmationMessage);
               })
               .catch(function (error) {
                 setStatus(error.message);
               });
           },
-        }),
+        }) : el('span', { className: 'ai-support-status', text: '' }),
       ]),
       status,
     ]));

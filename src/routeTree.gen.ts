@@ -75,6 +75,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
 import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/ai-support/knowledge-sources'
+import { Route as ApiAiSupportHumanSupportSettingsRouteImport } from './routes/api/ai-support/human-support-settings'
 import { Route as ApiAiSupportEscalationsRouteImport } from './routes/api/ai-support/escalations'
 import { Route as ApiAiSupportConversationsRouteImport } from './routes/api/ai-support/conversations'
 import { Route as ApiAiSupportConversationMessagesRouteImport } from './routes/api/ai-support/conversation-messages'
@@ -439,6 +440,12 @@ const ApiAiSupportKnowledgeSourcesRoute =
     path: '/api/ai-support/knowledge-sources',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiSupportHumanSupportSettingsRoute =
+  ApiAiSupportHumanSupportSettingsRouteImport.update({
+    id: '/api/ai-support/human-support-settings',
+    path: '/api/ai-support/human-support-settings',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportEscalationsRoute = ApiAiSupportEscalationsRouteImport.update({
   id: '/api/ai-support/escalations',
   path: '/api/ai-support/escalations',
@@ -675,6 +682,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
+  '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
@@ -773,6 +781,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
+  '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
@@ -875,6 +884,7 @@ export interface FileRoutesById {
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
+  '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
@@ -977,6 +987,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
+    | '/api/ai-support/human-support-settings'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
@@ -1075,6 +1086,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
+    | '/api/ai-support/human-support-settings'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
@@ -1176,6 +1188,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
+    | '/api/ai-support/human-support-settings'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
@@ -1254,6 +1267,7 @@ export interface RootRouteChildren {
   ApiAiSupportConversationMessagesRoute: typeof ApiAiSupportConversationMessagesRoute
   ApiAiSupportConversationsRoute: typeof ApiAiSupportConversationsRoute
   ApiAiSupportEscalationsRoute: typeof ApiAiSupportEscalationsRoute
+  ApiAiSupportHumanSupportSettingsRoute: typeof ApiAiSupportHumanSupportSettingsRoute
   ApiAiSupportKnowledgeSourcesRoute: typeof ApiAiSupportKnowledgeSourcesRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
@@ -1755,6 +1769,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportKnowledgeSourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/human-support-settings': {
+      id: '/api/ai-support/human-support-settings'
+      path: '/api/ai-support/human-support-settings'
+      fullPath: '/api/ai-support/human-support-settings'
+      preLoaderRoute: typeof ApiAiSupportHumanSupportSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/escalations': {
       id: '/api/ai-support/escalations'
       path: '/api/ai-support/escalations'
@@ -2159,6 +2180,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportConversationMessagesRoute: ApiAiSupportConversationMessagesRoute,
   ApiAiSupportConversationsRoute: ApiAiSupportConversationsRoute,
   ApiAiSupportEscalationsRoute: ApiAiSupportEscalationsRoute,
+  ApiAiSupportHumanSupportSettingsRoute: ApiAiSupportHumanSupportSettingsRoute,
   ApiAiSupportKnowledgeSourcesRoute: ApiAiSupportKnowledgeSourcesRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,

@@ -75,6 +75,18 @@ export interface AiSupportOverview {
   }>;
 }
 
+export interface HumanSupportSettings {
+  enabled: boolean;
+  showEscalationButtons: boolean;
+  replaceSuggestions: boolean;
+  positivePrompt: string;
+  requestPrompt: string;
+  confirmationMessage: string;
+  notificationsEnabled: boolean;
+  notificationEmail: string;
+  notificationWebhookUrl: string;
+}
+
 export interface CreateChatbotInput {
   userId: string;
   name: string;
@@ -205,6 +217,12 @@ export interface RollbackConfigVersionInput {
   id: string;
 }
 
+export interface UpdateHumanSupportSettingsInput {
+  userId: string;
+  chatbotId: string;
+  settings: Partial<HumanSupportSettings>;
+}
+
 const KNOWLEDGE_TYPES: KnowledgeSourceType[] = [
   'custom_response',
   'text_snippet',
@@ -267,6 +285,20 @@ const DEFAULT_AGENT_SCOPES = [
   'lead.classify',
   'audit.read',
 ];
+
+const HUMAN_SUPPORT_SETTING_KEY = 'human_support.settings';
+const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
+  enabled: true,
+  showEscalationButtons: true,
+  replaceSuggestions: false,
+  positivePrompt: 'That answered my question 👍',
+  requestPrompt: 'Connect to an agent 👤',
+  confirmationMessage:
+    'Your request has been forwarded to our human support team. They will respond soon.',
+  notificationsEnabled: false,
+  notificationEmail: '',
+  notificationWebhookUrl: '',
+};
 
 function assertKnowledgeType(type: string): asserts type is KnowledgeSourceType {
   if (!KNOWLEDGE_TYPES.includes(type as KnowledgeSourceType)) {
@@ -347,6 +379,103 @@ function parseJsonObject(raw: string | null): Record<string, unknown> {
   } catch {
     return {};
   }
+}
+
+export function redactPiiText(value: string | null | undefined): string {
+  if (!value) return '';
+  return value
+    .replace(/\b([A-Z0-9._%+-])([A-Z0-9._%+-]*)(@[A-Z0-9.-]+\.[A-Z]{2,})\b/gi, (_match, first, middle, domain) => {
+      const masked = middle ? `${'*'.repeat(Math.min(String(middle).length, 6))}` : '*';
+      return `${first}${masked}${domain}`;
+    })
+    .replace(/(?<!\d)(\+?\d[\d\s().-]{6,}\d)(?!\d)/g, (match) => {
+      const digits = match.replace(/\D/g, '');
+      if (digits.length < 7) return match;
+      return `${digits.slice(0, 2)}${'*'.repeat(Math.max(digits.length - 4, 3))}${digits.slice(-2)}`;
+    });
+}
+
+function maskNullable(value: string | null): string | null {
+  return value ? redactPiiText(value) : value;
+}
+
+function redactLead(row: AiLead): AiLead {
+  return {
+    ...row,
+    name: maskNullable(row.name),
+    email: maskNullable(row.email),
+    phone: maskNullable(row.phone),
+  };
+}
+
+function redactConversation(row: AiConversation): AiConversation {
+  return {
+    ...row,
+    contactName: maskNullable(row.contactName),
+    contactEmail: maskNullable(row.contactEmail),
+    lastMessage: redactPiiText(row.lastMessage),
+  };
+}
+
+function redactConversationMessage(row: AiConversationMessage): AiConversationMessage {
+  return {
+    ...row,
+    content: redactPiiText(row.content),
+  };
+}
+
+function parseHumanSupportSettings(raw: string | null): HumanSupportSettings {
+  const parsed = parseJsonObject(raw);
+  return {
+    enabled: typeof parsed.enabled === 'boolean' ? parsed.enabled : DEFAULT_HUMAN_SUPPORT_SETTINGS.enabled,
+    showEscalationButtons:
+      typeof parsed.showEscalationButtons === 'boolean'
+        ? parsed.showEscalationButtons
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.showEscalationButtons,
+    replaceSuggestions:
+      typeof parsed.replaceSuggestions === 'boolean'
+        ? parsed.replaceSuggestions
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.replaceSuggestions,
+    positivePrompt:
+      typeof parsed.positivePrompt === 'string'
+        ? parsed.positivePrompt
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.positivePrompt,
+    requestPrompt:
+      typeof parsed.requestPrompt === 'string'
+        ? parsed.requestPrompt
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.requestPrompt,
+    confirmationMessage:
+      typeof parsed.confirmationMessage === 'string'
+        ? parsed.confirmationMessage
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.confirmationMessage,
+    notificationsEnabled:
+      typeof parsed.notificationsEnabled === 'boolean'
+        ? parsed.notificationsEnabled
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.notificationsEnabled,
+    notificationEmail:
+      typeof parsed.notificationEmail === 'string'
+        ? parsed.notificationEmail
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.notificationEmail,
+    notificationWebhookUrl:
+      typeof parsed.notificationWebhookUrl === 'string'
+        ? parsed.notificationWebhookUrl
+        : DEFAULT_HUMAN_SUPPORT_SETTINGS.notificationWebhookUrl,
+  };
+}
+
+function normalizeHumanSupportSettings(
+  input: Partial<HumanSupportSettings>,
+  current: HumanSupportSettings
+): HumanSupportSettings {
+  return {
+    ...current,
+    ...input,
+    positivePrompt: (input.positivePrompt ?? current.positivePrompt).trim().slice(0, 160),
+    requestPrompt: (input.requestPrompt ?? current.requestPrompt).trim().slice(0, 160),
+    confirmationMessage: (input.confirmationMessage ?? current.confirmationMessage).trim().slice(0, 1000),
+    notificationEmail: (input.notificationEmail ?? current.notificationEmail).trim().slice(0, 254),
+    notificationWebhookUrl: (input.notificationWebhookUrl ?? current.notificationWebhookUrl).trim().slice(0, 500),
+  };
 }
 
 function buildCitation(source: AiKnowledgeSource) {
@@ -550,6 +679,10 @@ export async function getPublicChatbot(publicKey: string): Promise<Pick<
 export async function getPublicWidgetConfig(publicKey: string) {
   const chatbot = await getPublicChatbot(publicKey);
   if (!chatbot) throw new Error('Chatbot not found');
+  const humanSupport = await getHumanSupportSettings({
+    userId: chatbot.userId,
+    chatbotId: chatbot.id,
+  });
 
   return {
     chatbotId: chatbot.id,
@@ -558,9 +691,73 @@ export async function getPublicWidgetConfig(publicKey: string) {
     description: chatbot.description,
     installStatus: chatbot.installStatus,
     allowedDomains: parseJsonStringArray(chatbot.allowedDomains),
-    humanSupportEnabled: true,
+    humanSupportEnabled: humanSupport.enabled,
+    humanSupport,
     leadCaptureEnabled: true,
   };
+}
+
+export async function getHumanSupportSettings(params: {
+  userId: string;
+  chatbotId: string;
+}): Promise<HumanSupportSettings> {
+  await assertOwnsChatbot(params.userId, params.chatbotId);
+  const [latest] = await db()
+    .select({ content: aiConfigVersion.content })
+    .from(aiConfigVersion)
+    .where(
+      and(
+        eq(aiConfigVersion.userId, params.userId),
+        eq(aiConfigVersion.chatbotId, params.chatbotId),
+        eq(aiConfigVersion.settingKey, HUMAN_SUPPORT_SETTING_KEY),
+        eq(aiConfigVersion.status, 'published')
+      )
+    )
+    .orderBy(desc(aiConfigVersion.version))
+    .limit(1);
+
+  return latest ? parseHumanSupportSettings(latest.content) : DEFAULT_HUMAN_SUPPORT_SETTINGS;
+}
+
+export async function updateHumanSupportSettings(
+  input: UpdateHumanSupportSettingsInput
+): Promise<HumanSupportSettings> {
+  await assertOwnsChatbot(input.userId, input.chatbotId);
+  const current = await getHumanSupportSettings({
+    userId: input.userId,
+    chatbotId: input.chatbotId,
+  });
+  const next = normalizeHumanSupportSettings(input.settings, current);
+
+  await db().transaction(async (tx: any) => {
+    const record = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: HUMAN_SUPPORT_SETTING_KEY,
+      content: JSON.stringify(next),
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_config_version',
+      resourceId: record.id,
+      action: 'human_support.settings.update',
+      diff: {
+        ...next,
+        notificationEmail: redactPiiText(next.notificationEmail),
+      },
+      metadata: {
+        chatbotId: input.chatbotId,
+        notificationsEnabled: next.notificationsEnabled,
+        notificationEmail: redactPiiText(next.notificationEmail),
+      },
+    });
+  });
+
+  return next;
 }
 
 export async function createChatbot(input: CreateChatbotInput): Promise<AiChatbot> {
@@ -685,12 +882,13 @@ export async function listConversations(params: {
   if (params.chatbotId) conditions.push(eq(aiConversation.chatbotId, params.chatbotId));
   if (params.status) conditions.push(eq(aiConversation.status, params.status));
 
-  return db()
+  const rows = await db()
     .select()
     .from(aiConversation)
     .where(and(...conditions))
     .orderBy(desc(aiConversation.updatedAt))
     .limit(50);
+  return rows.map(redactConversation);
 }
 
 export async function getConversationWithMessages(params: {
@@ -710,7 +908,10 @@ export async function getConversationWithMessages(params: {
     .where(eq(aiConversationMessage.conversationId, params.conversationId))
     .orderBy(asc(aiConversationMessage.createdAt));
 
-  return { ...conversation, messages };
+  return {
+    ...redactConversation(conversation),
+    messages: messages.map(redactConversationMessage),
+  };
 }
 
 export async function createPublicConversationMessage(
@@ -972,11 +1173,12 @@ export async function listLeads(params: {
   if (params.chatbotId) conditions.push(eq(aiLead.chatbotId, params.chatbotId));
   if (params.status) conditions.push(eq(aiLead.status, params.status));
 
-  return db()
+  const rows = await db()
     .select()
     .from(aiLead)
     .where(and(...conditions))
     .orderBy(desc(aiLead.createdAt));
+  return rows.map(redactLead);
 }
 
 export async function createLead(input: CreateLeadInput): Promise<AiLead> {
@@ -1136,6 +1338,8 @@ export async function createPublicEscalation(input: Omit<CreateEscalationInput, 
 }): Promise<AiHumanEscalation> {
   const chatbot = await getPublicChatbot(input.publicKey);
   if (!chatbot) throw new Error('Chatbot not found');
+  const settings = await getHumanSupportSettings({ userId: chatbot.userId, chatbotId: chatbot.id });
+  if (!settings.enabled) throw new Error('Human support is disabled');
 
   return createEscalation({
     userId: chatbot.userId,
@@ -1146,6 +1350,11 @@ export async function createPublicEscalation(input: Omit<CreateEscalationInput, 
     metadata: {
       ...(input.metadata ?? {}),
       source: 'public_widget',
+      notificationQueued: settings.notificationsEnabled,
+      notificationEmail: settings.notificationsEnabled
+        ? redactPiiText(settings.notificationEmail)
+        : undefined,
+      notificationWebhookConfigured: Boolean(settings.notificationWebhookUrl),
     },
   });
 }
@@ -1407,12 +1616,19 @@ export async function listConfigVersions(params: {
   if (params.chatbotId) conditions.push(eq(aiConfigVersion.chatbotId, params.chatbotId));
   if (params.settingKey) conditions.push(eq(aiConfigVersion.settingKey, params.settingKey));
 
-  return db()
+  const rows = await db()
     .select()
     .from(aiConfigVersion)
     .where(and(...conditions))
     .orderBy(desc(aiConfigVersion.createdAt))
     .limit(safeLimit);
+  return rows.map((row: AiConfigVersion) => ({
+    ...row,
+    content:
+      row.settingKey === HUMAN_SUPPORT_SETTING_KEY
+        ? redactPiiText(row.content)
+        : row.content,
+  }));
 }
 
 export async function rollbackConfigVersion(
