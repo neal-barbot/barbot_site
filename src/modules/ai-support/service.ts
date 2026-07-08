@@ -12,7 +12,9 @@ import {
   aiKnowledgeSource,
   aiLead,
   type AiChatbot,
+  type AiAgentRun,
   type AiAuditLog,
+  type AiConfigVersion,
   type AiConversation,
   type AiConversationMessage,
   type AiHumanEscalation,
@@ -29,6 +31,7 @@ export type KnowledgeSourceStatus = 'draft' | 'ready' | 'needs_review' | 'archiv
 export type LeadStatus = 'new' | 'qualified' | 'contacted' | 'closed';
 export type LeadPriority = 'low' | 'normal' | 'high';
 export type EscalationStatus = 'open' | 'assigned' | 'closed';
+export type AgentRunStatus = 'queued' | 'running' | 'pending_approval' | 'approved' | 'rejected' | 'failed';
 
 export interface AiSupportMetric {
   key: string;
@@ -181,6 +184,27 @@ export interface AiAgentTokenView {
   revokedAt: Date | null;
 }
 
+export interface CreateAgentRunInput {
+  userId: string;
+  chatbotId: string;
+  action: string;
+  summary: string;
+  settingKey: string;
+  content: string;
+  agentTokenId?: string;
+}
+
+export interface ReviewAgentRunInput {
+  userId: string;
+  id: string;
+  decision: 'approve' | 'reject';
+}
+
+export interface RollbackConfigVersionInput {
+  userId: string;
+  id: string;
+}
+
 const KNOWLEDGE_TYPES: KnowledgeSourceType[] = [
   'custom_response',
   'text_snippet',
@@ -203,6 +227,14 @@ const KNOWLEDGE_STATUSES: KnowledgeSourceStatus[] = [
 const LEAD_STATUSES: LeadStatus[] = ['new', 'qualified', 'contacted', 'closed'];
 const LEAD_PRIORITIES: LeadPriority[] = ['low', 'normal', 'high'];
 const ESCALATION_STATUSES: EscalationStatus[] = ['open', 'assigned', 'closed'];
+const AGENT_RUN_STATUSES: AgentRunStatus[] = [
+  'queued',
+  'running',
+  'pending_approval',
+  'approved',
+  'rejected',
+  'failed',
+];
 
 const STANDARD_AGENT_POLICIES: AiAgentPolicySummary[] = [
   {
@@ -324,6 +356,86 @@ function buildCitation(source: AiKnowledgeSource) {
     title: source.title,
     sourceUrl: source.sourceUrl,
   };
+}
+
+function parseAgentConfigDiff(raw: string | null): {
+  target?: string;
+  settingKey?: string;
+  content?: string;
+} {
+  const parsed = parseJsonObject(raw);
+  return {
+    target: typeof parsed.target === 'string' ? parsed.target : undefined,
+    settingKey: typeof parsed.settingKey === 'string' ? parsed.settingKey : undefined,
+    content: typeof parsed.content === 'string' ? parsed.content : undefined,
+  };
+}
+
+async function getNextConfigVersion(
+  tx: any,
+  input: { userId: string; chatbotId: string; settingKey: string }
+): Promise<number> {
+  const [latest] = await tx
+    .select({ version: aiConfigVersion.version })
+    .from(aiConfigVersion)
+    .where(
+      and(
+        eq(aiConfigVersion.userId, input.userId),
+        eq(aiConfigVersion.chatbotId, input.chatbotId),
+        eq(aiConfigVersion.settingKey, input.settingKey)
+      )
+    )
+    .orderBy(desc(aiConfigVersion.version))
+    .limit(1);
+
+  return Number(latest?.version ?? 0) + 1;
+}
+
+async function publishConfigVersion(
+  tx: any,
+  input: {
+    userId: string;
+    chatbotId: string;
+    settingKey: string;
+    content: string;
+    createdByType: 'user' | 'agent';
+    createdById?: string | null;
+    approvedByUserId: string;
+  }
+): Promise<AiConfigVersion> {
+  const now = new Date();
+  await tx
+    .update(aiConfigVersion)
+    .set({ status: 'superseded' })
+    .where(
+      and(
+        eq(aiConfigVersion.userId, input.userId),
+        eq(aiConfigVersion.chatbotId, input.chatbotId),
+        eq(aiConfigVersion.settingKey, input.settingKey),
+        eq(aiConfigVersion.status, 'published')
+      )
+    );
+
+  const version = await getNextConfigVersion(tx, input);
+  const [record] = await tx
+    .insert(aiConfigVersion)
+    .values({
+      id: getUuid(),
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: input.settingKey,
+      status: 'published',
+      version,
+      content: input.content,
+      createdByType: input.createdByType,
+      createdById: input.createdById ?? null,
+      approvedByUserId: input.approvedByUserId,
+      createdAt: now,
+      publishedAt: now,
+    })
+    .returning();
+
+  return record;
 }
 
 async function draftKnowledgeReply(params: {
@@ -1152,6 +1264,194 @@ export async function listAgentTokens(userId: string): Promise<AiAgentTokenView[
     scopes: parseJsonStringArray(row.scopes),
     chatbotIds: parseJsonStringArray(row.chatbotIds),
   }));
+}
+
+export async function listAgentRuns(params: {
+  userId: string;
+  status?: string;
+  limit?: number;
+}): Promise<AiAgentRun[]> {
+  const safeLimit = Math.min(Math.max(Math.floor(params.limit ?? 20), 1), 50);
+  const conditions = [eq(aiAgentRun.userId, params.userId)];
+  if (params.status) {
+    assertOneOf(params.status, AGENT_RUN_STATUSES, 'agent run status');
+    conditions.push(eq(aiAgentRun.status, params.status));
+  }
+
+  return db()
+    .select()
+    .from(aiAgentRun)
+    .where(and(...conditions))
+    .orderBy(desc(aiAgentRun.createdAt))
+    .limit(safeLimit);
+}
+
+export async function createAgentConfigDraft(input: CreateAgentRunInput): Promise<AiAgentRun> {
+  await assertOwnsChatbot(input.userId, input.chatbotId);
+
+  const action = input.action.trim() || 'config.propose';
+  const summary = input.summary.trim();
+  const settingKey = input.settingKey.trim();
+  const content = input.content.trim();
+  if (!summary) throw new Error('Summary is required');
+  if (!settingKey) throw new Error('Setting key is required');
+  if (!content) throw new Error('Content is required');
+
+  const now = new Date();
+  return db().transaction(async (tx: any) => {
+    const [record] = await tx
+      .insert(aiAgentRun)
+      .values({
+        id: getUuid(),
+        userId: input.userId,
+        agentTokenId: input.agentTokenId ?? null,
+        chatbotId: input.chatbotId,
+        action,
+        status: 'pending_approval',
+        approvalRequired: true,
+        summary,
+        diff: JSON.stringify({
+          target: 'config_version',
+          chatbotId: input.chatbotId,
+          settingKey,
+          content,
+        }),
+        metadata: JSON.stringify({ source: 'admin_console' }),
+        createdAt: now,
+      })
+      .returning();
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      actorType: input.agentTokenId ? 'agent' : 'user',
+      actorId: input.agentTokenId ?? input.userId,
+      resourceType: 'ai_agent_run',
+      resourceId: record.id,
+      action: 'agent_run.propose',
+      requiresApproval: true,
+      status: 'pending_approval',
+      diff: parseAgentConfigDiff(record.diff),
+      metadata: { chatbotId: input.chatbotId, settingKey },
+    });
+
+    return record;
+  });
+}
+
+export async function reviewAgentRun(input: ReviewAgentRunInput): Promise<AiAgentRun> {
+  return db().transaction(async (tx: any) => {
+    const [run] = await tx
+      .select()
+      .from(aiAgentRun)
+      .where(and(eq(aiAgentRun.id, input.id), eq(aiAgentRun.userId, input.userId)))
+      .limit(1);
+    if (!run) throw new Error('Agent run not found');
+    if (run.status !== 'pending_approval') {
+      throw new Error('Agent run is not pending approval');
+    }
+
+    const now = new Date();
+    let publishedVersion: AiConfigVersion | null = null;
+    if (input.decision === 'approve') {
+      const diff = parseAgentConfigDiff(run.diff);
+      if (diff.target !== 'config_version' || !run.chatbotId || !diff.settingKey || !diff.content) {
+        throw new Error('Agent run diff cannot be published');
+      }
+      await assertOwnsChatbot(input.userId, run.chatbotId);
+      publishedVersion = await publishConfigVersion(tx, {
+        userId: input.userId,
+        chatbotId: run.chatbotId,
+        settingKey: diff.settingKey,
+        content: diff.content,
+        createdByType: 'agent',
+        createdById: run.agentTokenId,
+        approvedByUserId: input.userId,
+      });
+    }
+
+    const [updated] = await tx
+      .update(aiAgentRun)
+      .set({
+        status: input.decision === 'approve' ? 'approved' : 'rejected',
+        completedAt: now,
+      })
+      .where(eq(aiAgentRun.id, run.id))
+      .returning();
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_agent_run',
+      resourceId: run.id,
+      action: input.decision === 'approve' ? 'agent_run.approve' : 'agent_run.reject',
+      requiresApproval: false,
+      status: 'recorded',
+      diff: parseAgentConfigDiff(run.diff),
+      metadata: {
+        chatbotId: run.chatbotId,
+        configVersionId: publishedVersion?.id,
+      },
+    });
+
+    return updated;
+  });
+}
+
+export async function listConfigVersions(params: {
+  userId: string;
+  chatbotId?: string;
+  settingKey?: string;
+  limit?: number;
+}): Promise<AiConfigVersion[]> {
+  const safeLimit = Math.min(Math.max(Math.floor(params.limit ?? 20), 1), 100);
+  const conditions = [eq(aiConfigVersion.userId, params.userId)];
+  if (params.chatbotId) conditions.push(eq(aiConfigVersion.chatbotId, params.chatbotId));
+  if (params.settingKey) conditions.push(eq(aiConfigVersion.settingKey, params.settingKey));
+
+  return db()
+    .select()
+    .from(aiConfigVersion)
+    .where(and(...conditions))
+    .orderBy(desc(aiConfigVersion.createdAt))
+    .limit(safeLimit);
+}
+
+export async function rollbackConfigVersion(
+  input: RollbackConfigVersionInput
+): Promise<AiConfigVersion> {
+  return db().transaction(async (tx: any) => {
+    const [target] = await tx
+      .select()
+      .from(aiConfigVersion)
+      .where(and(eq(aiConfigVersion.id, input.id), eq(aiConfigVersion.userId, input.userId)))
+      .limit(1);
+    if (!target) throw new Error('Config version not found');
+    await assertOwnsChatbot(input.userId, target.chatbotId);
+
+    const record = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: target.chatbotId,
+      settingKey: target.settingKey,
+      content: target.content,
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_config_version',
+      resourceId: record.id,
+      action: 'config_version.rollback',
+      diff: {
+        fromVersionId: target.id,
+        settingKey: target.settingKey,
+        version: record.version,
+      },
+      metadata: { chatbotId: target.chatbotId },
+    });
+
+    return record;
+  });
 }
 
 export async function listAuditLogs(userId: string, limit = 20): Promise<AiAuditLog[]> {

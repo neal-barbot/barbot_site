@@ -78,9 +78,11 @@ import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/a
 import { Route as ApiAiSupportEscalationsRouteImport } from './routes/api/ai-support/escalations'
 import { Route as ApiAiSupportConversationsRouteImport } from './routes/api/ai-support/conversations'
 import { Route as ApiAiSupportConversationMessagesRouteImport } from './routes/api/ai-support/conversation-messages'
+import { Route as ApiAiSupportConfigVersionsRouteImport } from './routes/api/ai-support/config-versions'
 import { Route as ApiAiSupportChatbotsRouteImport } from './routes/api/ai-support/chatbots'
 import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-support/audit-logs'
 import { Route as ApiAiSupportAgentTokensRouteImport } from './routes/api/ai-support/agent-tokens'
+import { Route as ApiAiSupportAgentRunsRouteImport } from './routes/api/ai-support/agent-runs'
 import { Route as ApiAdminTicketsRouteImport } from './routes/api/admin/tickets'
 import { Route as ApiAdminSubscriptionsRouteImport } from './routes/api/admin/subscriptions'
 import { Route as ApiAdminPostsRouteImport } from './routes/api/admin/posts'
@@ -454,6 +456,12 @@ const ApiAiSupportConversationMessagesRoute =
     path: '/api/ai-support/conversation-messages',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiSupportConfigVersionsRoute =
+  ApiAiSupportConfigVersionsRouteImport.update({
+    id: '/api/ai-support/config-versions',
+    path: '/api/ai-support/config-versions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportChatbotsRoute = ApiAiSupportChatbotsRouteImport.update({
   id: '/api/ai-support/chatbots',
   path: '/api/ai-support/chatbots',
@@ -467,6 +475,11 @@ const ApiAiSupportAuditLogsRoute = ApiAiSupportAuditLogsRouteImport.update({
 const ApiAiSupportAgentTokensRoute = ApiAiSupportAgentTokensRouteImport.update({
   id: '/api/ai-support/agent-tokens',
   path: '/api/ai-support/agent-tokens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportAgentRunsRoute = ApiAiSupportAgentRunsRouteImport.update({
+  id: '/api/ai-support/agent-runs',
+  path: '/api/ai-support/agent-runs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminTicketsRoute = ApiAdminTicketsRouteImport.update({
@@ -654,9 +667,11 @@ export interface FileRoutesByFullPath {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/config-versions': typeof ApiAiSupportConfigVersionsRoute
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
@@ -750,9 +765,11 @@ export interface FileRoutesByTo {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/config-versions': typeof ApiAiSupportConfigVersionsRoute
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
@@ -850,9 +867,11 @@ export interface FileRoutesById {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
+  '/api/ai-support/config-versions': typeof ApiAiSupportConfigVersionsRoute
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
@@ -950,9 +969,11 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
+    | '/api/ai-support/config-versions'
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
@@ -1046,9 +1067,11 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
+    | '/api/ai-support/config-versions'
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
@@ -1145,9 +1168,11 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
+    | '/api/ai-support/config-versions'
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
@@ -1221,9 +1246,11 @@ export interface RootRouteChildren {
   ApiAdminPostsRoute: typeof ApiAdminPostsRoute
   ApiAdminSubscriptionsRoute: typeof ApiAdminSubscriptionsRoute
   ApiAdminTicketsRoute: typeof ApiAdminTicketsRouteWithChildren
+  ApiAiSupportAgentRunsRoute: typeof ApiAiSupportAgentRunsRoute
   ApiAiSupportAgentTokensRoute: typeof ApiAiSupportAgentTokensRoute
   ApiAiSupportAuditLogsRoute: typeof ApiAiSupportAuditLogsRoute
   ApiAiSupportChatbotsRoute: typeof ApiAiSupportChatbotsRoute
+  ApiAiSupportConfigVersionsRoute: typeof ApiAiSupportConfigVersionsRoute
   ApiAiSupportConversationMessagesRoute: typeof ApiAiSupportConversationMessagesRoute
   ApiAiSupportConversationsRoute: typeof ApiAiSupportConversationsRoute
   ApiAiSupportEscalationsRoute: typeof ApiAiSupportEscalationsRoute
@@ -1749,6 +1776,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportConversationMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/config-versions': {
+      id: '/api/ai-support/config-versions'
+      path: '/api/ai-support/config-versions'
+      fullPath: '/api/ai-support/config-versions'
+      preLoaderRoute: typeof ApiAiSupportConfigVersionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/chatbots': {
       id: '/api/ai-support/chatbots'
       path: '/api/ai-support/chatbots'
@@ -1768,6 +1802,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-support/agent-tokens'
       fullPath: '/api/ai-support/agent-tokens'
       preLoaderRoute: typeof ApiAiSupportAgentTokensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/agent-runs': {
+      id: '/api/ai-support/agent-runs'
+      path: '/api/ai-support/agent-runs'
+      fullPath: '/api/ai-support/agent-runs'
+      preLoaderRoute: typeof ApiAiSupportAgentRunsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/tickets': {
@@ -2110,9 +2151,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminPostsRoute: ApiAdminPostsRoute,
   ApiAdminSubscriptionsRoute: ApiAdminSubscriptionsRoute,
   ApiAdminTicketsRoute: ApiAdminTicketsRouteWithChildren,
+  ApiAiSupportAgentRunsRoute: ApiAiSupportAgentRunsRoute,
   ApiAiSupportAgentTokensRoute: ApiAiSupportAgentTokensRoute,
   ApiAiSupportAuditLogsRoute: ApiAiSupportAuditLogsRoute,
   ApiAiSupportChatbotsRoute: ApiAiSupportChatbotsRoute,
+  ApiAiSupportConfigVersionsRoute: ApiAiSupportConfigVersionsRoute,
   ApiAiSupportConversationMessagesRoute: ApiAiSupportConversationMessagesRoute,
   ApiAiSupportConversationsRoute: ApiAiSupportConversationsRoute,
   ApiAiSupportEscalationsRoute: ApiAiSupportEscalationsRoute,

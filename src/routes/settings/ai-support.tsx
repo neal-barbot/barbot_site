@@ -196,6 +196,33 @@ type AiAgentToken = {
   expiresAt: string | null;
 };
 
+type AiAgentRun = {
+  id: string;
+  chatbotId: string | null;
+  agentTokenId: string | null;
+  action: string;
+  status: string;
+  approvalRequired: boolean;
+  summary: string;
+  diff: string | null;
+  createdAt: string;
+  completedAt: string | null;
+};
+
+type AiConfigVersion = {
+  id: string;
+  chatbotId: string;
+  settingKey: string;
+  status: string;
+  version: number;
+  content: string;
+  createdByType: string;
+  createdById: string | null;
+  approvedByUserId: string | null;
+  createdAt: string;
+  publishedAt: string | null;
+};
+
 type AiAuditLog = {
   id: string;
   actorType: string;
@@ -796,6 +823,215 @@ function AgentTokenOperations({
   );
 }
 
+function parseAgentDiff(raw: string | null): { settingKey?: string; content?: string } {
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? {
+          settingKey: typeof parsed.settingKey === 'string' ? parsed.settingKey : undefined,
+          content: typeof parsed.content === 'string' ? parsed.content : undefined,
+        }
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function AgentApprovalOperations({
+  chatbots,
+  runs,
+  pending,
+  onCreate,
+  onReview,
+}: {
+  chatbots: AiChatbot[];
+  runs: AiAgentRun[];
+  pending: boolean;
+  onCreate: (input: {
+    chatbotId: string;
+    action: string;
+    summary: string;
+    settingKey: string;
+    content: string;
+  }) => Promise<void>;
+  onReview: (input: { id: string; decision: 'approve' | 'reject' }) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [chatbotId, setChatbotId] = useState('');
+  const [settingKey, setSettingKey] = useState('chatbot.instructions');
+  const [summary, setSummary] = useState('');
+  const [content, setContent] = useState('');
+
+  async function submit() {
+    await onCreate({
+      chatbotId: chatbotId || chatbots[0]?.id || '',
+      action: 'config.propose',
+      summary,
+      settingKey,
+      content,
+    });
+    setSummary('');
+    setContent('');
+    setOpen(false);
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div>
+          <CardTitle>{m['settings.ai_support.ops_agent_runs_title']()}</CardTitle>
+          <CardDescription>{m['settings.ai_support.ops_agent_runs_desc']()}</CardDescription>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger render={<Button size="sm" variant="outline" disabled={chatbots.length === 0} />}>
+            <Sparkles className="size-4" />
+            {m['settings.ai_support.ops_create_agent_run']()}
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{m['settings.ai_support.ops_create_agent_run']()}</DialogTitle>
+              <DialogDescription>{m['settings.ai_support.ops_create_agent_run_desc']()}</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-run-chatbot">{m['settings.ai_support.ops_chatbot']()}</Label>
+                <select
+                  id="ai-run-chatbot"
+                  className="h-8 rounded-lg border border-input bg-background px-2 text-sm"
+                  value={chatbotId || chatbots[0]?.id || ''}
+                  onChange={(e) => setChatbotId(e.target.value)}
+                >
+                  {chatbots.map((chatbot) => (
+                    <option key={chatbot.id} value={chatbot.id}>{chatbot.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-run-setting">{m['settings.ai_support.ops_setting_key']()}</Label>
+                <Input id="ai-run-setting" value={settingKey} onChange={(e) => setSettingKey(e.target.value)} />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-run-summary">{m['settings.ai_support.ops_summary']()}</Label>
+                <Input id="ai-run-summary" value={summary} onChange={(e) => setSummary(e.target.value)} />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="ai-run-content">{m['settings.ai_support.ops_content']()}</Label>
+                <Textarea id="ai-run-content" value={content} onChange={(e) => setContent(e.target.value)} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={submit} disabled={pending || !summary.trim() || !settingKey.trim() || !content.trim()}>
+                {m['settings.ai_support.ops_save']()}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        <CompactRows
+          rows={runs.slice(0, 8)}
+          empty={m['settings.ai_support.ops_no_agent_runs']()}
+          render={(run) => {
+            const diff = parseAgentDiff(run.diff);
+            return (
+              <div key={run.id} className="flex flex-col gap-3 rounded-lg border border-border p-3">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{run.summary || run.action}</p>
+                      <Badge variant="outline">{run.status}</Badge>
+                      {run.approvalRequired ? (
+                        <Badge variant="secondary">{m['settings.ai_support.ops_requires_approval']()}</Badge>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 truncate text-sm text-muted-foreground">
+                      {diff.settingKey || run.action} · {new Date(run.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  {run.status === 'pending_approval' ? (
+                    <div className="flex shrink-0 gap-2">
+                      <Button size="sm" disabled={pending} onClick={() => onReview({ id: run.id, decision: 'approve' })}>
+                        <CheckCircle2 className="size-4" />
+                        {m['settings.ai_support.ops_approve']()}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={pending}
+                        onClick={() => onReview({ id: run.id, decision: 'reject' })}
+                      >
+                        <AlertTriangle className="size-4" />
+                        {m['settings.ai_support.ops_reject']()}
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+                {diff.content ? (
+                  <p className="line-clamp-3 rounded-md bg-muted/50 p-2 text-sm text-muted-foreground">
+                    {diff.content}
+                  </p>
+                ) : null}
+              </div>
+            );
+          }}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
+function ConfigVersionOperations({
+  versions,
+  pending,
+  onRollback,
+}: {
+  versions: AiConfigVersion[];
+  pending: boolean;
+  onRollback: (id: string) => Promise<void>;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m['settings.ai_support.ops_versions_title']()}</CardTitle>
+        <CardDescription>{m['settings.ai_support.ops_versions_desc']()}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <CompactRows
+          rows={versions.slice(0, 8)}
+          empty={m['settings.ai_support.ops_no_versions']()}
+          render={(version) => (
+            <div key={version.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium">
+                    {version.settingKey} v{version.version}
+                  </p>
+                  <Badge variant="outline">{version.status}</Badge>
+                  <Badge variant="secondary">{version.createdByType}</Badge>
+                </div>
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{version.content}</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {new Date(version.createdAt).toLocaleString()}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={pending || version.status === 'published'}
+                onClick={() => onRollback(version.id)}
+              >
+                <RotateCcw className="size-4" />
+                {m['settings.ai_support.ops_rollback']()}
+              </Button>
+            </div>
+          )}
+        />
+      </CardContent>
+    </Card>
+  );
+}
+
 function SupportQueueOperations({
   leads,
   escalations,
@@ -1034,6 +1270,16 @@ function AiSupportPage() {
     queryFn: () => apiGet<AiAgentToken[]>('/api/ai-support/agent-tokens'),
     retry: false,
   });
+  const agentRunsQuery = useQuery({
+    queryKey: ['ai-support-agent-runs'],
+    queryFn: () => apiGet<AiAgentRun[]>('/api/ai-support/agent-runs?limit=20'),
+    retry: false,
+  });
+  const configVersionsQuery = useQuery({
+    queryKey: ['ai-support-config-versions'],
+    queryFn: () => apiGet<AiConfigVersion[]>('/api/ai-support/config-versions?limit=20'),
+    retry: false,
+  });
   const auditLogsQuery = useQuery({
     queryKey: ['ai-support-audit-logs'],
     queryFn: () => apiGet<AiAuditLog[]>('/api/ai-support/audit-logs?limit=20'),
@@ -1060,6 +1306,8 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-chatbots'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-knowledge-sources'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-agent-tokens'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-agent-runs'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-config-versions'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
     ]);
@@ -1111,6 +1359,37 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const createAgentRunMutation = useMutation({
+    mutationFn: (input: {
+      chatbotId: string;
+      action: string;
+      summary: string;
+      settingKey: string;
+      content: string;
+    }) => apiPost<AiAgentRun>('/api/ai-support/agent-runs', input),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const reviewAgentRunMutation = useMutation({
+    mutationFn: (input: { id: string; decision: 'approve' | 'reject' }) =>
+      apiPatch<AiAgentRun>('/api/ai-support/agent-runs', input),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+  const rollbackConfigVersionMutation = useMutation({
+    mutationFn: (id: string) => apiPost<AiConfigVersion>('/api/ai-support/config-versions', { id }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   const overview = overviewQuery.data;
   const chatbots = chatbotsQuery.data ?? [];
@@ -1118,6 +1397,8 @@ function AiSupportPage() {
   const leads = leadsQuery.data ?? [];
   const escalations = escalationsQuery.data ?? [];
   const tokens = tokensQuery.data ?? [];
+  const agentRuns = agentRunsQuery.data ?? [];
+  const configVersions = configVersionsQuery.data ?? [];
   const auditLogs = auditLogsQuery.data ?? [];
   const conversations = conversationsQuery.data ?? [];
   const selectedConversation = selectedConversationQuery.data;
@@ -1414,6 +1695,20 @@ function AiSupportPage() {
 
         <TabsContent value="agent" className="space-y-4">
           <AgentPolicyPanel policies={policies} />
+          <div className="grid gap-4 xl:grid-cols-2">
+            <AgentApprovalOperations
+              chatbots={chatbots}
+              runs={agentRuns}
+              pending={createAgentRunMutation.isPending || reviewAgentRunMutation.isPending}
+              onCreate={(input) => createAgentRunMutation.mutateAsync(input).then(() => undefined)}
+              onReview={(input) => reviewAgentRunMutation.mutateAsync(input).then(() => undefined)}
+            />
+            <ConfigVersionOperations
+              versions={configVersions}
+              pending={rollbackConfigVersionMutation.isPending}
+              onRollback={(id) => rollbackConfigVersionMutation.mutateAsync(id).then(() => undefined)}
+            />
+          </div>
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardHeader>
