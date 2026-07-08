@@ -104,6 +104,23 @@ export interface UpdateChatbotInput {
   allowedDomains?: string[];
 }
 
+export interface CheckChatbotInstallationInput {
+  userId: string;
+  chatbotId: string;
+  url: string;
+}
+
+export interface CheckChatbotInstallationResult {
+  url: string;
+  normalizedUrl: string;
+  installed: boolean;
+  installStatus: ChatbotInstallStatus;
+  statusCode: number | null;
+  reason: string;
+  detectedPublicKey: string | null;
+  checkedAt: string;
+}
+
 export interface CreateKnowledgeSourceInput {
   userId: string;
   chatbotId: string;
@@ -475,6 +492,134 @@ function normalizeHumanSupportSettings(
     confirmationMessage: (input.confirmationMessage ?? current.confirmationMessage).trim().slice(0, 1000),
     notificationEmail: (input.notificationEmail ?? current.notificationEmail).trim().slice(0, 254),
     notificationWebhookUrl: (input.notificationWebhookUrl ?? current.notificationWebhookUrl).trim().slice(0, 500),
+  };
+}
+
+function normalizePublicUrl(rawUrl: string): URL {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) throw new Error('Installation URL is required');
+  if (trimmed.length > 2048) throw new Error('Installation URL is too long');
+
+  const withProtocol = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  let url: URL;
+  try {
+    url = new URL(withProtocol);
+  } catch {
+    throw new Error('Installation URL is invalid');
+  }
+
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw new Error('Installation URL must use http or https');
+  }
+  if (url.username || url.password) {
+    throw new Error('Installation URL cannot include credentials');
+  }
+
+  const hostname = url.hostname.toLowerCase();
+  if (isBlockedInstallHostname(hostname)) {
+    throw new Error('Installation URL cannot target localhost or private network hosts');
+  }
+
+  return url;
+}
+
+function isBlockedInstallHostname(hostname: string): boolean {
+  if (
+    hostname === 'localhost' ||
+    hostname.endsWith('.localhost') ||
+    hostname === '0.0.0.0' ||
+    hostname === '[::1]' ||
+    hostname === '::1'
+  ) {
+    return true;
+  }
+
+  if (hostname.includes(':')) {
+    return (
+      hostname === '::' ||
+      hostname.startsWith('fc') ||
+      hostname.startsWith('fd') ||
+      hostname.startsWith('fe80:')
+    );
+  }
+
+  const ipv4 = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!ipv4) return false;
+
+  const parts = ipv4.slice(1).map((part) => Number(part));
+  if (parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return true;
+  const [a, b] = parts;
+  return (
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168)
+  );
+}
+
+async function readLimitedResponseText(response: Response, maxBytes = 262_144): Promise<string> {
+  const reader = response.body?.getReader();
+  if (!reader) return response.text();
+
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  while (received < maxBytes) {
+    const { done, value } = await reader.read();
+    if (done || !value) break;
+    const remaining = maxBytes - received;
+    chunks.push(value.byteLength > remaining ? value.slice(0, remaining) : value);
+    received += Math.min(value.byteLength, remaining);
+  }
+  await reader.cancel().catch(() => undefined);
+
+  const bytes = new Uint8Array(received);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+async function fetchInstallCheckPage(url: URL, signal: AbortSignal): Promise<Response> {
+  let nextUrl = url;
+  for (let redirects = 0; redirects <= 3; redirects += 1) {
+    const response = await fetch(nextUrl.toString(), {
+      method: 'GET',
+      redirect: 'manual',
+      signal,
+      headers: {
+        accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.5',
+        'user-agent': 'ShipAny-AI-Support-Install-Check/1.0',
+      },
+    });
+
+    if (![301, 302, 303, 307, 308].includes(response.status)) {
+      return response;
+    }
+
+    const location = response.headers.get('location');
+    if (!location) return response;
+    nextUrl = normalizePublicUrl(new URL(location, nextUrl).toString());
+  }
+
+  throw new Error('Installation check followed too many redirects');
+}
+
+function detectWidgetInstall(html: string, chatbot: Pick<AiChatbot, 'publicKey'>) {
+  const lowerHtml = html.toLowerCase();
+  const hasWidgetScript = lowerHtml.includes('ai-support-widget.js');
+  const hasPublicKey = html.includes(chatbot.publicKey);
+  const hasBootstrapAttribute = lowerHtml.includes('data-ai-support-public-key');
+
+  return {
+    installed: hasWidgetScript && (hasPublicKey || hasBootstrapAttribute),
+    detectedPublicKey: hasPublicKey ? chatbot.publicKey : null,
   };
 }
 
@@ -855,6 +1000,95 @@ export async function updateChatbot(input: UpdateChatbotInput): Promise<AiChatbo
 
     return row;
   });
+}
+
+export async function checkChatbotInstallation(
+  input: CheckChatbotInstallationInput
+): Promise<CheckChatbotInstallationResult> {
+  const targetUrl = normalizePublicUrl(input.url);
+  const normalizedUrl = targetUrl.toString();
+  const [chatbot] = await db()
+    .select()
+    .from(aiChatbot)
+    .where(
+      and(
+        eq(aiChatbot.id, input.chatbotId),
+        eq(aiChatbot.userId, input.userId),
+        isNull(aiChatbot.deletedAt)
+      )
+    )
+    .limit(1);
+  if (!chatbot) throw new Error('Chatbot not found');
+
+  const checkedAt = new Date();
+  let result: CheckChatbotInstallationResult;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8_000);
+    const response = await fetchInstallCheckPage(targetUrl, controller.signal)
+      .finally(() => clearTimeout(timeout));
+
+    const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+    const canScanBody = contentType.includes('text/html') || contentType.includes('application/xhtml+xml') || !contentType;
+    const html = canScanBody ? await readLimitedResponseText(response) : '';
+    const detection = detectWidgetInstall(html, chatbot);
+    const installStatus: ChatbotInstallStatus = detection.installed ? 'installed' : 'not_installed';
+
+    result = {
+      url: input.url.trim(),
+      normalizedUrl,
+      installed: detection.installed,
+      installStatus,
+      statusCode: response.status,
+      reason: detection.installed
+        ? 'Widget script and chatbot public key were detected.'
+        : canScanBody
+          ? 'Widget script was not detected on the checked page.'
+          : 'Checked URL did not return HTML.',
+      detectedPublicKey: detection.detectedPublicKey,
+      checkedAt: checkedAt.toISOString(),
+    };
+  } catch (error: any) {
+    result = {
+      url: input.url.trim(),
+      normalizedUrl,
+      installed: false,
+      installStatus: 'error',
+      statusCode: null,
+      reason: error?.name === 'AbortError' ? 'Installation check timed out.' : error?.message || 'Installation check failed.',
+      detectedPublicKey: null,
+      checkedAt: checkedAt.toISOString(),
+    };
+  }
+
+  await db().transaction(async (tx: any) => {
+    await tx
+      .update(aiChatbot)
+      .set({
+        installStatus: result.installStatus,
+        updatedAt: checkedAt,
+      })
+      .where(eq(aiChatbot.id, input.chatbotId));
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_chatbot',
+      resourceId: input.chatbotId,
+      action: 'chatbot.install_check',
+      diff: {
+        installStatus: result.installStatus,
+        installed: result.installed,
+        statusCode: result.statusCode,
+      },
+      metadata: {
+        url: result.normalizedUrl,
+        detectedPublicKey: result.detectedPublicKey,
+        reason: result.reason,
+      },
+    });
+  });
+
+  return result;
 }
 
 export async function listKnowledgeSources(params: {

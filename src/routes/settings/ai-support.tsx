@@ -126,6 +126,17 @@ type AiChatbot = {
   createdAt: string;
 };
 
+type InstallationCheckResult = {
+  url: string;
+  normalizedUrl: string;
+  installed: boolean;
+  installStatus: string;
+  statusCode: number | null;
+  reason: string;
+  detectedPublicKey: string | null;
+  checkedAt: string;
+};
+
 type AiKnowledgeSource = {
   id: string;
   chatbotId: string;
@@ -504,18 +515,24 @@ function CompactRows<T>({
 function ChatbotOperations({
   chatbots,
   pending,
+  installCheckPending,
   onCreate,
   onActivate,
+  onCheckInstallation,
 }: {
   chatbots: AiChatbot[];
   pending: boolean;
+  installCheckPending: boolean;
   onCreate: (input: { name: string; description: string; allowedDomains: string[] }) => Promise<void>;
   onActivate: (chatbot: AiChatbot) => Promise<void>;
+  onCheckInstallation: (input: { chatbotId: string; url: string }) => Promise<InstallationCheckResult>;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [domains, setDomains] = useState('');
+  const [installUrls, setInstallUrls] = useState<Record<string, string>>({});
+  const [installResults, setInstallResults] = useState<Record<string, InstallationCheckResult>>({});
 
   async function submit() {
     await onCreate({
@@ -530,6 +547,14 @@ function ChatbotOperations({
     setDescription('');
     setDomains('');
     setOpen(false);
+  }
+
+  async function checkInstall(chatbot: AiChatbot) {
+    const url = installUrls[chatbot.id]?.trim();
+    if (!url) return;
+    const result = await onCheckInstallation({ chatbotId: chatbot.id, url });
+    setInstallResults((current) => ({ ...current, [chatbot.id]: result }));
+    toast[result.installed ? 'success' : 'warning'](result.reason);
   }
 
   return (
@@ -585,35 +610,73 @@ function ChatbotOperations({
           rows={chatbots}
           empty={m['settings.ai_support.ops_no_chatbots']()}
           render={(chatbot) => (
-            <div key={chatbot.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 md:flex-row md:items-center md:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-medium">{chatbot.name}</p>
-                  <Badge variant="outline">{chatbot.status}</Badge>
-                  <Badge variant="outline">{chatbot.installStatus}</Badge>
+            <div key={chatbot.id} className="rounded-lg border border-border p-3">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium">{chatbot.name}</p>
+                    <Badge variant="outline">{chatbot.status}</Badge>
+                    <Badge variant="outline">{chatbot.installStatus}</Badge>
+                  </div>
+                  <p className="mt-1 truncate text-sm text-muted-foreground">{chatbot.publicKey}</p>
                 </div>
-                <p className="mt-1 truncate text-sm text-muted-foreground">{chatbot.publicKey}</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(getEmbedSnippet(chatbot));
+                      toast.success(m['settings.ai_support.ops_copied']());
+                    }}
+                  >
+                    <Clipboard className="size-4" />
+                    {m['settings.ai_support.ops_copy_embed']()}
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={pending || chatbot.status === 'active'}
+                    onClick={() => onActivate(chatbot)}
+                  >
+                    <Rocket className="size-4" />
+                    {m['settings.ai_support.ops_activate']()}
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-3 grid gap-2 rounded-lg bg-muted/35 p-3 md:grid-cols-[minmax(0,1fr)_auto]">
+                <Input
+                  value={installUrls[chatbot.id] ?? ''}
+                  onChange={(event) =>
+                    setInstallUrls((current) => ({ ...current, [chatbot.id]: event.target.value }))
+                  }
+                  placeholder="https://example.com"
+                  aria-label={m['settings.ai_support.ops_install_url']()}
+                />
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(getEmbedSnippet(chatbot));
-                    toast.success(m['settings.ai_support.ops_copied']());
-                  }}
+                  disabled={installCheckPending || !installUrls[chatbot.id]?.trim()}
+                  onClick={() => checkInstall(chatbot)}
                 >
-                  <Clipboard className="size-4" />
-                  {m['settings.ai_support.ops_copy_embed']()}
+                  <ShieldCheck className="size-4" />
+                  {m['settings.ai_support.ops_check_install']()}
                 </Button>
-                <Button
-                  size="sm"
-                  disabled={pending || chatbot.status === 'active'}
-                  onClick={() => onActivate(chatbot)}
-                >
-                  <Rocket className="size-4" />
-                  {m['settings.ai_support.ops_activate']()}
-                </Button>
+                {installResults[chatbot.id] ? (
+                  <div className="text-sm text-muted-foreground md:col-span-2">
+                    <span className={installResults[chatbot.id].installed ? 'text-emerald-600' : 'text-amber-600'}>
+                      {installResults[chatbot.id].installed
+                        ? m['settings.ai_support.ops_install_detected']()
+                        : m['settings.ai_support.ops_install_missing']()}
+                    </span>
+                    {' · '}
+                    {installResults[chatbot.id].statusCode ?? 'n/a'}
+                    {' · '}
+                    {installResults[chatbot.id].reason}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground md:col-span-2">
+                    {m['settings.ai_support.ops_install_help']()}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -1488,6 +1551,14 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const checkInstallationMutation = useMutation({
+    mutationFn: (input: { chatbotId: string; url: string }) =>
+      apiPost<InstallationCheckResult>('/api/ai-support/install-check', input),
+    onSuccess: async () => {
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
   const createKnowledgeMutation = useMutation({
     mutationFn: (input: {
       chatbotId: string;
@@ -1821,8 +1892,10 @@ function AiSupportPage() {
           <ChatbotOperations
             chatbots={chatbots}
             pending={createChatbotMutation.isPending || activateChatbotMutation.isPending}
+            installCheckPending={checkInstallationMutation.isPending}
             onCreate={(input) => createChatbotMutation.mutateAsync(input).then(() => undefined)}
             onActivate={(chatbot) => activateChatbotMutation.mutateAsync(chatbot).then(() => undefined)}
+            onCheckInstallation={(input) => checkInstallationMutation.mutateAsync(input)}
           />
           <div className="grid gap-4 xl:grid-cols-2">
             <KnowledgeOperations

@@ -75,6 +75,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
 import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/ai-support/knowledge-sources'
+import { Route as ApiAiSupportInstallCheckRouteImport } from './routes/api/ai-support/install-check'
 import { Route as ApiAiSupportHumanSupportSettingsRouteImport } from './routes/api/ai-support/human-support-settings'
 import { Route as ApiAiSupportEscalationsRouteImport } from './routes/api/ai-support/escalations'
 import { Route as ApiAiSupportConversationsRouteImport } from './routes/api/ai-support/conversations'
@@ -440,6 +441,12 @@ const ApiAiSupportKnowledgeSourcesRoute =
     path: '/api/ai-support/knowledge-sources',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiSupportInstallCheckRoute =
+  ApiAiSupportInstallCheckRouteImport.update({
+    id: '/api/ai-support/install-check',
+    path: '/api/ai-support/install-check',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportHumanSupportSettingsRoute =
   ApiAiSupportHumanSupportSettingsRouteImport.update({
     id: '/api/ai-support/human-support-settings',
@@ -683,6 +690,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
+  '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
@@ -782,6 +790,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
+  '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
@@ -885,6 +894,7 @@ export interface FileRoutesById {
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
+  '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
@@ -988,6 +998,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/human-support-settings'
+    | '/api/ai-support/install-check'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
@@ -1087,6 +1098,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/human-support-settings'
+    | '/api/ai-support/install-check'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
@@ -1189,6 +1201,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/human-support-settings'
+    | '/api/ai-support/install-check'
     | '/api/ai-support/knowledge-sources'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
@@ -1268,6 +1281,7 @@ export interface RootRouteChildren {
   ApiAiSupportConversationsRoute: typeof ApiAiSupportConversationsRoute
   ApiAiSupportEscalationsRoute: typeof ApiAiSupportEscalationsRoute
   ApiAiSupportHumanSupportSettingsRoute: typeof ApiAiSupportHumanSupportSettingsRoute
+  ApiAiSupportInstallCheckRoute: typeof ApiAiSupportInstallCheckRoute
   ApiAiSupportKnowledgeSourcesRoute: typeof ApiAiSupportKnowledgeSourcesRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
@@ -1769,6 +1783,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportKnowledgeSourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/install-check': {
+      id: '/api/ai-support/install-check'
+      path: '/api/ai-support/install-check'
+      fullPath: '/api/ai-support/install-check'
+      preLoaderRoute: typeof ApiAiSupportInstallCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/human-support-settings': {
       id: '/api/ai-support/human-support-settings'
       path: '/api/ai-support/human-support-settings'
@@ -2181,6 +2202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportConversationsRoute: ApiAiSupportConversationsRoute,
   ApiAiSupportEscalationsRoute: ApiAiSupportEscalationsRoute,
   ApiAiSupportHumanSupportSettingsRoute: ApiAiSupportHumanSupportSettingsRoute,
+  ApiAiSupportInstallCheckRoute: ApiAiSupportInstallCheckRoute,
   ApiAiSupportKnowledgeSourcesRoute: ApiAiSupportKnowledgeSourcesRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
