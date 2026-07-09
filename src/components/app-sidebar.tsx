@@ -134,7 +134,7 @@ export function AppSidebar({
               href={brandHref}
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
-              <span className="flex-1 font-serif italic text-lg leading-none">
+              <span className="flex-1 text-lg font-bold leading-none">
                 {brand}
               </span>
             </Link>
