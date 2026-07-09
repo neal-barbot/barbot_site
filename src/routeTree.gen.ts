@@ -75,6 +75,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
 import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/usage'
 import { Route as ApiAiSupportSyncJobsRouteImport } from './routes/api/ai-support/sync-jobs'
+import { Route as ApiAiSupportPromptPersonaRouteImport } from './routes/api/ai-support/prompt-persona'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
 import { Route as ApiAiSupportLaunchOperationsRouteImport } from './routes/api/ai-support/launch-operations'
@@ -445,6 +446,12 @@ const ApiAiSupportSyncJobsRoute = ApiAiSupportSyncJobsRouteImport.update({
   path: '/api/ai-support/sync-jobs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportPromptPersonaRoute =
+  ApiAiSupportPromptPersonaRouteImport.update({
+    id: '/api/ai-support/prompt-persona',
+    path: '/api/ai-support/prompt-persona',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportOverviewRoute = ApiAiSupportOverviewRouteImport.update({
   id: '/api/ai-support/overview',
   path: '/api/ai-support/overview',
@@ -721,6 +728,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
+  '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
@@ -825,6 +833,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
+  '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
@@ -933,6 +942,7 @@ export interface FileRoutesById {
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
+  '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
@@ -1041,6 +1051,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
+    | '/api/ai-support/prompt-persona'
     | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
@@ -1145,6 +1156,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
+    | '/api/ai-support/prompt-persona'
     | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
@@ -1252,6 +1264,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
     | '/api/ai-support/overview'
+    | '/api/ai-support/prompt-persona'
     | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
@@ -1336,6 +1349,7 @@ export interface RootRouteChildren {
   ApiAiSupportLaunchOperationsRoute: typeof ApiAiSupportLaunchOperationsRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
+  ApiAiSupportPromptPersonaRoute: typeof ApiAiSupportPromptPersonaRoute
   ApiAiSupportSyncJobsRoute: typeof ApiAiSupportSyncJobsRoute
   ApiAiSupportUsageRoute: typeof ApiAiSupportUsageRoute
   ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
@@ -1837,6 +1851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportSyncJobsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/prompt-persona': {
+      id: '/api/ai-support/prompt-persona'
+      path: '/api/ai-support/prompt-persona'
+      fullPath: '/api/ai-support/prompt-persona'
+      preLoaderRoute: typeof ApiAiSupportPromptPersonaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/overview': {
       id: '/api/ai-support/overview'
       path: '/api/ai-support/overview'
@@ -2289,6 +2310,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportLaunchOperationsRoute: ApiAiSupportLaunchOperationsRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
+  ApiAiSupportPromptPersonaRoute: ApiAiSupportPromptPersonaRoute,
   ApiAiSupportSyncJobsRoute: ApiAiSupportSyncJobsRoute,
   ApiAiSupportUsageRoute: ApiAiSupportUsageRoute,
   ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,

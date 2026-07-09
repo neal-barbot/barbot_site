@@ -144,6 +144,11 @@ export interface LaunchOperationsSettings {
   domainWhitelistRequired: boolean;
 }
 
+export interface PromptPersonaSettings {
+  instructions: string;
+  persona: string;
+}
+
 export interface CreateChatbotInput {
   userId: string;
   name: string;
@@ -322,6 +327,12 @@ export interface UpdateLaunchOperationsInput {
   settings: Partial<LaunchOperationsSettings>;
 }
 
+export interface UpdatePromptPersonaInput {
+  userId: string;
+  chatbotId: string;
+  settings: Partial<PromptPersonaSettings>;
+}
+
 const KNOWLEDGE_TYPES: KnowledgeSourceType[] = [
   'custom_response',
   'text_snippet',
@@ -396,6 +407,8 @@ function activeAgentTokenWhere(userId: string, now = new Date()) {
 const HUMAN_SUPPORT_SETTING_KEY = 'human_support.settings';
 const WIDGET_APPEARANCE_SETTING_KEY = 'widget.appearance';
 const LAUNCH_OPERATIONS_SETTING_KEY = 'launch.operations';
+const PROMPT_INSTRUCTIONS_SETTING_KEY = 'chatbot.instructions';
+const PROMPT_PERSONA_SETTING_KEY = 'chatbot.persona';
 const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
   enabled: true,
   showEscalationButtons: true,
@@ -423,6 +436,12 @@ const DEFAULT_LAUNCH_OPERATIONS: LaunchOperationsSettings = {
   logRetentionDays: 14,
   rateLimitEnabled: true,
   domainWhitelistRequired: true,
+};
+const DEFAULT_PROMPT_PERSONA: PromptPersonaSettings = {
+  instructions:
+    'Answer from approved knowledge sources first. Ask for contact details when the user needs follow-up.',
+  persona:
+    'Helpful, concise, and careful support agent. Escalate clearly when confidence is low.',
 };
 
 function assertKnowledgeType(type: string): asserts type is KnowledgeSourceType {
@@ -644,6 +663,20 @@ function normalizeWidgetAppearance(
     placeholder: (input.placeholder ?? current.placeholder).trim().slice(0, 120) || current.placeholder,
     launcherLabel: (input.launcherLabel ?? current.launcherLabel).trim().slice(0, 16) || current.launcherLabel,
     primaryColor: normalizeWidgetColor(input.primaryColor ?? current.primaryColor),
+  };
+}
+
+function normalizePromptPersona(
+  input: Partial<PromptPersonaSettings>,
+  current: PromptPersonaSettings
+): PromptPersonaSettings {
+  return {
+    instructions:
+      (input.instructions ?? current.instructions).trim().slice(0, 8000) ||
+      current.instructions,
+    persona:
+      (input.persona ?? current.persona).trim().slice(0, 4000) ||
+      current.persona,
   };
 }
 
@@ -1546,6 +1579,102 @@ export async function updateLaunchOperationsSettings(
         backupConfigured: next.backupConfigured,
         errorAlertsEnabled: next.errorAlertsEnabled,
         logRetentionDays: next.logRetentionDays,
+      },
+    });
+  });
+
+  return next;
+}
+
+async function getLatestConfigContent(params: {
+  userId: string;
+  chatbotId: string;
+  settingKey: string;
+}): Promise<string | null> {
+  const [latest] = await db()
+    .select({ content: aiConfigVersion.content })
+    .from(aiConfigVersion)
+    .where(
+      and(
+        eq(aiConfigVersion.userId, params.userId),
+        eq(aiConfigVersion.chatbotId, params.chatbotId),
+        eq(aiConfigVersion.settingKey, params.settingKey),
+        eq(aiConfigVersion.status, 'published')
+      )
+    )
+    .orderBy(desc(aiConfigVersion.version))
+    .limit(1);
+
+  return latest?.content ?? null;
+}
+
+export async function getPromptPersonaSettings(params: {
+  userId: string;
+  chatbotId: string;
+}): Promise<PromptPersonaSettings> {
+  await assertOwnsChatbot(params.userId, params.chatbotId);
+  const [instructions, persona] = await Promise.all([
+    getLatestConfigContent({
+      userId: params.userId,
+      chatbotId: params.chatbotId,
+      settingKey: PROMPT_INSTRUCTIONS_SETTING_KEY,
+    }),
+    getLatestConfigContent({
+      userId: params.userId,
+      chatbotId: params.chatbotId,
+      settingKey: PROMPT_PERSONA_SETTING_KEY,
+    }),
+  ]);
+
+  return {
+    instructions: instructions || DEFAULT_PROMPT_PERSONA.instructions,
+    persona: persona || DEFAULT_PROMPT_PERSONA.persona,
+  };
+}
+
+export async function updatePromptPersonaSettings(
+  input: UpdatePromptPersonaInput
+): Promise<PromptPersonaSettings> {
+  await assertOwnsChatbot(input.userId, input.chatbotId);
+  const current = await getPromptPersonaSettings({
+    userId: input.userId,
+    chatbotId: input.chatbotId,
+  });
+  const next = normalizePromptPersona(input.settings, current);
+
+  await db().transaction(async (tx: any) => {
+    const instructionsVersion = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: PROMPT_INSTRUCTIONS_SETTING_KEY,
+      content: next.instructions,
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+    const personaVersion = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: PROMPT_PERSONA_SETTING_KEY,
+      content: next.persona,
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_config_version',
+      resourceId: instructionsVersion.id,
+      action: 'prompt_persona.update',
+      diff: {
+        instructionsChanged: next.instructions !== current.instructions,
+        personaChanged: next.persona !== current.persona,
+      },
+      metadata: {
+        chatbotId: input.chatbotId,
+        instructionsVersionId: instructionsVersion.id,
+        personaVersionId: personaVersion.id,
       },
     });
   });

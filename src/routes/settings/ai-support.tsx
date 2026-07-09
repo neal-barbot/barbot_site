@@ -282,6 +282,11 @@ type LaunchOperationsSettings = {
   domainWhitelistRequired: boolean;
 };
 
+type PromptPersonaSettings = {
+  instructions: string;
+  persona: string;
+};
+
 type AiSupportUsage = {
   generatedAt: string;
   resetAt: string;
@@ -1855,6 +1860,80 @@ function LaunchOperationsPanel({
   );
 }
 
+function PromptPersonaPanel({
+  chatbotId,
+  settings,
+  pending,
+  onSave,
+}: {
+  chatbotId: string;
+  settings: PromptPersonaSettings | undefined;
+  pending: boolean;
+  onSave: (input: PromptPersonaSettings) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<PromptPersonaSettings | null>(null);
+  const value = draft ?? settings;
+
+  function update<K extends keyof PromptPersonaSettings>(key: K, next: PromptPersonaSettings[K]) {
+    setDraft({
+      ...(value ?? {
+        instructions: '',
+        persona: '',
+      }),
+      [key]: next,
+    });
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m['settings.ai_support.ops_prompt_persona_title']()}</CardTitle>
+        <CardDescription>{m['settings.ai_support.ops_prompt_persona_desc']()}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        {!chatbotId || !value ? (
+          <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            {m['settings.ai_support.ops_human_settings_empty']()}
+          </p>
+        ) : (
+          <>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ai-prompt-instructions">
+                {m['settings.ai_support.ops_prompt_instructions']()}
+              </Label>
+              <Textarea
+                id="ai-prompt-instructions"
+                value={value.instructions}
+                onChange={(event) => update('instructions', event.target.value)}
+                className="min-h-32"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ai-prompt-persona">
+                {m['settings.ai_support.ops_prompt_persona']()}
+              </Label>
+              <Textarea
+                id="ai-prompt-persona"
+                value={value.persona}
+                onChange={(event) => update('persona', event.target.value)}
+                className="min-h-24"
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button
+                disabled={pending || !draft}
+                onClick={() => onSave(value).then(() => setDraft(null))}
+              >
+                {m['settings.ai_support.ops_save']()}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function parseCitations(raw: string): Array<{ title?: string; sourceUrl?: string; id?: string }> {
   try {
     const parsed = JSON.parse(raw);
@@ -2180,6 +2259,15 @@ function AiSupportPage() {
     enabled: Boolean(primaryChatbotId),
     retry: false,
   });
+  const promptPersonaQuery = useQuery({
+    queryKey: ['ai-support-prompt-persona', primaryChatbotId],
+    queryFn: () =>
+      apiGet<PromptPersonaSettings>(
+        `/api/ai-support/prompt-persona?chatbotId=${encodeURIComponent(primaryChatbotId)}`
+      ),
+    enabled: Boolean(primaryChatbotId),
+    retry: false,
+  });
   const tokensQuery = useQuery({
     queryKey: ['ai-support-agent-tokens'],
     queryFn: () => apiGet<AiAgentToken[]>('/api/ai-support/agent-tokens'),
@@ -2232,6 +2320,7 @@ function AiSupportPage() {
       queryClient.invalidateQueries({ queryKey: ['ai-support-human-support-settings'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-widget-appearance'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-launch-operations'] }),
+      queryClient.invalidateQueries({ queryKey: ['ai-support-prompt-persona'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-audit-logs'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-conversations'] }),
       queryClient.invalidateQueries({ queryKey: ['ai-support-usage'] }),
@@ -2384,6 +2473,18 @@ function AiSupportPage() {
     },
     onError: (error: Error) => toast.error(error.message),
   });
+  const updatePromptPersonaMutation = useMutation({
+    mutationFn: (input: PromptPersonaSettings) =>
+      apiPatch<PromptPersonaSettings>('/api/ai-support/prompt-persona', {
+        chatbotId: primaryChatbotId,
+        ...input,
+      }),
+    onSuccess: async () => {
+      toast.success(m['settings.ai_support.ops_saved']());
+      await refreshAiSupport();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
   const retryEscalationNotificationsMutation = useMutation({
     mutationFn: (id: string) =>
       apiPatch<AiEscalation>('/api/ai-support/escalations', {
@@ -2406,6 +2507,7 @@ function AiSupportPage() {
   const humanSupportSettings = humanSupportSettingsQuery.data;
   const widgetAppearance = widgetAppearanceQuery.data;
   const launchOperations = launchOperationsQuery.data;
+  const promptPersona = promptPersonaQuery.data;
   const tokens = tokensQuery.data ?? [];
   const agentRuns = agentRunsQuery.data ?? [];
   const configVersions = configVersionsQuery.data ?? [];
@@ -2738,6 +2840,12 @@ function AiSupportPage() {
         </TabsContent>
 
         <TabsContent value="agent" className="space-y-4">
+          <PromptPersonaPanel
+            chatbotId={primaryChatbotId}
+            settings={promptPersona}
+            pending={updatePromptPersonaMutation.isPending}
+            onSave={(input) => updatePromptPersonaMutation.mutateAsync(input).then(() => undefined)}
+          />
           <AgentPolicyPanel policies={policies} />
           <div className="grid gap-4 xl:grid-cols-2">
             <AgentApprovalOperations
