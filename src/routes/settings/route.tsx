@@ -5,9 +5,7 @@ import {
   Bot,
   Briefcase,
   Code2,
-  CreditCard,
   Database,
-  FileText,
   Gauge,
   Globe2,
   Headphones,
@@ -26,7 +24,7 @@ import {
 
 import { AppLayout } from "@/components/app-layout";
 import { SupportWidget } from "@/blocks/support-widget";
-import { Link } from "@/core/i18n/navigation";
+import { SiteGptTopNavLinks } from "@/components/sitegpt-console";
 
 export const Route = createFileRoute('/settings')({
   component: SettingsLayout,
@@ -65,32 +63,7 @@ function SettingsLayout() {
     { href: "/", label: m["common.systems.home"](), icon: Home, newTab: true },
   ];
 
-  const headerExtra = (
-    <nav className="hidden items-center gap-1 md:flex">
-      {[
-        { href: "/", label: "Chatbots", icon: Bot },
-        { href: "/settings/ai-support", label: "Agents", icon: Briefcase },
-        { href: "/settings/billing", label: "Billing", icon: CreditCard },
-        { href: "/settings/ai-support", label: "Usage", icon: Gauge },
-        { href: "/settings/profile", label: "Profile", icon: UserCircle },
-        { href: "/blog", label: "Docs", icon: FileText },
-        { href: "/settings/tickets", label: "Support", icon: Headphones },
-        { href: "/settings/tickets", label: "Feedback", icon: MessageSquare },
-      ].map((item) => {
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.label}
-            href={item.href}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold text-slate-500 hover:bg-blue-50 hover:text-blue-700"
-          >
-            <Icon className="size-3.5" />
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+  const headerExtra = <SiteGptTopNavLinks active="Chatbots" />;
 
   const brand = (
     <span className="inline-flex items-center gap-2">

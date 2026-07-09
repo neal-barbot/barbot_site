@@ -27,7 +27,7 @@ import {
 import { Link } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
 
-const topNav = [
+export const siteGptTopNav = [
   { label: 'Chatbots', icon: Bot, href: '/' },
   { label: 'Agents', icon: Briefcase, href: '/settings/ai-support' },
   { label: 'Billing', icon: CreditCard, href: '/settings/billing' },
@@ -114,7 +114,7 @@ export function SiteGptTopBar({ active = 'Chatbots' }: { active?: string }) {
         <span className="text-xl font-bold leading-none">SiteGPT</span>
       </Link>
       <nav className="hidden items-center gap-1 md:flex">
-        {topNav.map((item) => {
+        {siteGptTopNav.map((item) => {
           const Icon = item.icon;
           return (
             <Link
@@ -141,6 +141,30 @@ export function SiteGptTopBar({ active = 'Chatbots' }: { active?: string }) {
         <ChevronDown className="size-3.5" />
       </Link>
     </header>
+  );
+}
+
+export function SiteGptTopNavLinks({ active }: { active?: string }) {
+  return (
+    <nav className="hidden items-center gap-1 md:flex">
+      {siteGptTopNav.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold ${
+              item.label === active
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-slate-500 hover:bg-blue-50 hover:text-blue-700'
+            }`}
+          >
+            <Icon className="size-3.5" />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 
