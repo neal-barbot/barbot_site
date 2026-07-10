@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gt, isNull, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gt, isNull, like, or } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { ResendProvider } from '@/core/email/resend';
 import { envConfigs } from '@/config';
@@ -10,8 +10,12 @@ import {
   aiConfigVersion,
   aiConversation,
   aiConversationMessage,
+  aiConversationTag,
   aiHumanEscalation,
+  aiKnowledgeChunk,
+  aiKnowledgeGap,
   aiKnowledgeSource,
+  aiKnowledgeSyncJob,
   aiLead,
   config,
   type AiChatbot,
@@ -22,6 +26,8 @@ import {
   type AiConversationMessage,
   type AiHumanEscalation,
   type AiKnowledgeSource,
+  type AiKnowledgeChunk,
+  type AiKnowledgeSyncJob as DbAiKnowledgeSyncJob,
   type AiLead,
 } from '@/config/db/schema';
 import { decryptSecret, isEncryptedSecret } from '@/lib/crypto';
@@ -32,7 +38,7 @@ export type ChatbotStatus = 'draft' | 'active' | 'paused' | 'archived';
 export type ChatbotInstallStatus = 'not_installed' | 'installed' | 'error';
 export type KnowledgeSourceType = 'custom_response' | 'text_snippet' | 'website_link' | 'file';
 export type KnowledgeSourceStatus = 'draft' | 'ready' | 'needs_review' | 'archived';
-export type LeadStatus = 'new' | 'qualified' | 'contacted' | 'closed';
+export type LeadStatus = 'new' | 'qualified' | 'contacted' | 'closed' | 'spam';
 export type LeadPriority = 'low' | 'normal' | 'high';
 export type EscalationStatus = 'open' | 'assigned' | 'closed';
 export type AgentRunStatus = 'queued' | 'running' | 'pending_approval' | 'approved' | 'rejected' | 'failed';
@@ -147,6 +153,22 @@ export interface LaunchOperationsSettings {
 export interface PromptPersonaSettings {
   instructions: string;
   persona: string;
+}
+
+export interface ConversationButton {
+  id: string;
+  label: string;
+  action: 'message' | 'link' | 'escalate';
+  value: string;
+  enabled: boolean;
+  locale: string;
+}
+
+export interface LocalizationSettings {
+  defaultLocale: string;
+  timezone: string;
+  autoDetectLocale: boolean;
+  labels: Record<string, string>;
 }
 
 export interface CreateChatbotInput {
@@ -333,6 +355,14 @@ export interface UpdatePromptPersonaInput {
   settings: Partial<PromptPersonaSettings>;
 }
 
+export interface UpdateWorkspaceSettingInput<T> {
+  userId: string;
+  chatbotId: string;
+  settingKey: string;
+  content: T;
+  requiresApproval?: boolean;
+}
+
 const KNOWLEDGE_TYPES: KnowledgeSourceType[] = [
   'custom_response',
   'text_snippet',
@@ -352,7 +382,7 @@ const KNOWLEDGE_STATUSES: KnowledgeSourceStatus[] = [
   'needs_review',
   'archived',
 ];
-const LEAD_STATUSES: LeadStatus[] = ['new', 'qualified', 'contacted', 'closed'];
+const LEAD_STATUSES: LeadStatus[] = ['new', 'qualified', 'contacted', 'closed', 'spam'];
 const LEAD_PRIORITIES: LeadPriority[] = ['low', 'normal', 'high'];
 const ESCALATION_STATUSES: EscalationStatus[] = ['open', 'assigned', 'closed'];
 const AGENT_RUN_STATUSES: AgentRunStatus[] = [
@@ -409,6 +439,9 @@ const WIDGET_APPEARANCE_SETTING_KEY = 'widget.appearance';
 const LAUNCH_OPERATIONS_SETTING_KEY = 'launch.operations';
 const PROMPT_INSTRUCTIONS_SETTING_KEY = 'chatbot.instructions';
 const PROMPT_PERSONA_SETTING_KEY = 'chatbot.persona';
+const CONVERSATION_STARTERS_SETTING_KEY = 'conversation.starters';
+const CONVERSATION_FOLLOWUPS_SETTING_KEY = 'conversation.followups';
+const LOCALIZATION_SETTING_KEY = 'chatbot.localization';
 const DEFAULT_HUMAN_SUPPORT_SETTINGS: HumanSupportSettings = {
   enabled: true,
   showEscalationButtons: true,
@@ -442,6 +475,12 @@ const DEFAULT_PROMPT_PERSONA: PromptPersonaSettings = {
     'Answer from approved knowledge sources first. Ask for contact details when the user needs follow-up.',
   persona:
     'Helpful, concise, and careful support agent. Escalate clearly when confidence is low.',
+};
+const DEFAULT_LOCALIZATION: LocalizationSettings = {
+  defaultLocale: 'en',
+  timezone: 'UTC',
+  autoDetectLocale: true,
+  labels: {},
 };
 
 function assertKnowledgeType(type: string): asserts type is KnowledgeSourceType {
@@ -1047,29 +1086,50 @@ function readNotificationDeliveries(metadata: Record<string, unknown>): Notifica
   return deliveries;
 }
 
-function syncJobFromKnowledgeSource(source: AiKnowledgeSource): AiKnowledgeSyncJob {
-  const metadata = parseJsonObject(source.metadata);
-  const rawStatus = metadata.syncStatus;
-  const status: AiKnowledgeSyncJob['status'] =
-    rawStatus === 'failed'
-      ? 'failed'
-      : source.status === 'ready' && source.lastSyncedAt
-        ? 'synced'
-        : 'pending';
-  const attempts = Number(metadata.syncAttempts);
-
+function syncJobView(source: AiKnowledgeSource, job?: DbAiKnowledgeSyncJob): AiKnowledgeSyncJob {
   return {
-    id: source.id,
+    id: job?.id ?? source.id,
     chatbotId: source.chatbotId,
     sourceId: source.id,
     sourceType: source.type as KnowledgeSourceType,
     title: source.title,
-    status,
-    attempts: Number.isFinite(attempts) && attempts > 0 ? Math.floor(attempts) : 0,
-    lastError: typeof metadata.syncLastError === 'string' ? metadata.syncLastError : null,
+    status: job?.status === 'failed' ? 'failed' : job?.status === 'synced' ? 'synced' : 'pending',
+    attempts: job?.attempts ?? 0,
+    lastError: job?.lastError ?? null,
     lastSyncedAt: source.lastSyncedAt,
-    updatedAt: source.updatedAt,
+    updatedAt: job?.updatedAt ?? source.updatedAt,
   };
+}
+
+function chunkKnowledgeText(value: string): string[] {
+  const normalized = value.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (!normalized) return [];
+  const chunks: string[] = [];
+  const maxLength = 1200;
+  for (let offset = 0; offset < normalized.length; offset += maxLength - 160) {
+    const chunk = normalized.slice(offset, offset + maxLength).trim();
+    if (chunk) chunks.push(chunk);
+    if (offset + maxLength >= normalized.length) break;
+  }
+  return chunks.slice(0, 200);
+}
+
+async function replaceKnowledgeChunks(tx: any, source: AiKnowledgeSource, content: string) {
+  const chunks = chunkKnowledgeText(content);
+  await tx.delete(aiKnowledgeChunk).where(eq(aiKnowledgeChunk.sourceId, source.id));
+  if (chunks.length) {
+    await tx.insert(aiKnowledgeChunk).values(chunks.map((chunk, ordinal) => ({
+      id: getUuid(),
+      userId: source.userId,
+      chatbotId: source.chatbotId,
+      sourceId: source.id,
+      ordinal,
+      content: chunk,
+      checksum: md5(chunk),
+      createdAt: new Date(),
+    })));
+  }
+  return chunks.length;
 }
 
 async function deliverEscalationNotifications(input: {
@@ -1351,17 +1411,48 @@ async function draftKnowledgeReply(params: {
         source.type === 'custom_response' &&
         (normalizedMessage.includes(title) || title.includes(normalizedMessage))
       );
-    }) ??
-    sources.find((source) => {
-      const searchable = `${source.title}\n${source.content ?? ''}`.toLowerCase();
-      return normalizedMessage
-        .split(/\s+/)
-        .filter((word) => word.length > 2)
-        .some((word) => searchable.includes(word));
-    }) ??
-    sources[0];
+    });
 
-  if (!matched) {
+  if (matched) {
+    await db()
+      .update(aiKnowledgeSource)
+      .set({
+        metadata: JSON.stringify({
+          ...parseJsonObject(matched.metadata),
+          hitCount: Number(parseJsonObject(matched.metadata).hitCount ?? 0) + 1,
+          lastHitAt: new Date().toISOString(),
+        }),
+      })
+      .where(eq(aiKnowledgeSource.id, matched.id));
+    return {
+      content: matched.content || 'This answer is configured but has no response content yet.',
+      citations: [buildCitation(matched)],
+    };
+  }
+
+  const keywords = normalizedMessage
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((word) => word.length > 2)
+    .slice(0, 6);
+  const chunks = keywords.length
+    ? await db()
+      .select({ chunk: aiKnowledgeChunk, source: aiKnowledgeSource })
+      .from(aiKnowledgeChunk)
+      .innerJoin(aiKnowledgeSource, eq(aiKnowledgeChunk.sourceId, aiKnowledgeSource.id))
+      .where(and(
+        eq(aiKnowledgeChunk.userId, params.userId),
+        eq(aiKnowledgeChunk.chatbotId, params.chatbotId),
+        eq(aiKnowledgeSource.status, 'ready'),
+        isNull(aiKnowledgeSource.deletedAt),
+        or(...keywords.map((word) => like(aiKnowledgeChunk.content, `%${word}%`)))
+      ))
+      .limit(6)
+    : [];
+
+  const best = chunks[0];
+  const fallbackSource = sources.find((source) => source.content?.trim()) ?? sources[0];
+
+  if (!best && !fallbackSource) {
     return {
       content:
         "I don't have enough knowledge configured yet. Please leave your contact details or request human support.",
@@ -1369,14 +1460,13 @@ async function draftKnowledgeReply(params: {
     };
   }
 
-  const content =
-    matched.type === 'custom_response' && matched.content
-      ? matched.content
-      : `I found this in ${matched.title}: ${matched.content?.slice(0, 360) || matched.sourceUrl || 'configured knowledge source.'}`;
+  const source = best?.source ?? fallbackSource!;
+  const excerpt = best?.chunk.content ?? source.content ?? source.sourceUrl ?? 'configured knowledge source.';
+  const content = `I found this in ${source.title}: ${excerpt.slice(0, 700)}`;
 
   return {
     content,
-    citations: [buildCitation(matched)],
+    citations: [buildCitation(source)],
   };
 }
 
@@ -1606,6 +1696,133 @@ async function getLatestConfigContent(params: {
     .limit(1);
 
   return latest?.content ?? null;
+}
+
+export async function getWorkspaceSetting<T>(params: {
+  userId: string;
+  chatbotId: string;
+  settingKey: string;
+  fallback: T;
+}): Promise<T> {
+  await assertOwnsChatbot(params.userId, params.chatbotId);
+  const content = await getLatestConfigContent(params);
+  if (!content) return params.fallback;
+  try {
+    return JSON.parse(content) as T;
+  } catch {
+    return params.fallback;
+  }
+}
+
+export async function updateWorkspaceSetting<T>(
+  input: UpdateWorkspaceSettingInput<T>
+): Promise<T> {
+  await assertOwnsChatbot(input.userId, input.chatbotId);
+  if (![
+    CONVERSATION_STARTERS_SETTING_KEY,
+    CONVERSATION_FOLLOWUPS_SETTING_KEY,
+    LOCALIZATION_SETTING_KEY,
+  ].includes(input.settingKey)) {
+    throw new Error('Unsupported workspace setting');
+  }
+
+  const content = JSON.stringify(input.content);
+  if (content.length > 24_000) throw new Error('Workspace setting is too large');
+
+  await db().transaction(async (tx: any) => {
+    const version = await publishConfigVersion(tx, {
+      userId: input.userId,
+      chatbotId: input.chatbotId,
+      settingKey: input.settingKey,
+      content,
+      createdByType: 'user',
+      createdById: input.userId,
+      approvedByUserId: input.userId,
+    });
+    await writeAudit(tx, {
+      userId: input.userId,
+      resourceType: 'ai_config_version',
+      resourceId: version.id,
+      action: 'workspace_setting.publish',
+      requiresApproval: Boolean(input.requiresApproval),
+      metadata: { chatbotId: input.chatbotId, settingKey: input.settingKey },
+    });
+  });
+
+  return input.content;
+}
+
+export async function getConversationButtons(params: {
+  userId: string;
+  chatbotId: string;
+  kind: 'starters' | 'followups';
+}): Promise<ConversationButton[]> {
+  const settingKey = params.kind === 'starters'
+    ? CONVERSATION_STARTERS_SETTING_KEY
+    : CONVERSATION_FOLLOWUPS_SETTING_KEY;
+  const value = await getWorkspaceSetting<unknown[]>({ ...params, settingKey, fallback: [] });
+  return value.filter((item): item is ConversationButton => {
+    if (!item || typeof item !== 'object') return false;
+    const button = item as Partial<ConversationButton>;
+    return typeof button.id === 'string' && typeof button.label === 'string' &&
+      typeof button.value === 'string' && ['message', 'link', 'escalate'].includes(button.action ?? '') &&
+      typeof button.enabled === 'boolean' && typeof button.locale === 'string';
+  });
+}
+
+export async function updateConversationButtons(input: {
+  userId: string;
+  chatbotId: string;
+  kind: 'starters' | 'followups';
+  buttons: ConversationButton[];
+}): Promise<ConversationButton[]> {
+  if (input.buttons.length > 8) throw new Error('A chatbot can have at most 8 conversation buttons');
+  const buttons = input.buttons.map((button) => {
+    const label = button.label.trim().slice(0, 80);
+    const value = button.value.trim().slice(0, 600);
+    if (!label || !value || !['message', 'link', 'escalate'].includes(button.action)) {
+      throw new Error('Conversation button is invalid');
+    }
+    if (button.action === 'link') normalizeOutboundHttpUrl(value, 'Conversation button URL');
+    return { ...button, id: button.id || getUuid(), label, value, locale: button.locale || 'en' };
+  });
+  return updateWorkspaceSetting({
+    userId: input.userId,
+    chatbotId: input.chatbotId,
+    settingKey: input.kind === 'starters'
+      ? CONVERSATION_STARTERS_SETTING_KEY
+      : CONVERSATION_FOLLOWUPS_SETTING_KEY,
+    content: buttons,
+    requiresApproval: true,
+  });
+}
+
+export async function getLocalizationSettings(params: {
+  userId: string;
+  chatbotId: string;
+}): Promise<LocalizationSettings> {
+  return getWorkspaceSetting({ ...params, settingKey: LOCALIZATION_SETTING_KEY, fallback: DEFAULT_LOCALIZATION });
+}
+
+export async function updateLocalizationSettings(input: {
+  userId: string;
+  chatbotId: string;
+  settings: LocalizationSettings;
+}): Promise<LocalizationSettings> {
+  const locale = input.settings.defaultLocale.trim().toLowerCase();
+  if (!/^[a-z]{2,5}(?:-[a-z]{2,5})?$/.test(locale)) throw new Error('Default locale is invalid');
+  const timezone = input.settings.timezone.trim();
+  if (!timezone || timezone.length > 80) throw new Error('Timezone is invalid');
+  const labels = Object.fromEntries(Object.entries(input.settings.labels ?? {})
+    .filter(([key, value]) => key.length <= 80 && typeof value === 'string')
+    .map(([key, value]) => [key, value.slice(0, 300)]));
+  return updateWorkspaceSetting({
+    userId: input.userId,
+    chatbotId: input.chatbotId,
+    settingKey: LOCALIZATION_SETTING_KEY,
+    content: { defaultLocale: locale, timezone, autoDetectLocale: Boolean(input.settings.autoDetectLocale), labels },
+    requiresApproval: true,
+  });
 }
 
 export async function getPromptPersonaSettings(params: {
@@ -1953,13 +2170,23 @@ export async function listKnowledgeSyncJobs(params: {
   userId: string;
   chatbotId?: string;
 }): Promise<AiKnowledgeSyncJob[]> {
-  const rows = await listKnowledgeSources(params);
-  return rows.map(syncJobFromKnowledgeSource);
+  const sources = await listKnowledgeSources(params);
+  if (sources.length === 0) return [];
+  const jobConditions = [eq(aiKnowledgeSyncJob.userId, params.userId)];
+  if (params.chatbotId) jobConditions.push(eq(aiKnowledgeSyncJob.chatbotId, params.chatbotId));
+  const jobs = (await db()
+    .select()
+    .from(aiKnowledgeSyncJob)
+    .where(and(...jobConditions))) as DbAiKnowledgeSyncJob[];
+  const bySource = new Map(jobs.map((job) => [job.sourceId, job]));
+  return sources.map((source) => syncJobView(source, bySource.get(source.id)));
 }
 
 export async function runKnowledgeSyncJob(params: {
   userId: string;
   sourceId: string;
+  content?: string;
+  error?: string;
 }): Promise<AiKnowledgeSyncJob> {
   const [existing] = await db()
     .select()
@@ -1976,55 +2203,119 @@ export async function runKnowledgeSyncJob(params: {
   await assertOwnsChatbot(params.userId, existing.chatbotId);
 
   const now = new Date();
-  const metadata = parseJsonObject(existing.metadata);
-  const attempts = Math.max(Math.floor(Number(metadata.syncAttempts) || 0), 0) + 1;
-  const hasSyncableContent = Boolean(existing.content?.trim() || existing.sourceUrl?.trim());
-  const nextMetadata = {
-    ...metadata,
-    syncStatus: hasSyncableContent ? 'synced' : 'failed',
-    syncAttempts: attempts,
-    syncLastError: hasSyncableContent ? null : 'Knowledge source needs content or a source URL before syncing.',
-    syncLastRunAt: now.toISOString(),
-  };
+  const resolvedContent = params.content?.trim() ?? existing.content?.trim() ?? '';
+  const syncError = params.error?.trim() || (!resolvedContent ? 'Knowledge source needs content before syncing.' : null);
 
   return db().transaction(async (tx: any) => {
+    const [previousJob] = await tx
+      .select()
+      .from(aiKnowledgeSyncJob)
+      .where(eq(aiKnowledgeSyncJob.sourceId, existing.id))
+      .limit(1);
+    const attempts = Number(previousJob?.attempts ?? 0) + 1;
+    const status = syncError ? 'failed' : 'synced';
+    const intervalMinutes = Number(previousJob?.intervalMinutes ?? 1440);
+    const nextRunAt = new Date(now.getTime() + Math.max(intervalMinutes, 15) * 60_000);
     const [row] = await tx
       .update(aiKnowledgeSource)
       .set({
-        status: hasSyncableContent ? 'ready' : existing.status,
-        metadata: JSON.stringify(nextMetadata),
-        lastSyncedAt: hasSyncableContent ? now : existing.lastSyncedAt,
+        status: syncError ? 'needs_review' : 'ready',
+        content: resolvedContent || existing.content,
+        lastSyncedAt: syncError ? existing.lastSyncedAt : now,
         updatedAt: now,
       })
       .where(eq(aiKnowledgeSource.id, params.sourceId))
       .returning();
 
+    if (!syncError) await replaceKnowledgeChunks(tx, row, resolvedContent);
+
+    const jobValues = {
+      userId: existing.userId,
+      chatbotId: existing.chatbotId,
+      sourceId: existing.id,
+      enabled: previousJob?.enabled ?? true,
+      intervalMinutes: Math.max(intervalMinutes, 15),
+      status,
+      attempts,
+      lastError: syncError,
+      lastRunAt: now,
+      nextRunAt,
+      updatedAt: now,
+    };
+    const job = previousJob
+      ? (await tx.update(aiKnowledgeSyncJob).set(jobValues).where(eq(aiKnowledgeSyncJob.id, previousJob.id)).returning())[0]
+      : (await tx.insert(aiKnowledgeSyncJob).values({ id: getUuid(), ...jobValues, createdAt: now }).returning())[0];
+
     await writeAudit(tx, {
       userId: params.userId,
       resourceType: 'ai_knowledge_source',
       resourceId: params.sourceId,
-      action: hasSyncableContent ? 'knowledge.sync' : 'knowledge.sync.failed',
-      status: hasSyncableContent ? 'recorded' : 'failed',
+      action: syncError ? 'knowledge.sync.failed' : 'knowledge.sync',
+      status: syncError ? 'failed' : 'recorded',
       metadata: {
         chatbotId: existing.chatbotId,
         type: existing.type,
         attempts,
-        lastError: nextMetadata.syncLastError,
+        lastError: syncError,
       },
     });
 
-    return syncJobFromKnowledgeSource(row);
+    return syncJobView(row, job);
   });
+}
+
+export async function updateKnowledgeSyncJob(params: {
+  userId: string;
+  sourceId: string;
+  enabled?: boolean;
+  intervalMinutes?: number;
+}): Promise<AiKnowledgeSyncJob> {
+  const [source] = await db().select().from(aiKnowledgeSource).where(and(
+    eq(aiKnowledgeSource.id, params.sourceId),
+    eq(aiKnowledgeSource.userId, params.userId),
+    isNull(aiKnowledgeSource.deletedAt)
+  )).limit(1);
+  if (!source) throw new Error('Knowledge source not found');
+  const [existing] = await db().select().from(aiKnowledgeSyncJob)
+    .where(eq(aiKnowledgeSyncJob.sourceId, source.id)).limit(1);
+  const intervalMinutes = params.intervalMinutes === undefined
+    ? Number(existing?.intervalMinutes ?? 1440)
+    : Math.min(Math.max(Math.floor(params.intervalMinutes), 15), 43_200);
+  const now = new Date();
+  const values = {
+    enabled: params.enabled ?? existing?.enabled ?? true,
+    intervalMinutes,
+    nextRunAt: new Date(now.getTime() + intervalMinutes * 60_000),
+    updatedAt: now,
+  };
+  const job = existing
+    ? (await db().update(aiKnowledgeSyncJob).set(values).where(eq(aiKnowledgeSyncJob.id, existing.id)).returning())[0]
+    : (await db().insert(aiKnowledgeSyncJob).values({
+        id: getUuid(), userId: source.userId, chatbotId: source.chatbotId, sourceId: source.id,
+        status: 'pending', attempts: 0, lastError: null, lastRunAt: null, createdAt: now, ...values,
+      }).returning())[0];
+  return syncJobView(source, job);
 }
 
 export async function listConversations(params: {
   userId: string;
   chatbotId?: string;
   status?: string;
+  feedback?: string;
+  search?: string;
 }): Promise<AiConversation[]> {
   const conditions = [eq(aiConversation.userId, params.userId)];
   if (params.chatbotId) conditions.push(eq(aiConversation.chatbotId, params.chatbotId));
   if (params.status) conditions.push(eq(aiConversation.status, params.status));
+  if (params.feedback) conditions.push(eq(aiConversation.feedback, params.feedback));
+  if (params.search?.trim()) {
+    const query = `%${params.search.trim().slice(0, 120)}%`;
+    conditions.push(or(
+      like(aiConversation.lastMessage, query),
+      like(aiConversation.contactName, query),
+      like(aiConversation.contactEmail, query)
+    )!);
+  }
 
   const rows = await db()
     .select()
@@ -2056,6 +2347,72 @@ export async function getConversationWithMessages(params: {
     ...redactConversation(conversation),
     messages: messages.map(redactConversationMessage),
   };
+}
+
+export async function updateConversation(params: {
+  userId: string;
+  id: string;
+  status?: 'open' | 'resolved';
+  feedback?: 'positive' | 'negative' | null;
+  tags?: string[];
+}): Promise<AiConversation> {
+  const [existing] = await db().select().from(aiConversation).where(and(
+    eq(aiConversation.id, params.id),
+    eq(aiConversation.userId, params.userId)
+  )).limit(1);
+  if (!existing) throw new Error('Conversation not found');
+  const [conversation] = await db().transaction(async (tx: any) => {
+    const [row] = await tx.update(aiConversation).set({
+      status: params.status ?? existing.status,
+      feedback: params.feedback === undefined ? existing.feedback : params.feedback,
+      updatedAt: new Date(),
+    }).where(eq(aiConversation.id, existing.id)).returning();
+    if (params.tags) {
+      await tx.delete(aiConversationTag).where(eq(aiConversationTag.conversationId, existing.id));
+      const labels = [...new Set(params.tags.map((tag) => tag.trim().slice(0, 50)).filter(Boolean))].slice(0, 12);
+      if (labels.length) await tx.insert(aiConversationTag).values(labels.map((label) => ({
+        id: getUuid(), userId: params.userId, conversationId: existing.id, label, createdAt: new Date(),
+      })));
+    }
+    await writeAudit(tx, {
+      userId: params.userId,
+      resourceType: 'ai_conversation',
+      resourceId: existing.id,
+      action: 'conversation.update',
+      diff: { status: params.status, feedback: params.feedback, tags: params.tags },
+    });
+    return [row];
+  });
+  return redactConversation(conversation);
+}
+
+export async function createKnowledgeGap(params: {
+  userId: string;
+  chatbotId: string;
+  conversationId?: string;
+  question: string;
+}) {
+  await assertOwnsChatbot(params.userId, params.chatbotId);
+  const question = params.question.trim().slice(0, 2000);
+  if (!question) throw new Error('Knowledge gap question is required');
+  const [row] = await db().transaction(async (tx: any) => {
+    const [record] = await tx.insert(aiKnowledgeGap).values({
+      id: getUuid(), userId: params.userId, chatbotId: params.chatbotId,
+      conversationId: params.conversationId ?? null, question, status: 'open', createdAt: new Date(), resolvedAt: null,
+    }).returning();
+    await writeAudit(tx, {
+      userId: params.userId, resourceType: 'ai_knowledge_gap', resourceId: record.id,
+      action: 'knowledge_gap.create', metadata: { chatbotId: params.chatbotId, conversationId: params.conversationId },
+    });
+    return [record];
+  });
+  return row;
+}
+
+export async function listKnowledgeGaps(params: { userId: string; chatbotId?: string }) {
+  const conditions = [eq(aiKnowledgeGap.userId, params.userId)];
+  if (params.chatbotId) conditions.push(eq(aiKnowledgeGap.chatbotId, params.chatbotId));
+  return db().select().from(aiKnowledgeGap).where(and(...conditions)).orderBy(desc(aiKnowledgeGap.createdAt));
 }
 
 export async function createPublicConversationMessage(
@@ -2685,6 +3042,58 @@ export async function listAgentTokens(userId: string): Promise<AiAgentTokenView[
     scopes: parseJsonStringArray(row.scopes),
     chatbotIds: parseJsonStringArray(row.chatbotIds),
   }));
+}
+
+export async function authenticateAgentToken(rawToken: string, input: {
+  scope: string;
+  chatbotId?: string;
+}): Promise<{ userId: string; tokenId: string; chatbotIds: string[]; scopes: string[] }> {
+  if (!rawToken.startsWith('ai_') || rawToken.length < 20) throw new Error('Invalid agent token');
+  const now = new Date();
+  const [token] = await db().select().from(aiAgentToken).where(and(
+    eq(aiAgentToken.tokenHash, md5(rawToken)),
+    eq(aiAgentToken.status, 'active'),
+    or(isNull(aiAgentToken.expiresAt), gt(aiAgentToken.expiresAt, now))
+  )).limit(1);
+  if (!token) throw new Error('Agent token is invalid, expired, or revoked');
+  const scopes = parseJsonStringArray(token.scopes);
+  const chatbotIds = parseJsonStringArray(token.chatbotIds);
+  if (!scopes.includes(input.scope)) throw new Error('Agent token lacks required scope');
+  if (input.chatbotId && chatbotIds.length > 0 && !chatbotIds.includes(input.chatbotId)) {
+    throw new Error('Agent token is not authorized for this chatbot');
+  }
+  await db().update(aiAgentToken).set({ lastUsedAt: now, updatedAt: now }).where(eq(aiAgentToken.id, token.id));
+  return { userId: token.userId, tokenId: token.id, chatbotIds, scopes };
+}
+
+export async function recordAgentAction(input: {
+  userId: string;
+  tokenId: string;
+  chatbotId?: string;
+  action: string;
+  summary: string;
+  status?: AgentRunStatus;
+  approvalRequired?: boolean;
+  diff?: unknown;
+  metadata?: Record<string, unknown>;
+}) {
+  const now = new Date();
+  return db().transaction(async (tx: any) => {
+    const [run] = await tx.insert(aiAgentRun).values({
+      id: getUuid(), userId: input.userId, agentTokenId: input.tokenId,
+      chatbotId: input.chatbotId ?? null, action: input.action,
+      status: input.status ?? 'approved', approvalRequired: input.approvalRequired ?? false,
+      summary: input.summary.slice(0, 2000), diff: input.diff === undefined ? null : JSON.stringify(input.diff), metadata: JSON.stringify(input.metadata ?? {}),
+      createdAt: now, completedAt: now,
+    }).returning();
+    await writeAudit(tx, {
+      userId: input.userId, actorType: 'agent', actorId: input.tokenId,
+      resourceType: 'ai_agent_run', resourceId: run.id, action: input.action,
+      requiresApproval: input.approvalRequired ?? false, status: input.status ?? 'approved',
+      metadata: { chatbotId: input.chatbotId, ...input.metadata },
+    });
+    return run;
+  });
 }
 
 export async function revokeAgentToken(input: {

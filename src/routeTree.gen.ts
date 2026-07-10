@@ -77,14 +77,19 @@ import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/u
 import { Route as ApiAiSupportSyncJobsRouteImport } from './routes/api/ai-support/sync-jobs'
 import { Route as ApiAiSupportPromptPersonaRouteImport } from './routes/api/ai-support/prompt-persona'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
+import { Route as ApiAiSupportLocalizationRouteImport } from './routes/api/ai-support/localization'
 import { Route as ApiAiSupportLeadsRouteImport } from './routes/api/ai-support/leads'
 import { Route as ApiAiSupportLaunchOperationsRouteImport } from './routes/api/ai-support/launch-operations'
+import { Route as ApiAiSupportKnowledgeUploadRouteImport } from './routes/api/ai-support/knowledge-upload'
+import { Route as ApiAiSupportKnowledgeSyncRouteImport } from './routes/api/ai-support/knowledge-sync'
 import { Route as ApiAiSupportKnowledgeSourcesRouteImport } from './routes/api/ai-support/knowledge-sources'
+import { Route as ApiAiSupportKnowledgeGapsRouteImport } from './routes/api/ai-support/knowledge-gaps'
 import { Route as ApiAiSupportInstallCheckRouteImport } from './routes/api/ai-support/install-check'
 import { Route as ApiAiSupportHumanSupportSettingsRouteImport } from './routes/api/ai-support/human-support-settings'
 import { Route as ApiAiSupportEscalationsRouteImport } from './routes/api/ai-support/escalations'
 import { Route as ApiAiSupportConversationsRouteImport } from './routes/api/ai-support/conversations'
 import { Route as ApiAiSupportConversationMessagesRouteImport } from './routes/api/ai-support/conversation-messages'
+import { Route as ApiAiSupportConversationButtonsRouteImport } from './routes/api/ai-support/conversation-buttons'
 import { Route as ApiAiSupportConfigVersionsRouteImport } from './routes/api/ai-support/config-versions'
 import { Route as ApiAiSupportChatbotsRouteImport } from './routes/api/ai-support/chatbots'
 import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-support/audit-logs'
@@ -99,19 +104,39 @@ import { Route as ApiAdminInviteCodesRouteImport } from './routes/api/admin/invi
 import { Route as ApiAdminCreditsRouteImport } from './routes/api/admin/credits'
 import { Route as ApiAdminConfigRouteImport } from './routes/api/admin/config'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
+import { Route as SettingsChatbotsChatbotIdIndexRouteImport } from './routes/settings/chatbots/$chatbotId/index'
 import { Route as ApiUserSubscriptionsIndexRouteImport } from './routes/api/user/subscriptions/index'
 import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
 import { Route as ApiAdminRolesIndexRouteImport } from './routes/api/admin/roles/index'
+import { Route as SettingsChatbotsChatbotIdSettingsRouteImport } from './routes/settings/chatbots/$chatbotId/settings'
+import { Route as SettingsChatbotsChatbotIdSdkRouteImport } from './routes/settings/chatbots/$chatbotId/sdk'
+import { Route as SettingsChatbotsChatbotIdLeadsRouteImport } from './routes/settings/chatbots/$chatbotId/leads'
+import { Route as SettingsChatbotsChatbotIdInstallationRouteImport } from './routes/settings/chatbots/$chatbotId/installation'
+import { Route as SettingsChatbotsChatbotIdHistoryRouteImport } from './routes/settings/chatbots/$chatbotId/history'
 import { Route as ApiUserSubscriptionsCurrentRouteImport } from './routes/api/user/subscriptions/current'
 import { Route as ApiUserSubscriptionsCancelRouteImport } from './routes/api/user/subscriptions/cancel'
 import { Route as ApiPaymentNotifyProviderRouteImport } from './routes/api/payment/notify/$provider'
 import { Route as ApiAiSupportWidgetPublicKeyRouteImport } from './routes/api/ai-support/widget/$publicKey'
+import { Route as ApiAgentV1OperationsRouteImport } from './routes/api/agent/v1/operations'
+import { Route as ApiAgentV1KnowledgeSourcesRouteImport } from './routes/api/agent/v1/knowledge-sources'
 import { Route as ApiAdminUsersCreditsRouteImport } from './routes/api/admin/users/credits'
 import { Route as ApiAdminTicketsIdRouteImport } from './routes/api/admin/tickets/$id'
 import { Route as ApiAdminSettingsTestRouteImport } from './routes/api/admin/settings/test'
 import { Route as ApiAdminRolesPermissionsRouteImport } from './routes/api/admin/roles/permissions'
 import { Route as ApiAdminRolesAssignRouteImport } from './routes/api/admin/roles/assign'
 import { Route as ApiAdminConfigCustomRouteImport } from './routes/api/admin/config/custom'
+import { Route as SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/website-links'
+import { Route as SettingsChatbotsChatbotIdKnowledgeTextSnippetsRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/text-snippets'
+import { Route as SettingsChatbotsChatbotIdKnowledgeSyncJobsRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/sync-jobs'
+import { Route as SettingsChatbotsChatbotIdKnowledgeFilesRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/files'
+import { Route as SettingsChatbotsChatbotIdKnowledgeCustomResponsesRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/custom-responses'
+import { Route as SettingsChatbotsChatbotIdCustomizationStartersRouteImport } from './routes/settings/chatbots/$chatbotId/customization/starters'
+import { Route as SettingsChatbotsChatbotIdCustomizationPersonaRouteImport } from './routes/settings/chatbots/$chatbotId/customization/persona'
+import { Route as SettingsChatbotsChatbotIdCustomizationLocalizationRouteImport } from './routes/settings/chatbots/$chatbotId/customization/localization'
+import { Route as SettingsChatbotsChatbotIdCustomizationInstructionsRouteImport } from './routes/settings/chatbots/$chatbotId/customization/instructions'
+import { Route as SettingsChatbotsChatbotIdCustomizationHumanSupportRouteImport } from './routes/settings/chatbots/$chatbotId/customization/human-support'
+import { Route as SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport } from './routes/settings/chatbots/$chatbotId/customization/followups'
+import { Route as SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport } from './routes/settings/chatbots/$chatbotId/customization/appearance'
 import { Route as ApiAiSupportWidgetPublicKeyMessagesRouteImport } from './routes/api/ai-support/widget/$publicKey/messages'
 import { Route as ApiAiSupportWidgetPublicKeyLeadsRouteImport } from './routes/api/ai-support/widget/$publicKey/leads'
 import { Route as ApiAiSupportWidgetPublicKeyEscalationsRouteImport } from './routes/api/ai-support/widget/$publicKey/escalations'
@@ -457,6 +482,12 @@ const ApiAiSupportOverviewRoute = ApiAiSupportOverviewRouteImport.update({
   path: '/api/ai-support/overview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportLocalizationRoute =
+  ApiAiSupportLocalizationRouteImport.update({
+    id: '/api/ai-support/localization',
+    path: '/api/ai-support/localization',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportLeadsRoute = ApiAiSupportLeadsRouteImport.update({
   id: '/api/ai-support/leads',
   path: '/api/ai-support/leads',
@@ -468,10 +499,28 @@ const ApiAiSupportLaunchOperationsRoute =
     path: '/api/ai-support/launch-operations',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiSupportKnowledgeUploadRoute =
+  ApiAiSupportKnowledgeUploadRouteImport.update({
+    id: '/api/ai-support/knowledge-upload',
+    path: '/api/ai-support/knowledge-upload',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAiSupportKnowledgeSyncRoute =
+  ApiAiSupportKnowledgeSyncRouteImport.update({
+    id: '/api/ai-support/knowledge-sync',
+    path: '/api/ai-support/knowledge-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportKnowledgeSourcesRoute =
   ApiAiSupportKnowledgeSourcesRouteImport.update({
     id: '/api/ai-support/knowledge-sources',
     path: '/api/ai-support/knowledge-sources',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAiSupportKnowledgeGapsRoute =
+  ApiAiSupportKnowledgeGapsRouteImport.update({
+    id: '/api/ai-support/knowledge-gaps',
+    path: '/api/ai-support/knowledge-gaps',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAiSupportInstallCheckRoute =
@@ -501,6 +550,12 @@ const ApiAiSupportConversationMessagesRoute =
   ApiAiSupportConversationMessagesRouteImport.update({
     id: '/api/ai-support/conversation-messages',
     path: '/api/ai-support/conversation-messages',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAiSupportConversationButtonsRoute =
+  ApiAiSupportConversationButtonsRouteImport.update({
+    id: '/api/ai-support/conversation-buttons',
+    path: '/api/ai-support/conversation-buttons',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAiSupportConfigVersionsRoute =
@@ -574,6 +629,12 @@ const ApiAdminCategoriesRoute = ApiAdminCategoriesRouteImport.update({
   path: '/api/admin/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsChatbotsChatbotIdIndexRoute =
+  SettingsChatbotsChatbotIdIndexRouteImport.update({
+    id: '/chatbots/$chatbotId/',
+    path: '/chatbots/$chatbotId/',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
 const ApiUserSubscriptionsIndexRoute =
   ApiUserSubscriptionsIndexRouteImport.update({
     id: '/api/user/subscriptions/',
@@ -590,6 +651,36 @@ const ApiAdminRolesIndexRoute = ApiAdminRolesIndexRouteImport.update({
   path: '/api/admin/roles/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsChatbotsChatbotIdSettingsRoute =
+  SettingsChatbotsChatbotIdSettingsRouteImport.update({
+    id: '/chatbots/$chatbotId/settings',
+    path: '/chatbots/$chatbotId/settings',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdSdkRoute =
+  SettingsChatbotsChatbotIdSdkRouteImport.update({
+    id: '/chatbots/$chatbotId/sdk',
+    path: '/chatbots/$chatbotId/sdk',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdLeadsRoute =
+  SettingsChatbotsChatbotIdLeadsRouteImport.update({
+    id: '/chatbots/$chatbotId/leads',
+    path: '/chatbots/$chatbotId/leads',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdInstallationRoute =
+  SettingsChatbotsChatbotIdInstallationRouteImport.update({
+    id: '/chatbots/$chatbotId/installation',
+    path: '/chatbots/$chatbotId/installation',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdHistoryRoute =
+  SettingsChatbotsChatbotIdHistoryRouteImport.update({
+    id: '/chatbots/$chatbotId/history',
+    path: '/chatbots/$chatbotId/history',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
 const ApiUserSubscriptionsCurrentRoute =
   ApiUserSubscriptionsCurrentRouteImport.update({
     id: '/api/user/subscriptions/current',
@@ -612,6 +703,17 @@ const ApiAiSupportWidgetPublicKeyRoute =
   ApiAiSupportWidgetPublicKeyRouteImport.update({
     id: '/api/ai-support/widget/$publicKey',
     path: '/api/ai-support/widget/$publicKey',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAgentV1OperationsRoute = ApiAgentV1OperationsRouteImport.update({
+  id: '/api/agent/v1/operations',
+  path: '/api/agent/v1/operations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentV1KnowledgeSourcesRoute =
+  ApiAgentV1KnowledgeSourcesRouteImport.update({
+    id: '/api/agent/v1/knowledge-sources',
+    path: '/api/agent/v1/knowledge-sources',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAdminUsersCreditsRoute = ApiAdminUsersCreditsRouteImport.update({
@@ -645,6 +747,78 @@ const ApiAdminConfigCustomRoute = ApiAdminConfigCustomRouteImport.update({
   path: '/custom',
   getParentRoute: () => ApiAdminConfigRoute,
 } as any)
+const SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute =
+  SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRouteImport.update({
+    id: '/chatbots/$chatbotId/knowledge/website-links',
+    path: '/chatbots/$chatbotId/knowledge/website-links',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute =
+  SettingsChatbotsChatbotIdKnowledgeTextSnippetsRouteImport.update({
+    id: '/chatbots/$chatbotId/knowledge/text-snippets',
+    path: '/chatbots/$chatbotId/knowledge/text-snippets',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute =
+  SettingsChatbotsChatbotIdKnowledgeSyncJobsRouteImport.update({
+    id: '/chatbots/$chatbotId/knowledge/sync-jobs',
+    path: '/chatbots/$chatbotId/knowledge/sync-jobs',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdKnowledgeFilesRoute =
+  SettingsChatbotsChatbotIdKnowledgeFilesRouteImport.update({
+    id: '/chatbots/$chatbotId/knowledge/files',
+    path: '/chatbots/$chatbotId/knowledge/files',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute =
+  SettingsChatbotsChatbotIdKnowledgeCustomResponsesRouteImport.update({
+    id: '/chatbots/$chatbotId/knowledge/custom-responses',
+    path: '/chatbots/$chatbotId/knowledge/custom-responses',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationStartersRoute =
+  SettingsChatbotsChatbotIdCustomizationStartersRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/starters',
+    path: '/chatbots/$chatbotId/customization/starters',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationPersonaRoute =
+  SettingsChatbotsChatbotIdCustomizationPersonaRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/persona',
+    path: '/chatbots/$chatbotId/customization/persona',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationLocalizationRoute =
+  SettingsChatbotsChatbotIdCustomizationLocalizationRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/localization',
+    path: '/chatbots/$chatbotId/customization/localization',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationInstructionsRoute =
+  SettingsChatbotsChatbotIdCustomizationInstructionsRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/instructions',
+    path: '/chatbots/$chatbotId/customization/instructions',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationHumanSupportRoute =
+  SettingsChatbotsChatbotIdCustomizationHumanSupportRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/human-support',
+    path: '/chatbots/$chatbotId/customization/human-support',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationFollowupsRoute =
+  SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/followups',
+    path: '/chatbots/$chatbotId/customization/followups',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
+const SettingsChatbotsChatbotIdCustomizationAppearanceRoute =
+  SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport.update({
+    id: '/chatbots/$chatbotId/customization/appearance',
+    path: '/chatbots/$chatbotId/customization/appearance',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
 const ApiAiSupportWidgetPublicKeyMessagesRoute =
   ApiAiSupportWidgetPublicKeyMessagesRouteImport.update({
     id: '/messages',
@@ -719,14 +893,19 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
   '/api/ai-support/config-versions': typeof ApiAiSupportConfigVersionsRoute
+  '/api/ai-support/conversation-buttons': typeof ApiAiSupportConversationButtonsRoute
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
+  '/api/ai-support/knowledge-gaps': typeof ApiAiSupportKnowledgeGapsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/knowledge-sync': typeof ApiAiSupportKnowledgeSyncRoute
+  '/api/ai-support/knowledge-upload': typeof ApiAiSupportKnowledgeUploadRoute
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
+  '/api/ai-support/localization': typeof ApiAiSupportLocalizationRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
@@ -760,16 +939,36 @@ export interface FileRoutesByFullPath {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
+  '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
+  '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
+  '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
+  '/settings/chatbots/$chatbotId/sdk': typeof SettingsChatbotsChatbotIdSdkRoute
+  '/settings/chatbots/$chatbotId/settings': typeof SettingsChatbotsChatbotIdSettingsRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
+  '/settings/chatbots/$chatbotId/': typeof SettingsChatbotsChatbotIdIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
+  '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
+  '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
+  '/settings/chatbots/$chatbotId/customization/instructions': typeof SettingsChatbotsChatbotIdCustomizationInstructionsRoute
+  '/settings/chatbots/$chatbotId/customization/localization': typeof SettingsChatbotsChatbotIdCustomizationLocalizationRoute
+  '/settings/chatbots/$chatbotId/customization/persona': typeof SettingsChatbotsChatbotIdCustomizationPersonaRoute
+  '/settings/chatbots/$chatbotId/customization/starters': typeof SettingsChatbotsChatbotIdCustomizationStartersRoute
+  '/settings/chatbots/$chatbotId/knowledge/custom-responses': typeof SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute
+  '/settings/chatbots/$chatbotId/knowledge/files': typeof SettingsChatbotsChatbotIdKnowledgeFilesRoute
+  '/settings/chatbots/$chatbotId/knowledge/sync-jobs': typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
+  '/settings/chatbots/$chatbotId/knowledge/text-snippets': typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
+  '/settings/chatbots/$chatbotId/knowledge/website-links': typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -824,14 +1023,19 @@ export interface FileRoutesByTo {
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
   '/api/ai-support/config-versions': typeof ApiAiSupportConfigVersionsRoute
+  '/api/ai-support/conversation-buttons': typeof ApiAiSupportConversationButtonsRoute
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
+  '/api/ai-support/knowledge-gaps': typeof ApiAiSupportKnowledgeGapsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/knowledge-sync': typeof ApiAiSupportKnowledgeSyncRoute
+  '/api/ai-support/knowledge-upload': typeof ApiAiSupportKnowledgeUploadRoute
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
+  '/api/ai-support/localization': typeof ApiAiSupportLocalizationRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
@@ -865,16 +1069,36 @@ export interface FileRoutesByTo {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
+  '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
+  '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
+  '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
+  '/settings/chatbots/$chatbotId/sdk': typeof SettingsChatbotsChatbotIdSdkRoute
+  '/settings/chatbots/$chatbotId/settings': typeof SettingsChatbotsChatbotIdSettingsRoute
   '/api/admin/roles': typeof ApiAdminRolesIndexRoute
   '/api/admin/users': typeof ApiAdminUsersIndexRoute
   '/api/user/subscriptions': typeof ApiUserSubscriptionsIndexRoute
+  '/settings/chatbots/$chatbotId': typeof SettingsChatbotsChatbotIdIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
+  '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
+  '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
+  '/settings/chatbots/$chatbotId/customization/instructions': typeof SettingsChatbotsChatbotIdCustomizationInstructionsRoute
+  '/settings/chatbots/$chatbotId/customization/localization': typeof SettingsChatbotsChatbotIdCustomizationLocalizationRoute
+  '/settings/chatbots/$chatbotId/customization/persona': typeof SettingsChatbotsChatbotIdCustomizationPersonaRoute
+  '/settings/chatbots/$chatbotId/customization/starters': typeof SettingsChatbotsChatbotIdCustomizationStartersRoute
+  '/settings/chatbots/$chatbotId/knowledge/custom-responses': typeof SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute
+  '/settings/chatbots/$chatbotId/knowledge/files': typeof SettingsChatbotsChatbotIdKnowledgeFilesRoute
+  '/settings/chatbots/$chatbotId/knowledge/sync-jobs': typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
+  '/settings/chatbots/$chatbotId/knowledge/text-snippets': typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
+  '/settings/chatbots/$chatbotId/knowledge/website-links': typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -933,14 +1157,19 @@ export interface FileRoutesById {
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
   '/api/ai-support/chatbots': typeof ApiAiSupportChatbotsRoute
   '/api/ai-support/config-versions': typeof ApiAiSupportConfigVersionsRoute
+  '/api/ai-support/conversation-buttons': typeof ApiAiSupportConversationButtonsRoute
   '/api/ai-support/conversation-messages': typeof ApiAiSupportConversationMessagesRoute
   '/api/ai-support/conversations': typeof ApiAiSupportConversationsRoute
   '/api/ai-support/escalations': typeof ApiAiSupportEscalationsRoute
   '/api/ai-support/human-support-settings': typeof ApiAiSupportHumanSupportSettingsRoute
   '/api/ai-support/install-check': typeof ApiAiSupportInstallCheckRoute
+  '/api/ai-support/knowledge-gaps': typeof ApiAiSupportKnowledgeGapsRoute
   '/api/ai-support/knowledge-sources': typeof ApiAiSupportKnowledgeSourcesRoute
+  '/api/ai-support/knowledge-sync': typeof ApiAiSupportKnowledgeSyncRoute
+  '/api/ai-support/knowledge-upload': typeof ApiAiSupportKnowledgeUploadRoute
   '/api/ai-support/launch-operations': typeof ApiAiSupportLaunchOperationsRoute
   '/api/ai-support/leads': typeof ApiAiSupportLeadsRoute
+  '/api/ai-support/localization': typeof ApiAiSupportLocalizationRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
@@ -974,16 +1203,36 @@ export interface FileRoutesById {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
+  '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
+  '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
+  '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
+  '/settings/chatbots/$chatbotId/sdk': typeof SettingsChatbotsChatbotIdSdkRoute
+  '/settings/chatbots/$chatbotId/settings': typeof SettingsChatbotsChatbotIdSettingsRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
+  '/settings/chatbots/$chatbotId/': typeof SettingsChatbotsChatbotIdIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
+  '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
+  '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
+  '/settings/chatbots/$chatbotId/customization/instructions': typeof SettingsChatbotsChatbotIdCustomizationInstructionsRoute
+  '/settings/chatbots/$chatbotId/customization/localization': typeof SettingsChatbotsChatbotIdCustomizationLocalizationRoute
+  '/settings/chatbots/$chatbotId/customization/persona': typeof SettingsChatbotsChatbotIdCustomizationPersonaRoute
+  '/settings/chatbots/$chatbotId/customization/starters': typeof SettingsChatbotsChatbotIdCustomizationStartersRoute
+  '/settings/chatbots/$chatbotId/knowledge/custom-responses': typeof SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute
+  '/settings/chatbots/$chatbotId/knowledge/files': typeof SettingsChatbotsChatbotIdKnowledgeFilesRoute
+  '/settings/chatbots/$chatbotId/knowledge/sync-jobs': typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
+  '/settings/chatbots/$chatbotId/knowledge/text-snippets': typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
+  '/settings/chatbots/$chatbotId/knowledge/website-links': typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1042,14 +1291,19 @@ export interface FileRouteTypes {
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
     | '/api/ai-support/config-versions'
+    | '/api/ai-support/conversation-buttons'
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/human-support-settings'
     | '/api/ai-support/install-check'
+    | '/api/ai-support/knowledge-gaps'
     | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/knowledge-sync'
+    | '/api/ai-support/knowledge-upload'
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
+    | '/api/ai-support/localization'
     | '/api/ai-support/overview'
     | '/api/ai-support/prompt-persona'
     | '/api/ai-support/sync-jobs'
@@ -1083,16 +1337,36 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/v1/knowledge-sources'
+    | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/settings/chatbots/$chatbotId/history'
+    | '/settings/chatbots/$chatbotId/installation'
+    | '/settings/chatbots/$chatbotId/leads'
+    | '/settings/chatbots/$chatbotId/sdk'
+    | '/settings/chatbots/$chatbotId/settings'
     | '/api/admin/roles/'
     | '/api/admin/users/'
     | '/api/user/subscriptions/'
+    | '/settings/chatbots/$chatbotId/'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
+    | '/settings/chatbots/$chatbotId/customization/appearance'
+    | '/settings/chatbots/$chatbotId/customization/followups'
+    | '/settings/chatbots/$chatbotId/customization/human-support'
+    | '/settings/chatbots/$chatbotId/customization/instructions'
+    | '/settings/chatbots/$chatbotId/customization/localization'
+    | '/settings/chatbots/$chatbotId/customization/persona'
+    | '/settings/chatbots/$chatbotId/customization/starters'
+    | '/settings/chatbots/$chatbotId/knowledge/custom-responses'
+    | '/settings/chatbots/$chatbotId/knowledge/files'
+    | '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
+    | '/settings/chatbots/$chatbotId/knowledge/text-snippets'
+    | '/settings/chatbots/$chatbotId/knowledge/website-links'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1147,14 +1421,19 @@ export interface FileRouteTypes {
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
     | '/api/ai-support/config-versions'
+    | '/api/ai-support/conversation-buttons'
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/human-support-settings'
     | '/api/ai-support/install-check'
+    | '/api/ai-support/knowledge-gaps'
     | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/knowledge-sync'
+    | '/api/ai-support/knowledge-upload'
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
+    | '/api/ai-support/localization'
     | '/api/ai-support/overview'
     | '/api/ai-support/prompt-persona'
     | '/api/ai-support/sync-jobs'
@@ -1188,16 +1467,36 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/v1/knowledge-sources'
+    | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/settings/chatbots/$chatbotId/history'
+    | '/settings/chatbots/$chatbotId/installation'
+    | '/settings/chatbots/$chatbotId/leads'
+    | '/settings/chatbots/$chatbotId/sdk'
+    | '/settings/chatbots/$chatbotId/settings'
     | '/api/admin/roles'
     | '/api/admin/users'
     | '/api/user/subscriptions'
+    | '/settings/chatbots/$chatbotId'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
+    | '/settings/chatbots/$chatbotId/customization/appearance'
+    | '/settings/chatbots/$chatbotId/customization/followups'
+    | '/settings/chatbots/$chatbotId/customization/human-support'
+    | '/settings/chatbots/$chatbotId/customization/instructions'
+    | '/settings/chatbots/$chatbotId/customization/localization'
+    | '/settings/chatbots/$chatbotId/customization/persona'
+    | '/settings/chatbots/$chatbotId/customization/starters'
+    | '/settings/chatbots/$chatbotId/knowledge/custom-responses'
+    | '/settings/chatbots/$chatbotId/knowledge/files'
+    | '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
+    | '/settings/chatbots/$chatbotId/knowledge/text-snippets'
+    | '/settings/chatbots/$chatbotId/knowledge/website-links'
   id:
     | '__root__'
     | '/'
@@ -1255,14 +1554,19 @@ export interface FileRouteTypes {
     | '/api/ai-support/audit-logs'
     | '/api/ai-support/chatbots'
     | '/api/ai-support/config-versions'
+    | '/api/ai-support/conversation-buttons'
     | '/api/ai-support/conversation-messages'
     | '/api/ai-support/conversations'
     | '/api/ai-support/escalations'
     | '/api/ai-support/human-support-settings'
     | '/api/ai-support/install-check'
+    | '/api/ai-support/knowledge-gaps'
     | '/api/ai-support/knowledge-sources'
+    | '/api/ai-support/knowledge-sync'
+    | '/api/ai-support/knowledge-upload'
     | '/api/ai-support/launch-operations'
     | '/api/ai-support/leads'
+    | '/api/ai-support/localization'
     | '/api/ai-support/overview'
     | '/api/ai-support/prompt-persona'
     | '/api/ai-support/sync-jobs'
@@ -1296,16 +1600,36 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/v1/knowledge-sources'
+    | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/settings/chatbots/$chatbotId/history'
+    | '/settings/chatbots/$chatbotId/installation'
+    | '/settings/chatbots/$chatbotId/leads'
+    | '/settings/chatbots/$chatbotId/sdk'
+    | '/settings/chatbots/$chatbotId/settings'
     | '/api/admin/roles/'
     | '/api/admin/users/'
     | '/api/user/subscriptions/'
+    | '/settings/chatbots/$chatbotId/'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
+    | '/settings/chatbots/$chatbotId/customization/appearance'
+    | '/settings/chatbots/$chatbotId/customization/followups'
+    | '/settings/chatbots/$chatbotId/customization/human-support'
+    | '/settings/chatbots/$chatbotId/customization/instructions'
+    | '/settings/chatbots/$chatbotId/customization/localization'
+    | '/settings/chatbots/$chatbotId/customization/persona'
+    | '/settings/chatbots/$chatbotId/customization/starters'
+    | '/settings/chatbots/$chatbotId/knowledge/custom-responses'
+    | '/settings/chatbots/$chatbotId/knowledge/files'
+    | '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
+    | '/settings/chatbots/$chatbotId/knowledge/text-snippets'
+    | '/settings/chatbots/$chatbotId/knowledge/website-links'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1340,14 +1664,19 @@ export interface RootRouteChildren {
   ApiAiSupportAuditLogsRoute: typeof ApiAiSupportAuditLogsRoute
   ApiAiSupportChatbotsRoute: typeof ApiAiSupportChatbotsRoute
   ApiAiSupportConfigVersionsRoute: typeof ApiAiSupportConfigVersionsRoute
+  ApiAiSupportConversationButtonsRoute: typeof ApiAiSupportConversationButtonsRoute
   ApiAiSupportConversationMessagesRoute: typeof ApiAiSupportConversationMessagesRoute
   ApiAiSupportConversationsRoute: typeof ApiAiSupportConversationsRoute
   ApiAiSupportEscalationsRoute: typeof ApiAiSupportEscalationsRoute
   ApiAiSupportHumanSupportSettingsRoute: typeof ApiAiSupportHumanSupportSettingsRoute
   ApiAiSupportInstallCheckRoute: typeof ApiAiSupportInstallCheckRoute
+  ApiAiSupportKnowledgeGapsRoute: typeof ApiAiSupportKnowledgeGapsRoute
   ApiAiSupportKnowledgeSourcesRoute: typeof ApiAiSupportKnowledgeSourcesRoute
+  ApiAiSupportKnowledgeSyncRoute: typeof ApiAiSupportKnowledgeSyncRoute
+  ApiAiSupportKnowledgeUploadRoute: typeof ApiAiSupportKnowledgeUploadRoute
   ApiAiSupportLaunchOperationsRoute: typeof ApiAiSupportLaunchOperationsRoute
   ApiAiSupportLeadsRoute: typeof ApiAiSupportLeadsRoute
+  ApiAiSupportLocalizationRoute: typeof ApiAiSupportLocalizationRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
   ApiAiSupportPromptPersonaRoute: typeof ApiAiSupportPromptPersonaRoute
   ApiAiSupportSyncJobsRoute: typeof ApiAiSupportSyncJobsRoute
@@ -1378,6 +1707,8 @@ export interface RootRouteChildren {
   ApiAdminRolesPermissionsRoute: typeof ApiAdminRolesPermissionsRoute
   ApiAdminSettingsTestRoute: typeof ApiAdminSettingsTestRoute
   ApiAdminUsersCreditsRoute: typeof ApiAdminUsersCreditsRoute
+  ApiAgentV1KnowledgeSourcesRoute: typeof ApiAgentV1KnowledgeSourcesRoute
+  ApiAgentV1OperationsRoute: typeof ApiAgentV1OperationsRoute
   ApiAiSupportWidgetPublicKeyRoute: typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
   ApiPaymentNotifyProviderRoute: typeof ApiPaymentNotifyProviderRoute
   ApiUserSubscriptionsCancelRoute: typeof ApiUserSubscriptionsCancelRoute
@@ -1865,6 +2196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportOverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/localization': {
+      id: '/api/ai-support/localization'
+      path: '/api/ai-support/localization'
+      fullPath: '/api/ai-support/localization'
+      preLoaderRoute: typeof ApiAiSupportLocalizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/leads': {
       id: '/api/ai-support/leads'
       path: '/api/ai-support/leads'
@@ -1879,11 +2217,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportLaunchOperationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/knowledge-upload': {
+      id: '/api/ai-support/knowledge-upload'
+      path: '/api/ai-support/knowledge-upload'
+      fullPath: '/api/ai-support/knowledge-upload'
+      preLoaderRoute: typeof ApiAiSupportKnowledgeUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/knowledge-sync': {
+      id: '/api/ai-support/knowledge-sync'
+      path: '/api/ai-support/knowledge-sync'
+      fullPath: '/api/ai-support/knowledge-sync'
+      preLoaderRoute: typeof ApiAiSupportKnowledgeSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/knowledge-sources': {
       id: '/api/ai-support/knowledge-sources'
       path: '/api/ai-support/knowledge-sources'
       fullPath: '/api/ai-support/knowledge-sources'
       preLoaderRoute: typeof ApiAiSupportKnowledgeSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/knowledge-gaps': {
+      id: '/api/ai-support/knowledge-gaps'
+      path: '/api/ai-support/knowledge-gaps'
+      fullPath: '/api/ai-support/knowledge-gaps'
+      preLoaderRoute: typeof ApiAiSupportKnowledgeGapsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-support/install-check': {
@@ -1919,6 +2278,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-support/conversation-messages'
       fullPath: '/api/ai-support/conversation-messages'
       preLoaderRoute: typeof ApiAiSupportConversationMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/conversation-buttons': {
+      id: '/api/ai-support/conversation-buttons'
+      path: '/api/ai-support/conversation-buttons'
+      fullPath: '/api/ai-support/conversation-buttons'
+      preLoaderRoute: typeof ApiAiSupportConversationButtonsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-support/config-versions': {
@@ -2019,6 +2385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminCategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/chatbots/$chatbotId/': {
+      id: '/settings/chatbots/$chatbotId/'
+      path: '/chatbots/$chatbotId'
+      fullPath: '/settings/chatbots/$chatbotId/'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdIndexRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
     '/api/user/subscriptions/': {
       id: '/api/user/subscriptions/'
       path: '/api/user/subscriptions'
@@ -2039,6 +2412,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/roles/'
       preLoaderRoute: typeof ApiAdminRolesIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/settings/chatbots/$chatbotId/settings': {
+      id: '/settings/chatbots/$chatbotId/settings'
+      path: '/chatbots/$chatbotId/settings'
+      fullPath: '/settings/chatbots/$chatbotId/settings'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdSettingsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/sdk': {
+      id: '/settings/chatbots/$chatbotId/sdk'
+      path: '/chatbots/$chatbotId/sdk'
+      fullPath: '/settings/chatbots/$chatbotId/sdk'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdSdkRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/leads': {
+      id: '/settings/chatbots/$chatbotId/leads'
+      path: '/chatbots/$chatbotId/leads'
+      fullPath: '/settings/chatbots/$chatbotId/leads'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdLeadsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/installation': {
+      id: '/settings/chatbots/$chatbotId/installation'
+      path: '/chatbots/$chatbotId/installation'
+      fullPath: '/settings/chatbots/$chatbotId/installation'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdInstallationRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/history': {
+      id: '/settings/chatbots/$chatbotId/history'
+      path: '/chatbots/$chatbotId/history'
+      fullPath: '/settings/chatbots/$chatbotId/history'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdHistoryRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/api/user/subscriptions/current': {
       id: '/api/user/subscriptions/current'
@@ -2066,6 +2474,20 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-support/widget/$publicKey'
       fullPath: '/api/ai-support/widget/$publicKey'
       preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/v1/operations': {
+      id: '/api/agent/v1/operations'
+      path: '/api/agent/v1/operations'
+      fullPath: '/api/agent/v1/operations'
+      preLoaderRoute: typeof ApiAgentV1OperationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/v1/knowledge-sources': {
+      id: '/api/agent/v1/knowledge-sources'
+      path: '/api/agent/v1/knowledge-sources'
+      fullPath: '/api/agent/v1/knowledge-sources'
+      preLoaderRoute: typeof ApiAgentV1KnowledgeSourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/users/credits': {
@@ -2109,6 +2531,90 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/config/custom'
       preLoaderRoute: typeof ApiAdminConfigCustomRouteImport
       parentRoute: typeof ApiAdminConfigRoute
+    }
+    '/settings/chatbots/$chatbotId/knowledge/website-links': {
+      id: '/settings/chatbots/$chatbotId/knowledge/website-links'
+      path: '/chatbots/$chatbotId/knowledge/website-links'
+      fullPath: '/settings/chatbots/$chatbotId/knowledge/website-links'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/knowledge/text-snippets': {
+      id: '/settings/chatbots/$chatbotId/knowledge/text-snippets'
+      path: '/chatbots/$chatbotId/knowledge/text-snippets'
+      fullPath: '/settings/chatbots/$chatbotId/knowledge/text-snippets'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/knowledge/sync-jobs': {
+      id: '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
+      path: '/chatbots/$chatbotId/knowledge/sync-jobs'
+      fullPath: '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/knowledge/files': {
+      id: '/settings/chatbots/$chatbotId/knowledge/files'
+      path: '/chatbots/$chatbotId/knowledge/files'
+      fullPath: '/settings/chatbots/$chatbotId/knowledge/files'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdKnowledgeFilesRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/knowledge/custom-responses': {
+      id: '/settings/chatbots/$chatbotId/knowledge/custom-responses'
+      path: '/chatbots/$chatbotId/knowledge/custom-responses'
+      fullPath: '/settings/chatbots/$chatbotId/knowledge/custom-responses'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdKnowledgeCustomResponsesRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/starters': {
+      id: '/settings/chatbots/$chatbotId/customization/starters'
+      path: '/chatbots/$chatbotId/customization/starters'
+      fullPath: '/settings/chatbots/$chatbotId/customization/starters'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationStartersRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/persona': {
+      id: '/settings/chatbots/$chatbotId/customization/persona'
+      path: '/chatbots/$chatbotId/customization/persona'
+      fullPath: '/settings/chatbots/$chatbotId/customization/persona'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationPersonaRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/localization': {
+      id: '/settings/chatbots/$chatbotId/customization/localization'
+      path: '/chatbots/$chatbotId/customization/localization'
+      fullPath: '/settings/chatbots/$chatbotId/customization/localization'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationLocalizationRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/instructions': {
+      id: '/settings/chatbots/$chatbotId/customization/instructions'
+      path: '/chatbots/$chatbotId/customization/instructions'
+      fullPath: '/settings/chatbots/$chatbotId/customization/instructions'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationInstructionsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/human-support': {
+      id: '/settings/chatbots/$chatbotId/customization/human-support'
+      path: '/chatbots/$chatbotId/customization/human-support'
+      fullPath: '/settings/chatbots/$chatbotId/customization/human-support'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/followups': {
+      id: '/settings/chatbots/$chatbotId/customization/followups'
+      path: '/chatbots/$chatbotId/customization/followups'
+      fullPath: '/settings/chatbots/$chatbotId/customization/followups'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chatbots/$chatbotId/customization/appearance': {
+      id: '/settings/chatbots/$chatbotId/customization/appearance'
+      path: '/chatbots/$chatbotId/customization/appearance'
+      fullPath: '/settings/chatbots/$chatbotId/customization/appearance'
+      preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport
+      parentRoute: typeof SettingsRouteRoute
     }
     '/api/ai-support/widget/$publicKey/messages': {
       id: '/api/ai-support/widget/$publicKey/messages'
@@ -2193,6 +2699,24 @@ interface SettingsRouteRouteChildren {
   SettingsTicketsRoute: typeof SettingsTicketsRoute
   SettingsWikiAssistantRoute: typeof SettingsWikiAssistantRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  SettingsChatbotsChatbotIdHistoryRoute: typeof SettingsChatbotsChatbotIdHistoryRoute
+  SettingsChatbotsChatbotIdInstallationRoute: typeof SettingsChatbotsChatbotIdInstallationRoute
+  SettingsChatbotsChatbotIdLeadsRoute: typeof SettingsChatbotsChatbotIdLeadsRoute
+  SettingsChatbotsChatbotIdSdkRoute: typeof SettingsChatbotsChatbotIdSdkRoute
+  SettingsChatbotsChatbotIdSettingsRoute: typeof SettingsChatbotsChatbotIdSettingsRoute
+  SettingsChatbotsChatbotIdIndexRoute: typeof SettingsChatbotsChatbotIdIndexRoute
+  SettingsChatbotsChatbotIdCustomizationAppearanceRoute: typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
+  SettingsChatbotsChatbotIdCustomizationFollowupsRoute: typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
+  SettingsChatbotsChatbotIdCustomizationHumanSupportRoute: typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
+  SettingsChatbotsChatbotIdCustomizationInstructionsRoute: typeof SettingsChatbotsChatbotIdCustomizationInstructionsRoute
+  SettingsChatbotsChatbotIdCustomizationLocalizationRoute: typeof SettingsChatbotsChatbotIdCustomizationLocalizationRoute
+  SettingsChatbotsChatbotIdCustomizationPersonaRoute: typeof SettingsChatbotsChatbotIdCustomizationPersonaRoute
+  SettingsChatbotsChatbotIdCustomizationStartersRoute: typeof SettingsChatbotsChatbotIdCustomizationStartersRoute
+  SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute: typeof SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute
+  SettingsChatbotsChatbotIdKnowledgeFilesRoute: typeof SettingsChatbotsChatbotIdKnowledgeFilesRoute
+  SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute: typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
+  SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute: typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
+  SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute: typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
 }
 
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
@@ -2206,6 +2730,38 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsTicketsRoute: SettingsTicketsRoute,
   SettingsWikiAssistantRoute: SettingsWikiAssistantRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  SettingsChatbotsChatbotIdHistoryRoute: SettingsChatbotsChatbotIdHistoryRoute,
+  SettingsChatbotsChatbotIdInstallationRoute:
+    SettingsChatbotsChatbotIdInstallationRoute,
+  SettingsChatbotsChatbotIdLeadsRoute: SettingsChatbotsChatbotIdLeadsRoute,
+  SettingsChatbotsChatbotIdSdkRoute: SettingsChatbotsChatbotIdSdkRoute,
+  SettingsChatbotsChatbotIdSettingsRoute:
+    SettingsChatbotsChatbotIdSettingsRoute,
+  SettingsChatbotsChatbotIdIndexRoute: SettingsChatbotsChatbotIdIndexRoute,
+  SettingsChatbotsChatbotIdCustomizationAppearanceRoute:
+    SettingsChatbotsChatbotIdCustomizationAppearanceRoute,
+  SettingsChatbotsChatbotIdCustomizationFollowupsRoute:
+    SettingsChatbotsChatbotIdCustomizationFollowupsRoute,
+  SettingsChatbotsChatbotIdCustomizationHumanSupportRoute:
+    SettingsChatbotsChatbotIdCustomizationHumanSupportRoute,
+  SettingsChatbotsChatbotIdCustomizationInstructionsRoute:
+    SettingsChatbotsChatbotIdCustomizationInstructionsRoute,
+  SettingsChatbotsChatbotIdCustomizationLocalizationRoute:
+    SettingsChatbotsChatbotIdCustomizationLocalizationRoute,
+  SettingsChatbotsChatbotIdCustomizationPersonaRoute:
+    SettingsChatbotsChatbotIdCustomizationPersonaRoute,
+  SettingsChatbotsChatbotIdCustomizationStartersRoute:
+    SettingsChatbotsChatbotIdCustomizationStartersRoute,
+  SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute:
+    SettingsChatbotsChatbotIdKnowledgeCustomResponsesRoute,
+  SettingsChatbotsChatbotIdKnowledgeFilesRoute:
+    SettingsChatbotsChatbotIdKnowledgeFilesRoute,
+  SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute:
+    SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute,
+  SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute:
+    SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute,
+  SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute:
+    SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute,
 }
 
 const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
@@ -2301,14 +2857,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportAuditLogsRoute: ApiAiSupportAuditLogsRoute,
   ApiAiSupportChatbotsRoute: ApiAiSupportChatbotsRoute,
   ApiAiSupportConfigVersionsRoute: ApiAiSupportConfigVersionsRoute,
+  ApiAiSupportConversationButtonsRoute: ApiAiSupportConversationButtonsRoute,
   ApiAiSupportConversationMessagesRoute: ApiAiSupportConversationMessagesRoute,
   ApiAiSupportConversationsRoute: ApiAiSupportConversationsRoute,
   ApiAiSupportEscalationsRoute: ApiAiSupportEscalationsRoute,
   ApiAiSupportHumanSupportSettingsRoute: ApiAiSupportHumanSupportSettingsRoute,
   ApiAiSupportInstallCheckRoute: ApiAiSupportInstallCheckRoute,
+  ApiAiSupportKnowledgeGapsRoute: ApiAiSupportKnowledgeGapsRoute,
   ApiAiSupportKnowledgeSourcesRoute: ApiAiSupportKnowledgeSourcesRoute,
+  ApiAiSupportKnowledgeSyncRoute: ApiAiSupportKnowledgeSyncRoute,
+  ApiAiSupportKnowledgeUploadRoute: ApiAiSupportKnowledgeUploadRoute,
   ApiAiSupportLaunchOperationsRoute: ApiAiSupportLaunchOperationsRoute,
   ApiAiSupportLeadsRoute: ApiAiSupportLeadsRoute,
+  ApiAiSupportLocalizationRoute: ApiAiSupportLocalizationRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
   ApiAiSupportPromptPersonaRoute: ApiAiSupportPromptPersonaRoute,
   ApiAiSupportSyncJobsRoute: ApiAiSupportSyncJobsRoute,
@@ -2339,6 +2900,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminRolesPermissionsRoute: ApiAdminRolesPermissionsRoute,
   ApiAdminSettingsTestRoute: ApiAdminSettingsTestRoute,
   ApiAdminUsersCreditsRoute: ApiAdminUsersCreditsRoute,
+  ApiAgentV1KnowledgeSourcesRoute: ApiAgentV1KnowledgeSourcesRoute,
+  ApiAgentV1OperationsRoute: ApiAgentV1OperationsRoute,
   ApiAiSupportWidgetPublicKeyRoute:
     ApiAiSupportWidgetPublicKeyRouteWithChildren,
   ApiPaymentNotifyProviderRoute: ApiPaymentNotifyProviderRoute,

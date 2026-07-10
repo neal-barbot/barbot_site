@@ -714,6 +714,105 @@ export const aiKnowledgeSource = table(
   ]
 );
 
+export const aiKnowledgeChunk = table(
+  'ai_knowledge_chunk',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    sourceId: text('source_id')
+      .notNull()
+      .references(() => aiKnowledgeSource.id, { onDelete: 'cascade' }),
+    ordinal: integer('ordinal').notNull(),
+    content: text('content').notNull(),
+    checksum: text('checksum').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_knowledge_chunk_source').on(t.sourceId, t.ordinal),
+    index('idx_ai_knowledge_chunk_chatbot').on(t.chatbotId),
+  ]
+);
+
+export const aiKnowledgeSyncJob = table(
+  'ai_knowledge_sync_job',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    sourceId: text('source_id')
+      .notNull()
+      .references(() => aiKnowledgeSource.id, { onDelete: 'cascade' }),
+    enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+    intervalMinutes: integer('interval_minutes').notNull().default(1440),
+    status: text('status').notNull().default('pending'),
+    attempts: integer('attempts').notNull().default(0),
+    lastError: text('last_error'),
+    lastRunAt: integer('last_run_at', { mode: 'timestamp_ms' }),
+    nextRunAt: integer('next_run_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_knowledge_sync_source').on(t.sourceId),
+    index('idx_ai_knowledge_sync_due').on(t.enabled, t.nextRunAt),
+  ]
+);
+
+export const aiConversationTag = table(
+  'ai_conversation_tag',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => aiConversation.id, { onDelete: 'cascade' }),
+    label: text('label').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+  },
+  (t) => [index('idx_ai_conversation_tag_conversation').on(t.conversationId)]
+);
+
+export const aiKnowledgeGap = table(
+  'ai_knowledge_gap',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    conversationId: text('conversation_id').references(() => aiConversation.id),
+    question: text('question').notNull(),
+    status: text('status').notNull().default('open'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sqliteNowMs)
+      .notNull(),
+    resolvedAt: integer('resolved_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [index('idx_ai_knowledge_gap_chatbot_status').on(t.chatbotId, t.status)]
+);
+
 export const aiConversation = table(
   'ai_conversation',
   {
@@ -956,6 +1055,14 @@ export type AiChatbot = typeof aiChatbot.$inferSelect;
 export type NewAiChatbot = typeof aiChatbot.$inferInsert;
 export type AiKnowledgeSource = typeof aiKnowledgeSource.$inferSelect;
 export type NewAiKnowledgeSource = typeof aiKnowledgeSource.$inferInsert;
+export type AiKnowledgeChunk = typeof aiKnowledgeChunk.$inferSelect;
+export type NewAiKnowledgeChunk = typeof aiKnowledgeChunk.$inferInsert;
+export type AiKnowledgeSyncJob = typeof aiKnowledgeSyncJob.$inferSelect;
+export type NewAiKnowledgeSyncJob = typeof aiKnowledgeSyncJob.$inferInsert;
+export type AiConversationTag = typeof aiConversationTag.$inferSelect;
+export type NewAiConversationTag = typeof aiConversationTag.$inferInsert;
+export type AiKnowledgeGap = typeof aiKnowledgeGap.$inferSelect;
+export type NewAiKnowledgeGap = typeof aiKnowledgeGap.$inferInsert;
 export type AiConversation = typeof aiConversation.$inferSelect;
 export type NewAiConversation = typeof aiConversation.$inferInsert;
 export type AiConversationMessage = typeof aiConversationMessage.$inferSelect;
