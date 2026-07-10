@@ -33,6 +33,8 @@ import {
 import { decryptSecret, isEncryptedSecret } from '@/lib/crypto';
 import { getNonceStr, getUuid, md5 } from '@/lib/hash';
 import { buildKnowledgeReply } from './reply-policy';
+import { generateAnswerWithAgent } from './answer-agent';
+import { fetchWebsiteKnowledge } from './providers';
 
 export type AiSupportStatus = 'ready' | 'warning' | 'blocked';
 export type ChatbotStatus = 'draft' | 'active' | 'paused' | 'archived';
@@ -1439,7 +1441,7 @@ async function draftKnowledgeReply(params: {
     .split(/[^\p{L}\p{N}]+/u)
     .filter((word) => word.length > 2)
     .slice(0, 6);
-  const chunks = keywords.length
+  const chunks: Array<{ source: AiKnowledgeSource; chunk: AiKnowledgeChunk }> = keywords.length
     ? await db()
       .select({ chunk: aiKnowledgeChunk, source: aiKnowledgeSource })
       .from(aiKnowledgeChunk)
@@ -1469,18 +1471,26 @@ async function draftKnowledgeReply(params: {
     };
   }
 
-  const source = best?.source ?? fallbackSource!;
-  const excerpt = best?.chunk.content ?? source.content ?? source.sourceUrl ?? 'configured knowledge source.';
-  const content = buildKnowledgeReply({
-    title: source.title,
-    excerpt,
+  const contexts = chunks.length
+    ? chunks.map(({ source, chunk }) => ({ title: source.title, sourceUrl: source.sourceUrl, excerpt: chunk.content }))
+    : [{
+      title: fallbackSource!.title,
+      sourceUrl: fallbackSource!.sourceUrl,
+      excerpt: fallbackSource!.content ?? fallbackSource!.sourceUrl ?? 'configured knowledge source.',
+    }];
+  const content = await generateAnswerWithAgent({
+    question: params.message,
     instructions: policy.instructions,
     persona: policy.persona,
+    context: contexts,
   });
+  const citedSources = chunks.length ? chunks.map(({ source }) => source) : [fallbackSource!];
 
   return {
     content,
-    citations: [buildCitation(source)],
+    citations: citedSources
+      .filter((source, index, items) => items.findIndex((item) => item.id === source.id) === index)
+      .map((source) => buildCitation(source)),
   };
 }
 
@@ -2276,6 +2286,39 @@ export async function runKnowledgeSyncJob(params: {
 
     return syncJobView(row, job);
   });
+}
+
+export async function runConfiguredKnowledgeSync(params: {
+  userId: string;
+  sourceId: string;
+}): Promise<AiKnowledgeSyncJob> {
+  const [source] = await db().select().from(aiKnowledgeSource).where(and(
+    eq(aiKnowledgeSource.id, params.sourceId),
+    eq(aiKnowledgeSource.userId, params.userId),
+    isNull(aiKnowledgeSource.deletedAt)
+  )).limit(1);
+  if (!source) throw new Error('Knowledge source not found');
+  if (source.type !== 'website_link' || !source.sourceUrl) {
+    return runKnowledgeSyncJob(params);
+  }
+
+  try {
+    const fetched = await fetchWebsiteKnowledge({
+      url: source.sourceUrl,
+      metadata: parseJsonObject(source.metadata),
+    });
+    return runKnowledgeSyncJob({
+      userId: params.userId,
+      sourceId: params.sourceId,
+      content: fetched.content,
+    });
+  } catch (error) {
+    return runKnowledgeSyncJob({
+      userId: params.userId,
+      sourceId: params.sourceId,
+      error: error instanceof Error ? error.message : 'Knowledge provider sync failed',
+    });
+  }
 }
 
 export async function updateKnowledgeSyncJob(params: {

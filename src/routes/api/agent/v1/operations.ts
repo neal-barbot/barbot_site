@@ -3,7 +3,7 @@ import {
   authenticateAgentToken,
   getConversationWithMessages,
   recordAgentAction,
-  runKnowledgeSyncJob,
+  runConfiguredKnowledgeSync,
   updateLead,
 } from '@/modules/ai-support/service';
 import { respData, respErr } from '@/lib/resp';
@@ -28,7 +28,7 @@ async function POST({ request }: { request: Request }) {
 
     if (action === 'knowledge.sync') {
       if (typeof body.sourceId !== 'string') return respErr('sourceId is required');
-      const job = await runKnowledgeSyncJob({ userId: token.userId, sourceId: body.sourceId });
+      const job = await runConfiguredKnowledgeSync({ userId: token.userId, sourceId: body.sourceId });
       await recordAgentAction({ userId: token.userId, tokenId: token.tokenId, chatbotId, action, summary: `Synced knowledge source ${body.sourceId}` });
       return respData(job);
     }

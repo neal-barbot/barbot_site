@@ -70,6 +70,8 @@ export function getSettingGroups(): SettingGroup[] {
 
     // AI
     { name: 'openai', title: 'OpenAI', description: 'OpenAI (or compatible) API', tab: 'ai' },
+    { name: 'firecrawl', title: 'Firecrawl', description: 'Website scraping and crawl provider', tab: 'ai' },
+    { name: 'context_dev', title: 'Context.dev', description: 'Website scraping and crawl provider', tab: 'ai' },
     { name: 'anthropic', title: 'Anthropic', description: 'Anthropic Claude API', tab: 'ai' },
     { name: 'replicate', title: 'Replicate', description: 'Replicate AI API', tab: 'ai' },
     { name: 'fal', title: 'Fal', description: 'Fal AI API', tab: 'ai' },
@@ -196,6 +198,13 @@ export function getSettings(): Setting[] {
     // ─── AI / OpenAI ─────────────────────────────────────────────────
     { name: 'openai_base_url', title: 'Base URL', type: 'text', placeholder: 'https://api.openai.com/v1', group: 'openai', tab: 'ai' },
     { name: 'openai_api_key', title: 'API Key', type: 'password', placeholder: 'sk-xxx', group: 'openai', tab: 'ai' },
+    { name: 'openai_model', title: 'Model', type: 'text', placeholder: 'gpt-4.1-mini', group: 'openai', tab: 'ai' },
+
+    // ─── AI / Knowledge crawlers ────────────────────────────────────
+    { name: 'firecrawl_base_url', title: 'Firecrawl Base URL', type: 'text', placeholder: 'https://api.firecrawl.dev', group: 'firecrawl', tab: 'ai' },
+    { name: 'firecrawl_api_key', title: 'Firecrawl API Key', type: 'password', placeholder: 'fc-xxx', group: 'firecrawl', tab: 'ai' },
+    { name: 'context_dev_base_url', title: 'Context.dev Base URL', type: 'text', placeholder: 'https://api.context.dev', group: 'context_dev', tab: 'ai' },
+    { name: 'context_dev_api_key', title: 'Context.dev API Key', type: 'password', placeholder: 'ctx-xxx', group: 'context_dev', tab: 'ai' },
 
     // ─── AI / Anthropic ──────────────────────────────────────────────
     { name: 'anthropic_base_url', title: 'Base URL', type: 'text', placeholder: 'https://api.anthropic.com', group: 'anthropic', tab: 'ai' },

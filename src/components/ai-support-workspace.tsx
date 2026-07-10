@@ -66,6 +66,8 @@ export function AiSupportWorkspacePage({ chatbotId, page }: { chatbotId: string;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [url, setUrl] = useState('');
+  const [provider, setProvider] = useState('native');
+  const [crawlMode, setCrawlMode] = useState('scrape');
   const [file, setFile] = useState<File | null>(null);
   const chatbots = useQuery({ queryKey: ['ai-chatbots'], queryFn: () => apiGet<Chatbot[]>('/api/ai-support/chatbots') });
   const chatbot = chatbots.data?.find((item) => item.id === chatbotId);
@@ -76,13 +78,16 @@ export function AiSupportWorkspacePage({ chatbotId, page }: { chatbotId: string;
   const jobs = useQuery({ queryKey: ['sync-jobs', chatbotId], queryFn: () => apiGet<SyncJob[]>(`/api/ai-support/sync-jobs?chatbotId=${chatbotId}`), enabled: page === 'sync-jobs' || page === 'dashboard' });
 
   const createSource = useMutation({
-    mutationFn: () => apiPost<Source>('/api/ai-support/knowledge-sources', { chatbotId, type: sourceType, title, content, sourceUrl: url }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['knowledge-sources', chatbotId] }); setTitle(''); setContent(''); setUrl(''); toast.success('Knowledge source created'); },
+    mutationFn: () => apiPost<Source>('/api/ai-support/knowledge-sources', {
+      chatbotId, type: sourceType, title, content, sourceUrl: url,
+      metadata: page === 'website-links' ? { provider, mode: crawlMode } : {},
+    }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['knowledge-sources', chatbotId] }); setTitle(''); setContent(''); setUrl(''); setProvider('native'); setCrawlMode('scrape'); toast.success('Knowledge source created'); },
     onError: (error: Error) => toast.error(error.message),
   });
   const syncSource = useMutation({
     mutationFn: (source: Source) => source.type === 'website_link'
-      ? apiPost('/api/ai-support/knowledge-sync', { sourceId: source.id, url: source.sourceUrl })
+      ? apiPost('/api/ai-support/knowledge-sync', { sourceId: source.id })
       : apiPost('/api/ai-support/sync-jobs', { sourceId: source.id }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['knowledge-sources', chatbotId] }); queryClient.invalidateQueries({ queryKey: ['sync-jobs', chatbotId] }); toast.success('Sync completed'); },
     onError: (error: Error) => toast.error(error.message),
@@ -115,7 +120,7 @@ export function AiSupportWorkspacePage({ chatbotId, page }: { chatbotId: string;
     if (page === 'appearance') return <AppearancePanel chatbotId={chatbotId} />;
     if (page === 'human-support') return <HumanSupportPanel chatbotId={chatbotId} />;
     if (page === 'settings') return <ChatbotSettings chatbot={chatbot} />;
-    return <><Card><CardContent className="space-y-3 pt-6"><Input placeholder="Title or question" value={title} onChange={(event) => setTitle(event.target.value)} />{page === 'website-links' ? <Input placeholder="https://example.com/help" value={url} onChange={(event) => setUrl(event.target.value)} /> : <Textarea placeholder={page === 'custom-responses' ? 'Answer' : 'Reference content'} value={content} onChange={(event) => setContent(event.target.value)} />}<Button onClick={() => createSource.mutate()} disabled={!title || createSource.isPending}><Save className="size-4" />Add source</Button></CardContent></Card><Card><CardContent className="space-y-2 pt-6">{sources.data?.map((source) => <SourceRow source={source} onSync={syncSource.mutate} key={source.id} />)}</CardContent></Card></>;
+    return <><Card><CardContent className="space-y-3 pt-6"><Input placeholder="Title or question" value={title} onChange={(event) => setTitle(event.target.value)} />{page === 'website-links' ? <><Input placeholder="https://example.com/help" value={url} onChange={(event) => setUrl(event.target.value)} /><div className="grid gap-3 sm:grid-cols-2"><div><Label>Crawler</Label><select className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm" value={provider} onChange={(event) => setProvider(event.target.value)}><option value="native">Built-in fetch</option><option value="firecrawl">Firecrawl</option><option value="context_dev">Context.dev</option></select></div><div><Label>Mode</Label><select className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm" value={crawlMode} onChange={(event) => setCrawlMode(event.target.value)}><option value="scrape">Single page</option><option value="crawl">Website crawl</option></select></div></div></> : <Textarea placeholder={page === 'custom-responses' ? 'Answer' : 'Reference content'} value={content} onChange={(event) => setContent(event.target.value)} />}<Button onClick={() => createSource.mutate()} disabled={!title || createSource.isPending}><Save className="size-4" />Add source</Button></CardContent></Card><Card><CardContent className="space-y-2 pt-6">{sources.data?.map((source) => <SourceRow source={source} onSync={syncSource.mutate} key={source.id} />)}</CardContent></Card></>;
   })();
 
   return <div className="space-y-6 p-4 md:p-6"><div><h1 className="text-2xl font-semibold">{meta.title}</h1><p className="mt-1 text-sm text-muted-foreground">{meta.description}</p>{chatbot && <p className="mt-2 text-xs text-muted-foreground">{chatbot.name} · {chatbot.status}</p>}</div>{body}</div>;
