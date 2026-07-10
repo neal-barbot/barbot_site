@@ -2,9 +2,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import { getAuth } from '@/core/auth';
 import {
   listKnowledgeSyncJobs,
-  runConfiguredKnowledgeSync,
   updateKnowledgeSyncJob,
 } from '@/modules/ai-support/service';
+import { listKnowledgeSources } from '@/modules/ai-support/service';
+import { createAgentTask } from '@/modules/agent-tasks/service';
 import { respData, respErr } from '@/lib/resp';
 
 async function GET({ request }: { request: Request }) {
@@ -51,11 +52,16 @@ async function POST({ request }: { request: Request }) {
     const sourceId = typeof body.sourceId === 'string' ? body.sourceId : '';
     if (!sourceId) return respErr('Knowledge source id is required');
 
-    const row = await runConfiguredKnowledgeSync({
-      userId: session.user.id,
-      sourceId,
+    const source = (await listKnowledgeSources({ userId: session.user.id })).find((item) => item.id === sourceId);
+    if (!source) return respErr('Knowledge source not found');
+    const task = await createAgentTask({
+      userId: session.user.id, chatbotId: source.chatbotId, type: 'knowledge.sync',
+      idempotencyKey: `knowledge.sync:${sourceId}:${Date.now()}`,
+      actor: { type: 'human_session', id: session.user.id, authorizationVersion: 'session', requestId: request.headers.get('x-request-id') ?? '' },
+      inputSummary: `Knowledge sync requested for ${source.title}`,
+      metadata: { sourceId },
     });
-    return respData(row);
+    return respData({ task: task.task, queued: true });
   } catch (error: any) {
     return respErr(error.message || 'Internal error');
   }

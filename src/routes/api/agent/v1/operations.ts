@@ -2,10 +2,11 @@ import { createFileRoute } from '@tanstack/react-router';
 import {
   authenticateAgentToken,
   getConversationWithMessages,
+  listKnowledgeSources,
   recordAgentAction,
-  runConfiguredKnowledgeSync,
   updateLead,
 } from '@/modules/ai-support/service';
+import { createAgentTask } from '@/modules/agent-tasks/service';
 import { respData, respErr } from '@/lib/resp';
 
 function bearer(request: Request) {
@@ -28,9 +29,17 @@ async function POST({ request }: { request: Request }) {
 
     if (action === 'knowledge.sync') {
       if (typeof body.sourceId !== 'string') return respErr('sourceId is required');
-      const job = await runConfiguredKnowledgeSync({ userId: token.userId, sourceId: body.sourceId });
-      await recordAgentAction({ userId: token.userId, tokenId: token.tokenId, chatbotId, action, summary: `Synced knowledge source ${body.sourceId}` });
-      return respData(job);
+      const source = (await listKnowledgeSources({ userId: token.userId })).find((item) => item.id === body.sourceId);
+      if (!source) return respErr('Knowledge source not found');
+      const task = await createAgentTask({
+        userId: token.userId, chatbotId: source.chatbotId, type: 'knowledge.sync',
+        idempotencyKey: typeof body.idempotencyKey === 'string' ? body.idempotencyKey : `agent.knowledge.sync:${body.sourceId}:${Date.now()}`,
+        actor: { type: 'agent_bearer_token', id: token.tokenId, authorizationVersion: 'token', requestId: request.headers.get('x-request-id') ?? '' },
+        inputSummary: `Agent requested knowledge sync for ${source.title}`,
+        metadata: { sourceId: source.id },
+      });
+      await recordAgentAction({ userId: token.userId, tokenId: token.tokenId, chatbotId: source.chatbotId, action, summary: `Queued knowledge sync ${source.id}` });
+      return respData({ task: task.task, queued: true });
     }
     if (action === 'lead.update') {
       if (typeof body.leadId !== 'string') return respErr('leadId is required');

@@ -4,6 +4,7 @@ import {
   BarChart3,
   Bot,
   Briefcase,
+  ClipboardList,
   Code2,
   Database,
   Gauge,
@@ -67,7 +68,10 @@ function SettingsLayout() {
   ];
   const visibleNavItems = chatbotId
     ? navItems
-    : navItems.filter((item) => item.label === 'Dashboard');
+    : [
+        ...navItems.filter((item) => item.label === 'Dashboard'),
+        { href: '/settings/task-center', label: 'Task Center', icon: ClipboardList, group: workspaceGroup },
+      ];
 
   const headerExtra = <SiteGptTopNavLinks active="Chatbots" />;
 

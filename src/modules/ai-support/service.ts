@@ -2603,6 +2603,99 @@ export async function createPublicConversationMessage(
   });
 }
 
+export async function beginPublicConversationMessage(
+  input: PublicConversationMessageInput
+): Promise<{ chatbot: NonNullable<Awaited<ReturnType<typeof getPublicChatbot>>>; conversation: AiConversation; userMessage: AiConversationMessage }> {
+  const chatbot = await getPublicChatbot(input.publicKey);
+  if (!chatbot) throw new Error('Chatbot not found');
+  const message = input.message.trim();
+  if (!message) throw new Error('Message is required');
+  if (message.length > 4000) throw new Error('Message is too long');
+
+  const existingConversation = input.conversationId
+    ? await db().select().from(aiConversation).where(and(
+        eq(aiConversation.id, input.conversationId),
+        eq(aiConversation.userId, chatbot.userId),
+        eq(aiConversation.chatbotId, chatbot.id)
+      )).limit(1)
+    : [];
+  const now = new Date();
+  return db().transaction(async (tx: any) => {
+    const conversation = existingConversation[0] ?? (await tx.insert(aiConversation).values({
+      id: input.conversationId ?? getUuid(), userId: chatbot.userId, chatbotId: chatbot.id, status: 'open',
+      sourceUrl: input.sourceUrl?.trim() || null, visitorId: input.visitorId?.trim() || null,
+      contactName: input.contactName?.trim() || null, contactEmail: input.contactEmail?.trim() || null,
+      lastMessage: '', messageCount: 0, metadata: JSON.stringify(input.metadata ?? {}), createdAt: now, updatedAt: now,
+    }).returning())[0];
+    const [userMessage] = await tx.insert(aiConversationMessage).values({
+      id: getUuid(), userId: chatbot.userId, chatbotId: chatbot.id, conversationId: conversation.id,
+      role: 'user', content: message, citations: JSON.stringify([]),
+      metadata: JSON.stringify({ sourceUrl: input.sourceUrl, visitorId: input.visitorId }), createdAt: now,
+    }).returning();
+    const metadata = { ...parseJsonObject(conversation.metadata), ...(input.metadata ?? {}) };
+    const [updatedConversation] = await tx.update(aiConversation).set({
+      status: 'open', sourceUrl: input.sourceUrl?.trim() || conversation.sourceUrl,
+      visitorId: input.visitorId?.trim() || conversation.visitorId,
+      contactName: input.contactName?.trim() || conversation.contactName,
+      contactEmail: input.contactEmail?.trim() || conversation.contactEmail,
+      lastMessage: message, messageCount: Number(conversation.messageCount ?? 0) + 1,
+      metadata: JSON.stringify(metadata), updatedAt: now,
+    }).where(eq(aiConversation.id, conversation.id)).returning();
+    await writeAudit(tx, {
+      userId: chatbot.userId, actorType: 'agent', actorId: input.visitorId?.trim() || chatbot.publicKey,
+      resourceType: 'ai_conversation', resourceId: conversation.id, action: 'conversation.message_received',
+      metadata: { source: 'public_widget' },
+    });
+    return { chatbot, conversation: updatedConversation, userMessage };
+  });
+}
+
+export async function answerPublicConversationMessage(input: {
+  publicKey: string;
+  conversationId: string;
+  userMessageId: string;
+}): Promise<{ conversation: AiConversation; assistantMessage: AiConversationMessage }> {
+  const chatbot = await getPublicChatbot(input.publicKey);
+  if (!chatbot) throw new Error('Chatbot not found');
+  const [conversation] = await db().select().from(aiConversation).where(and(
+    eq(aiConversation.id, input.conversationId), eq(aiConversation.userId, chatbot.userId), eq(aiConversation.chatbotId, chatbot.id)
+  )).limit(1);
+  if (!conversation) throw new Error('Conversation not found');
+  const [userMessage] = await db().select().from(aiConversationMessage).where(and(
+    eq(aiConversationMessage.id, input.userMessageId), eq(aiConversationMessage.conversationId, conversation.id),
+    eq(aiConversationMessage.role, 'user')
+  )).limit(1);
+  if (!userMessage) throw new Error('Conversation message not found');
+  const reply = await draftKnowledgeReply({ userId: chatbot.userId, chatbotId: chatbot.id, message: userMessage.content });
+  const now = new Date();
+  return db().transaction(async (tx: any) => {
+    const [assistantMessage] = await tx.insert(aiConversationMessage).values({
+      id: getUuid(), userId: chatbot.userId, chatbotId: chatbot.id, conversationId: conversation.id,
+      role: 'assistant', content: reply.content, citations: JSON.stringify(reply.citations),
+      metadata: JSON.stringify({ mode: 'knowledge_draft' }), createdAt: now,
+    }).returning();
+    const [updatedConversation] = await tx.update(aiConversation).set({
+      status: 'open', messageCount: Number(conversation.messageCount ?? 0) + 1, updatedAt: now,
+    }).where(eq(aiConversation.id, conversation.id)).returning();
+    await writeAudit(tx, {
+      userId: chatbot.userId, actorType: 'agent', actorId: 'agent-task-worker',
+      resourceType: 'ai_conversation', resourceId: conversation.id, action: 'conversation.reply',
+      metadata: { source: 'agent_task', citationCount: reply.citations.length },
+    });
+    return { conversation: updatedConversation, assistantMessage };
+  });
+}
+
+export async function getPublicConversationMessages(input: { publicKey: string; conversationId: string }) {
+  const chatbot = await getPublicChatbot(input.publicKey);
+  if (!chatbot) throw new Error('Chatbot not found');
+  const [conversation] = await db().select({ id: aiConversation.id }).from(aiConversation).where(and(
+    eq(aiConversation.id, input.conversationId), eq(aiConversation.userId, chatbot.userId), eq(aiConversation.chatbotId, chatbot.id)
+  )).limit(1);
+  if (!conversation) throw new Error('Conversation not found');
+  return db().select().from(aiConversationMessage).where(eq(aiConversationMessage.conversationId, conversation.id)).orderBy(asc(aiConversationMessage.createdAt));
+}
+
 export async function createSupportReply(input: {
   userId: string;
   escalationId: string;

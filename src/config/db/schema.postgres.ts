@@ -808,6 +808,82 @@ export const aiAgentRun = table(
   ]
 );
 
+// ─── Agent Task Center ──────────────────────────────────────────────────────
+
+export const agentTask = table(
+  'agent_task',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: text('chatbot_id').references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    parentTaskId: text('parent_task_id'),
+    type: text('type').notNull(),
+    status: text('status').notNull().default('queued'),
+    actorType: text('actor_type').notNull(),
+    actorId: text('actor_id').notNull(),
+    authorizationVersion: text('authorization_version').notNull().default(''),
+    requestId: text('request_id').notNull().default(''),
+    idempotencyKey: text('idempotency_key').notNull(),
+    inputSummary: text('input_summary').notNull().default(''),
+    outputSummary: text('output_summary').notNull().default(''),
+    errorSummary: text('error_summary').notNull().default(''),
+    metadata: text('metadata').notNull().default('{}'),
+    attempt: integer('attempt').notNull().default(1),
+    maxAttempts: integer('max_attempts').notNull().default(5),
+    runAfter: timestamp('run_after').defaultNow().notNull(),
+    leaseOwner: text('lease_owner'),
+    leaseExpiresAt: timestamp('lease_expires_at'),
+    cancellationRequestedAt: timestamp('cancellation_requested_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    startedAt: timestamp('started_at'),
+    completedAt: timestamp('completed_at'),
+    archivedAt: timestamp('archived_at'),
+  },
+  (t) => [
+    index('idx_agent_task_user_created').on(t.userId, t.createdAt),
+    index('idx_agent_task_chatbot_status').on(t.chatbotId, t.status),
+    index('idx_agent_task_queue').on(t.status, t.runAfter),
+    index('idx_agent_task_idempotency').on(t.userId, t.idempotencyKey),
+  ]
+);
+
+export const agentTaskEvent = table(
+  'agent_task_event',
+  {
+    id: text('id').primaryKey(), taskId: text('task_id').notNull().references(() => agentTask.id, { onDelete: 'cascade' }),
+    sequence: integer('sequence').notNull(), type: text('type').notNull(), summary: text('summary').notNull(),
+    actorType: text('actor_type').notNull(), actorId: text('actor_id').notNull(),
+    requestId: text('request_id').notNull().default(''), details: text('details').notNull().default('{}'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_agent_task_event_task_sequence').on(t.taskId, t.sequence), index('idx_agent_task_event_created').on(t.createdAt)]
+);
+
+export const agentTaskArtifact = table(
+  'agent_task_artifact',
+  {
+    id: text('id').primaryKey(), taskId: text('task_id').notNull().references(() => agentTask.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(), title: text('title').notNull(), storageKey: text('storage_key'),
+    checksum: text('checksum').notNull().default(''), accessScope: text('access_scope').notNull().default('tenant'),
+    metadata: text('metadata').notNull().default('{}'), expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_agent_task_artifact_task').on(t.taskId), index('idx_agent_task_artifact_expiry').on(t.expiresAt)]
+);
+
+export const agentTaskCheckpoint = table(
+  'agent_task_checkpoint',
+  {
+    id: text('id').primaryKey(), taskId: text('task_id').notNull().references(() => agentTask.id, { onDelete: 'cascade' }),
+    status: text('status').notNull().default('waiting'), action: text('action').notNull(), summary: text('summary').notNull(),
+    requestedByType: text('requested_by_type').notNull(), requestedById: text('requested_by_id').notNull(),
+    assigneeUserId: text('assignee_user_id').references(() => user.id), decisionByUserId: text('decision_by_user_id').references(() => user.id),
+    decisionReason: text('decision_reason').notNull().default(''), expiresAt: timestamp('expires_at').notNull(),
+    decidedAt: timestamp('decided_at'), createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_agent_task_checkpoint_task').on(t.taskId), index('idx_agent_task_checkpoint_status_expiry').on(t.status, t.expiresAt), index('idx_agent_task_checkpoint_assignee').on(t.assigneeUserId, t.status)]
+);
+
 export const aiConfigVersion = table(
   'ai_config_version',
   {
@@ -874,6 +950,14 @@ export type AiAgentToken = typeof aiAgentToken.$inferSelect;
 export type NewAiAgentToken = typeof aiAgentToken.$inferInsert;
 export type AiAgentRun = typeof aiAgentRun.$inferSelect;
 export type NewAiAgentRun = typeof aiAgentRun.$inferInsert;
+export type AgentTask = typeof agentTask.$inferSelect;
+export type NewAgentTask = typeof agentTask.$inferInsert;
+export type AgentTaskEvent = typeof agentTaskEvent.$inferSelect;
+export type NewAgentTaskEvent = typeof agentTaskEvent.$inferInsert;
+export type AgentTaskArtifact = typeof agentTaskArtifact.$inferSelect;
+export type NewAgentTaskArtifact = typeof agentTaskArtifact.$inferInsert;
+export type AgentTaskCheckpoint = typeof agentTaskCheckpoint.$inferSelect;
+export type NewAgentTaskCheckpoint = typeof agentTaskCheckpoint.$inferInsert;
 export type AiConfigVersion = typeof aiConfigVersion.$inferSelect;
 export type NewAiConfigVersion = typeof aiConfigVersion.$inferInsert;
 export type AiAuditLog = typeof aiAuditLog.$inferSelect;

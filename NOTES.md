@@ -1,0 +1,22 @@
+# Product Vocabulary
+
+- **租户管理员和运营人员**：完整 Agent trace 的主读者。可查看任务计划、步骤、工具摘要、审批状态、错误与产物。
+- **客户/访客**：只查看最终答复、引用、可见进度和已批准的人工支持回复；不查看内部 trace。
+- **Task Center**：统一展示 Widget 问答、知识同步、后台运维动作、人工审批和人工回复的完整任务时间线。
+- **审批 checkpoint**：只有外部副作用或公开变更进入等待审批；检索、问答、草稿、分类、抓取、同步和计划自动执行并留痕。
+- **Trace retention**：安全摘要、状态、计划、审批和产物索引保留 180 天；原始工具输入输出、客户内容快照和抓取原文加密保留 30 天，之后删除或按合规策略归档。租户管理员默认看摘要，按权限展开原文。
+- **Widget execution budget**：同步等待 8 秒；完成则直接答复，超时转后台任务并在同一会话中轮询交付最终结果。
+- **Task Center controls**：租户管理员和运营人员只能取消排队/运行中的任务、对可重试失败任务发起新尝试、审批/拒绝 checkpoint、为 `waiting_input` 任务补充输入，以及归档已完成任务。历史事件不可修改；不得强制完成任务或直接重放已产生外部副作用的动作。
+- **Task triggers and execution**：Widget 消息、手动同步和配置变更等事件立即创建任务；定时同步与健康检查由调度器创建任务；worker 通过 lease 领取任务，避免重复执行。
+- **Checkpoint expiry**：checkpoint 等待审批超过 24 小时即进入 `expired`；不得自动执行外部或公开动作。重试必须创建新的 task attempt，且需重新审批。
+- **Retry policy**：仅网络超时、429、5xx 和 worker 中断等暂态故障可自动重试，最多 5 次，采用带抖动的 1/5/15/60/240 分钟退避；认证失败、权限不足、非法 URL/文件和策略拒绝直接标记为不可重试。
+- **Task artifacts**：`agent_task_artifact` 仅保存元数据、哈希、访问范围、保留期和 storage 对象引用；大文本、抓取快照、导出文件和原始工具 I/O 加密存储。Task Center 默认展示安全摘要，只有具备权限的租户管理员或运营人员才能按需读取原文。
+- **Internal roles**：租户管理员可查看全租户任务与受限原文，并执行全部已确认控制动作；运营人员仅可操作被分配或被授权 chatbot 的任务，可查看摘要和必要原文、取消/重试/补充输入，默认不能审批公开发布、外发或高风险动作。
+- **Widget background delivery**：同步等待 8 秒；超时后返回绑定 chatbot、conversation 和 visitor session 的短期 `taskId + pollToken`。Widget 每 2 秒轮询同一会话，最多 5 分钟；服务端先将最终答案或转人工状态写入会话再返回。token 过期、会话不匹配和跨 chatbot 访问一律拒绝。
+- **Task principals**：仅允许 `human_session`、`widget_visitor_session`、`agent_bearer_token`、`scheduler`、`worker` 五类 principal 创建或推进任务。每个事件记录 actor、tenant/chatbot scope、授权版本和关联 request ID。
+- **Task idempotency**：所有任务创建入口强制幂等。Widget 使用 `conversationId + clientMessageId`；手动/Agent 操作使用调用方提供的 `idempotencyKey`；定时任务使用 `scheduleId + dueAt`。重复请求返回原任务，不得重复执行。
+- **Checkpoint assignment and notifications**：checkpoint 默认指派给 chatbot owner；无 owner 时进入租户管理员待办。创建、重试、失败、等待审批、距过期 1 小时和完成均生成 Task Center 通知；邮件/Webhook 仅作提醒，不携带原始客户内容。
+- **Agent token controls**：`agent_bearer_token` 绑定单一 tenant 与可选 chatbot scope，必须支持 expiry、revocation 和最小 capability scopes。Agent 写操作始终创建任务并写入 trace；`publish`、`delete`、`reply.send` 等副作用 capability 仅能创建 checkpoint，不能直接执行。
+- **Task cancellation**：取消采用协作式终止：任务先标记 `cancellation_requested`，worker 在安全边界停止后续工具调用、释放 lease 并写 `cancelled`。已经提交的外部动作不自动回滚，trace 标记“已发生，未回滚”；补偿动作必须作为新任务并按规则进入 checkpoint。
+- **Model-output trace**：仅持久化最终答案、结构化摘要、引用、工具决策摘要、错误摘要和审批理由；不持久化逐 token 流或链式思维。Widget 可实时流式展示最终答案，Task Center 只保存完成后的成品与安全摘要。
+- **Task alerting**：单个 chatbot 在 10 分钟内连续 3 个 terminal failures、任一任务 lease 超过 2 分钟未续约、或 checkpoint 距过期 1 小时未处理时，创建管理员通知并触发 reminder-only webhook；告警也必须写入 Task Center 事件。

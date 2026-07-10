@@ -170,9 +170,18 @@
         contactName: name.value || userIdentity.name,
         contactEmail: email.value || userIdentity.email,
         metadata: Object.assign({ widget: 'ai-support-widget', userId: userIdentity.id }, widgetMetadata),
+        clientMessageId: 'msg_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
       })
         .then(function (result) {
           conversationId = result.conversation.id;
+          if (result.pending) {
+            setStatus('正在整理答案');
+            return pollTask(result).then(function (completed) {
+              if (!completed || !completed.assistantMessage) throw new Error('Answer is not available yet');
+              appendMessage('assistant', completed.assistantMessage.content, JSON.parse(completed.assistantMessage.citations || '[]'));
+              return result;
+            });
+          }
           appendMessage(
             'assistant',
             result.assistantMessage.content,
@@ -188,6 +197,21 @@
           setStatus(error.message);
           throw error;
         });
+    }
+
+    function pollTask(result) {
+      var deadline = Date.now() + 5 * 60 * 1000;
+      function poll() {
+        return request(
+          '/api/ai-support/widget/' + publicKey + '/tasks/' + encodeURIComponent(result.taskId) +
+          '?conversationId=' + encodeURIComponent(conversationId) + '&pollToken=' + encodeURIComponent(result.pollToken)
+        ).then(function (state) {
+          if (!state.pending) return state;
+          if (Date.now() >= deadline) throw new Error('Answer is still processing. Please try again shortly.');
+          return new Promise(function (resolve) { window.setTimeout(resolve, 2000); }).then(poll);
+        });
+      }
+      return poll();
     }
 
     function pollSupportReplies() {

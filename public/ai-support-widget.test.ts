@@ -20,4 +20,14 @@ describe('AI Support widget SDK contract', () => {
     expect(source).toContain('/support-replies');
     expect(source).toContain('pollSupportReplies');
   });
+
+  it('keeps an asynchronous answer in the originating conversation until it completes', async () => {
+    const source = await readFile(path.resolve('public/ai-support-widget.js'), 'utf8');
+
+    expect(source).toContain("setStatus('正在整理答案')");
+    expect(source).toContain('/tasks/');
+    expect(source).toContain("'?conversationId=' + encodeURIComponent(conversationId)");
+    expect(source).toContain('pollToken=');
+    expect(source).toContain('5 * 60 * 1000');
+  });
 });

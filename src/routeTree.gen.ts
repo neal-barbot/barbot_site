@@ -21,6 +21,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as SettingsWikiAssistantRouteImport } from './routes/settings/wiki-assistant'
 import { Route as SettingsTicketsRouteImport } from './routes/settings/tickets'
+import { Route as SettingsTaskCenterRouteImport } from './routes/settings/task-center'
 import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPaymentsRouteImport } from './routes/settings/payments'
 import { Route as SettingsCreditsRouteImport } from './routes/settings/credits'
@@ -74,6 +75,7 @@ import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
 import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/usage'
+import { Route as ApiAiSupportTasksRouteImport } from './routes/api/ai-support/tasks'
 import { Route as ApiAiSupportSyncJobsRouteImport } from './routes/api/ai-support/sync-jobs'
 import { Route as ApiAiSupportSupportRepliesRouteImport } from './routes/api/ai-support/support-replies'
 import { Route as ApiAiSupportPromptPersonaRouteImport } from './routes/api/ai-support/prompt-persona'
@@ -142,6 +144,7 @@ import { Route as ApiAiSupportWidgetPublicKeySupportRepliesRouteImport } from '.
 import { Route as ApiAiSupportWidgetPublicKeyMessagesRouteImport } from './routes/api/ai-support/widget/$publicKey/messages'
 import { Route as ApiAiSupportWidgetPublicKeyLeadsRouteImport } from './routes/api/ai-support/widget/$publicKey/leads'
 import { Route as ApiAiSupportWidgetPublicKeyEscalationsRouteImport } from './routes/api/ai-support/widget/$publicKey/escalations'
+import { Route as ApiAiSupportWidgetPublicKeyTasksTaskIdRouteImport } from './routes/api/ai-support/widget/$publicKey/tasks/$taskId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -200,6 +203,11 @@ const SettingsWikiAssistantRoute = SettingsWikiAssistantRouteImport.update({
 const SettingsTicketsRoute = SettingsTicketsRouteImport.update({
   id: '/tickets',
   path: '/tickets',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsTaskCenterRoute = SettingsTaskCenterRouteImport.update({
+  id: '/task-center',
+  path: '/task-center',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsProfileRoute = SettingsProfileRouteImport.update({
@@ -466,6 +474,11 @@ const ApiAiSupportWidgetAppearanceRoute =
 const ApiAiSupportUsageRoute = ApiAiSupportUsageRouteImport.update({
   id: '/api/ai-support/usage',
   path: '/api/ai-support/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiSupportTasksRoute = ApiAiSupportTasksRouteImport.update({
+  id: '/api/ai-support/tasks',
+  path: '/api/ai-support/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiSupportSyncJobsRoute = ApiAiSupportSyncJobsRouteImport.update({
@@ -851,6 +864,12 @@ const ApiAiSupportWidgetPublicKeyEscalationsRoute =
     path: '/escalations',
     getParentRoute: () => ApiAiSupportWidgetPublicKeyRoute,
   } as any)
+const ApiAiSupportWidgetPublicKeyTasksTaskIdRoute =
+  ApiAiSupportWidgetPublicKeyTasksTaskIdRouteImport.update({
+    id: '/tasks/$taskId',
+    path: '/tasks/$taskId',
+    getParentRoute: () => ApiAiSupportWidgetPublicKeyRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -888,6 +907,7 @@ export interface FileRoutesByFullPath {
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
+  '/settings/task-center': typeof SettingsTaskCenterRoute
   '/settings/tickets': typeof SettingsTicketsRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
@@ -924,6 +944,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/support-replies': typeof ApiAiSupportSupportRepliesRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
+  '/api/ai-support/tasks': typeof ApiAiSupportTasksRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -985,6 +1006,7 @@ export interface FileRoutesByFullPath {
   '/settings/chatbots/$chatbotId/knowledge/sync-jobs': typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
   '/settings/chatbots/$chatbotId/knowledge/text-snippets': typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
   '/settings/chatbots/$chatbotId/knowledge/website-links': typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
+  '/api/ai-support/widget/$publicKey/tasks/$taskId': typeof ApiAiSupportWidgetPublicKeyTasksTaskIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1020,6 +1042,7 @@ export interface FileRoutesByTo {
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
+  '/settings/task-center': typeof SettingsTaskCenterRoute
   '/settings/tickets': typeof SettingsTicketsRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin': typeof AdminIndexRoute
@@ -1056,6 +1079,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/support-replies': typeof ApiAiSupportSupportRepliesRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
+  '/api/ai-support/tasks': typeof ApiAiSupportTasksRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -1117,6 +1141,7 @@ export interface FileRoutesByTo {
   '/settings/chatbots/$chatbotId/knowledge/sync-jobs': typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
   '/settings/chatbots/$chatbotId/knowledge/text-snippets': typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
   '/settings/chatbots/$chatbotId/knowledge/website-links': typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
+  '/api/ai-support/widget/$publicKey/tasks/$taskId': typeof ApiAiSupportWidgetPublicKeyTasksTaskIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1156,6 +1181,7 @@ export interface FileRoutesById {
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
+  '/settings/task-center': typeof SettingsTaskCenterRoute
   '/settings/tickets': typeof SettingsTicketsRoute
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
@@ -1192,6 +1218,7 @@ export interface FileRoutesById {
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
   '/api/ai-support/support-replies': typeof ApiAiSupportSupportRepliesRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
+  '/api/ai-support/tasks': typeof ApiAiSupportTasksRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -1253,6 +1280,7 @@ export interface FileRoutesById {
   '/settings/chatbots/$chatbotId/knowledge/sync-jobs': typeof SettingsChatbotsChatbotIdKnowledgeSyncJobsRoute
   '/settings/chatbots/$chatbotId/knowledge/text-snippets': typeof SettingsChatbotsChatbotIdKnowledgeTextSnippetsRoute
   '/settings/chatbots/$chatbotId/knowledge/website-links': typeof SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute
+  '/api/ai-support/widget/$publicKey/tasks/$taskId': typeof ApiAiSupportWidgetPublicKeyTasksTaskIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1292,6 +1320,7 @@ export interface FileRouteTypes {
     | '/settings/credits'
     | '/settings/payments'
     | '/settings/profile'
+    | '/settings/task-center'
     | '/settings/tickets'
     | '/settings/wiki-assistant'
     | '/admin/'
@@ -1328,6 +1357,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/prompt-persona'
     | '/api/ai-support/support-replies'
     | '/api/ai-support/sync-jobs'
+    | '/api/ai-support/tasks'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
@@ -1389,6 +1419,7 @@ export interface FileRouteTypes {
     | '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
     | '/settings/chatbots/$chatbotId/knowledge/text-snippets'
     | '/settings/chatbots/$chatbotId/knowledge/website-links'
+    | '/api/ai-support/widget/$publicKey/tasks/$taskId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1424,6 +1455,7 @@ export interface FileRouteTypes {
     | '/settings/credits'
     | '/settings/payments'
     | '/settings/profile'
+    | '/settings/task-center'
     | '/settings/tickets'
     | '/settings/wiki-assistant'
     | '/admin'
@@ -1460,6 +1492,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/prompt-persona'
     | '/api/ai-support/support-replies'
     | '/api/ai-support/sync-jobs'
+    | '/api/ai-support/tasks'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
@@ -1521,6 +1554,7 @@ export interface FileRouteTypes {
     | '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
     | '/settings/chatbots/$chatbotId/knowledge/text-snippets'
     | '/settings/chatbots/$chatbotId/knowledge/website-links'
+    | '/api/ai-support/widget/$publicKey/tasks/$taskId'
   id:
     | '__root__'
     | '/'
@@ -1559,6 +1593,7 @@ export interface FileRouteTypes {
     | '/settings/credits'
     | '/settings/payments'
     | '/settings/profile'
+    | '/settings/task-center'
     | '/settings/tickets'
     | '/settings/wiki-assistant'
     | '/admin/'
@@ -1595,6 +1630,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/prompt-persona'
     | '/api/ai-support/support-replies'
     | '/api/ai-support/sync-jobs'
+    | '/api/ai-support/tasks'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
@@ -1656,6 +1692,7 @@ export interface FileRouteTypes {
     | '/settings/chatbots/$chatbotId/knowledge/sync-jobs'
     | '/settings/chatbots/$chatbotId/knowledge/text-snippets'
     | '/settings/chatbots/$chatbotId/knowledge/website-links'
+    | '/api/ai-support/widget/$publicKey/tasks/$taskId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1707,6 +1744,7 @@ export interface RootRouteChildren {
   ApiAiSupportPromptPersonaRoute: typeof ApiAiSupportPromptPersonaRoute
   ApiAiSupportSupportRepliesRoute: typeof ApiAiSupportSupportRepliesRoute
   ApiAiSupportSyncJobsRoute: typeof ApiAiSupportSyncJobsRoute
+  ApiAiSupportTasksRoute: typeof ApiAiSupportTasksRoute
   ApiAiSupportUsageRoute: typeof ApiAiSupportUsageRoute
   ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -1829,6 +1867,13 @@ declare module '@tanstack/react-router' {
       path: '/tickets'
       fullPath: '/settings/tickets'
       preLoaderRoute: typeof SettingsTicketsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/task-center': {
+      id: '/settings/task-center'
+      path: '/task-center'
+      fullPath: '/settings/task-center'
+      preLoaderRoute: typeof SettingsTaskCenterRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
     '/settings/profile': {
@@ -2200,6 +2245,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-support/usage'
       fullPath: '/api/ai-support/usage'
       preLoaderRoute: typeof ApiAiSupportUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai-support/tasks': {
+      id: '/api/ai-support/tasks'
+      path: '/api/ai-support/tasks'
+      fullPath: '/api/ai-support/tasks'
+      preLoaderRoute: typeof ApiAiSupportTasksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-support/sync-jobs': {
@@ -2678,6 +2730,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyEscalationsRouteImport
       parentRoute: typeof ApiAiSupportWidgetPublicKeyRoute
     }
+    '/api/ai-support/widget/$publicKey/tasks/$taskId': {
+      id: '/api/ai-support/widget/$publicKey/tasks/$taskId'
+      path: '/tasks/$taskId'
+      fullPath: '/api/ai-support/widget/$publicKey/tasks/$taskId'
+      preLoaderRoute: typeof ApiAiSupportWidgetPublicKeyTasksTaskIdRouteImport
+      parentRoute: typeof ApiAiSupportWidgetPublicKeyRoute
+    }
   }
 }
 
@@ -2737,6 +2796,7 @@ interface SettingsRouteRouteChildren {
   SettingsCreditsRoute: typeof SettingsCreditsRoute
   SettingsPaymentsRoute: typeof SettingsPaymentsRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
+  SettingsTaskCenterRoute: typeof SettingsTaskCenterRoute
   SettingsTicketsRoute: typeof SettingsTicketsRoute
   SettingsWikiAssistantRoute: typeof SettingsWikiAssistantRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
@@ -2768,6 +2828,7 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsCreditsRoute: SettingsCreditsRoute,
   SettingsPaymentsRoute: SettingsPaymentsRoute,
   SettingsProfileRoute: SettingsProfileRoute,
+  SettingsTaskCenterRoute: SettingsTaskCenterRoute,
   SettingsTicketsRoute: SettingsTicketsRoute,
   SettingsWikiAssistantRoute: SettingsWikiAssistantRoute,
   SettingsIndexRoute: SettingsIndexRoute,
@@ -2850,6 +2911,7 @@ interface ApiAiSupportWidgetPublicKeyRouteChildren {
   ApiAiSupportWidgetPublicKeyLeadsRoute: typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   ApiAiSupportWidgetPublicKeyMessagesRoute: typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   ApiAiSupportWidgetPublicKeySupportRepliesRoute: typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
+  ApiAiSupportWidgetPublicKeyTasksTaskIdRoute: typeof ApiAiSupportWidgetPublicKeyTasksTaskIdRoute
 }
 
 const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRouteChildren =
@@ -2862,6 +2924,8 @@ const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRoute
       ApiAiSupportWidgetPublicKeyMessagesRoute,
     ApiAiSupportWidgetPublicKeySupportRepliesRoute:
       ApiAiSupportWidgetPublicKeySupportRepliesRoute,
+    ApiAiSupportWidgetPublicKeyTasksTaskIdRoute:
+      ApiAiSupportWidgetPublicKeyTasksTaskIdRoute,
   }
 
 const ApiAiSupportWidgetPublicKeyRouteWithChildren =
@@ -2918,6 +2982,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportPromptPersonaRoute: ApiAiSupportPromptPersonaRoute,
   ApiAiSupportSupportRepliesRoute: ApiAiSupportSupportRepliesRoute,
   ApiAiSupportSyncJobsRoute: ApiAiSupportSyncJobsRoute,
+  ApiAiSupportTasksRoute: ApiAiSupportTasksRoute,
   ApiAiSupportUsageRoute: ApiAiSupportUsageRoute,
   ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

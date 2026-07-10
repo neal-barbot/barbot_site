@@ -89,7 +89,7 @@ export function AiSupportWorkspacePage({ chatbotId, page }: { chatbotId: string;
     mutationFn: (source: Source) => source.type === 'website_link'
       ? apiPost('/api/ai-support/knowledge-sync', { sourceId: source.id })
       : apiPost('/api/ai-support/sync-jobs', { sourceId: source.id }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['knowledge-sources', chatbotId] }); queryClient.invalidateQueries({ queryKey: ['sync-jobs', chatbotId] }); toast.success('Sync completed'); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['knowledge-sources', chatbotId] }); queryClient.invalidateQueries({ queryKey: ['sync-jobs', chatbotId] }); toast.success('Sync queued'); },
     onError: (error: Error) => toast.error(error.message),
   });
   const upload = useMutation({
