@@ -24,4 +24,15 @@ describe('buildKnowledgeReply', () => {
 
     expect(reply).toContain('human support');
   });
+
+  it('recognizes Chinese human-support instructions in the fallback', () => {
+    const reply = buildKnowledgeReply({
+      title: '',
+      excerpt: '',
+      instructions: '没有相关知识时，请引导用户联系人工支持。',
+      persona: 'Helpful support agent.',
+    });
+
+    expect(reply).toContain('human support');
+  });
 });

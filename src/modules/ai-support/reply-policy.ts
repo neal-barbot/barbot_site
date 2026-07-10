@@ -9,7 +9,8 @@ export function buildKnowledgeReply(input: KnowledgeReplyPolicyInput): string {
   const instructions = input.instructions.toLowerCase();
   const persona = input.persona.toLowerCase();
   if (!input.title || !input.excerpt.trim()) {
-    return instructions.includes('human support') || instructions.includes('contact')
+    return instructions.includes('human support') || instructions.includes('contact') ||
+      input.instructions.includes('人工') || input.instructions.includes('联系')
       ? 'I do not have enough approved knowledge to answer that. Please request human support so our team can help.'
       : 'I do not have enough approved knowledge to answer that yet.';
   }

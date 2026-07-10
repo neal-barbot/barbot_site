@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { getAuth } from '@/core/auth';
 import {
   listKnowledgeSyncJobs,
-  runKnowledgeSyncJob,
+  runConfiguredKnowledgeSync,
   updateKnowledgeSyncJob,
 } from '@/modules/ai-support/service';
 import { respData, respErr } from '@/lib/resp';
@@ -51,7 +51,7 @@ async function POST({ request }: { request: Request }) {
     const sourceId = typeof body.sourceId === 'string' ? body.sourceId : '';
     if (!sourceId) return respErr('Knowledge source id is required');
 
-    const row = await runKnowledgeSyncJob({
+    const row = await runConfiguredKnowledgeSync({
       userId: session.user.id,
       sourceId,
     });
