@@ -32,6 +32,7 @@ import {
 } from '@/config/db/schema';
 import { decryptSecret, isEncryptedSecret } from '@/lib/crypto';
 import { getNonceStr, getUuid, md5 } from '@/lib/hash';
+import { buildKnowledgeReply } from './reply-policy';
 
 export type AiSupportStatus = 'ready' | 'warning' | 'blocked';
 export type ChatbotStatus = 'draft' | 'active' | 'paused' | 'archived';
@@ -1389,6 +1390,10 @@ async function draftKnowledgeReply(params: {
   chatbotId: string;
   message: string;
 }): Promise<{ content: string; citations: Array<ReturnType<typeof buildCitation>> }> {
+  const policy = await getPromptPersonaSettings({
+    userId: params.userId,
+    chatbotId: params.chatbotId,
+  });
   const sources: AiKnowledgeSource[] = await db()
     .select()
     .from(aiKnowledgeSource)
@@ -1454,15 +1459,24 @@ async function draftKnowledgeReply(params: {
 
   if (!best && !fallbackSource) {
     return {
-      content:
-        "I don't have enough knowledge configured yet. Please leave your contact details or request human support.",
+      content: buildKnowledgeReply({
+        title: '',
+        excerpt: '',
+        instructions: policy.instructions,
+        persona: policy.persona,
+      }),
       citations: [],
     };
   }
 
   const source = best?.source ?? fallbackSource!;
   const excerpt = best?.chunk.content ?? source.content ?? source.sourceUrl ?? 'configured knowledge source.';
-  const content = `I found this in ${source.title}: ${excerpt.slice(0, 700)}`;
+  const content = buildKnowledgeReply({
+    title: source.title,
+    excerpt,
+    instructions: policy.instructions,
+    persona: policy.persona,
+  });
 
   return {
     content,
@@ -2544,6 +2558,61 @@ export async function createPublicConversationMessage(
       assistantMessage,
     };
   });
+}
+
+export async function createSupportReply(input: {
+  userId: string;
+  escalationId: string;
+  content: string;
+}): Promise<AiConversationMessage> {
+  const message = input.content.trim();
+  if (!message || message.length > 4000) throw new Error('Support reply must be between 1 and 4000 characters');
+  const [escalation] = await db().select().from(aiHumanEscalation).where(and(
+    eq(aiHumanEscalation.id, input.escalationId),
+    eq(aiHumanEscalation.userId, input.userId)
+  )).limit(1);
+  if (!escalation?.conversationId) throw new Error('Escalation has no conversation');
+  const [conversation] = await db().select().from(aiConversation).where(and(
+    eq(aiConversation.id, escalation.conversationId),
+    eq(aiConversation.userId, input.userId),
+    eq(aiConversation.chatbotId, escalation.chatbotId)
+  )).limit(1);
+  if (!conversation) throw new Error('Conversation not found');
+  const now = new Date();
+  return db().transaction(async (tx: any) => {
+    const [reply] = await tx.insert(aiConversationMessage).values({
+      id: getUuid(), userId: input.userId, chatbotId: escalation.chatbotId,
+      conversationId: conversation.id, role: 'support', content: message,
+      citations: JSON.stringify([]), feedback: null,
+      metadata: JSON.stringify({ escalationId: escalation.id, delivery: 'widget' }), createdAt: now,
+    }).returning();
+    await tx.update(aiHumanEscalation).set({
+      status: 'assigned', assigneeUserId: input.userId, updatedAt: now,
+    }).where(eq(aiHumanEscalation.id, escalation.id));
+    await writeAudit(tx, {
+      userId: input.userId, resourceType: 'ai_human_escalation', resourceId: escalation.id,
+      action: 'support_reply.send', metadata: { conversationId: conversation.id, delivery: 'widget' },
+    });
+    return reply;
+  });
+}
+
+export async function listPublicSupportReplies(input: {
+  publicKey: string;
+  conversationId: string;
+}): Promise<AiConversationMessage[]> {
+  const chatbot = await getPublicChatbot(input.publicKey);
+  if (!chatbot) throw new Error('Chatbot not found');
+  const [conversation] = await db().select({ id: aiConversation.id }).from(aiConversation).where(and(
+    eq(aiConversation.id, input.conversationId),
+    eq(aiConversation.userId, chatbot.userId),
+    eq(aiConversation.chatbotId, chatbot.id)
+  )).limit(1);
+  if (!conversation) throw new Error('Conversation not found');
+  return db().select().from(aiConversationMessage).where(and(
+    eq(aiConversationMessage.conversationId, conversation.id),
+    eq(aiConversationMessage.role, 'support')
+  )).orderBy(asc(aiConversationMessage.createdAt));
 }
 
 export async function createKnowledgeSource(

@@ -75,6 +75,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
 import { Route as ApiAiSupportUsageRouteImport } from './routes/api/ai-support/usage'
 import { Route as ApiAiSupportSyncJobsRouteImport } from './routes/api/ai-support/sync-jobs'
+import { Route as ApiAiSupportSupportRepliesRouteImport } from './routes/api/ai-support/support-replies'
 import { Route as ApiAiSupportPromptPersonaRouteImport } from './routes/api/ai-support/prompt-persona'
 import { Route as ApiAiSupportOverviewRouteImport } from './routes/api/ai-support/overview'
 import { Route as ApiAiSupportLocalizationRouteImport } from './routes/api/ai-support/localization'
@@ -137,6 +138,7 @@ import { Route as SettingsChatbotsChatbotIdCustomizationInstructionsRouteImport 
 import { Route as SettingsChatbotsChatbotIdCustomizationHumanSupportRouteImport } from './routes/settings/chatbots/$chatbotId/customization/human-support'
 import { Route as SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport } from './routes/settings/chatbots/$chatbotId/customization/followups'
 import { Route as SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport } from './routes/settings/chatbots/$chatbotId/customization/appearance'
+import { Route as ApiAiSupportWidgetPublicKeySupportRepliesRouteImport } from './routes/api/ai-support/widget/$publicKey/support-replies'
 import { Route as ApiAiSupportWidgetPublicKeyMessagesRouteImport } from './routes/api/ai-support/widget/$publicKey/messages'
 import { Route as ApiAiSupportWidgetPublicKeyLeadsRouteImport } from './routes/api/ai-support/widget/$publicKey/leads'
 import { Route as ApiAiSupportWidgetPublicKeyEscalationsRouteImport } from './routes/api/ai-support/widget/$publicKey/escalations'
@@ -471,6 +473,12 @@ const ApiAiSupportSyncJobsRoute = ApiAiSupportSyncJobsRouteImport.update({
   path: '/api/ai-support/sync-jobs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSupportSupportRepliesRoute =
+  ApiAiSupportSupportRepliesRouteImport.update({
+    id: '/api/ai-support/support-replies',
+    path: '/api/ai-support/support-replies',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiSupportPromptPersonaRoute =
   ApiAiSupportPromptPersonaRouteImport.update({
     id: '/api/ai-support/prompt-persona',
@@ -819,6 +827,12 @@ const SettingsChatbotsChatbotIdCustomizationAppearanceRoute =
     path: '/chatbots/$chatbotId/customization/appearance',
     getParentRoute: () => SettingsRouteRoute,
   } as any)
+const ApiAiSupportWidgetPublicKeySupportRepliesRoute =
+  ApiAiSupportWidgetPublicKeySupportRepliesRouteImport.update({
+    id: '/support-replies',
+    path: '/support-replies',
+    getParentRoute: () => ApiAiSupportWidgetPublicKeyRoute,
+  } as any)
 const ApiAiSupportWidgetPublicKeyMessagesRoute =
   ApiAiSupportWidgetPublicKeyMessagesRouteImport.update({
     id: '/messages',
@@ -908,6 +922,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/localization': typeof ApiAiSupportLocalizationRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
+  '/api/ai-support/support-replies': typeof ApiAiSupportSupportRepliesRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
@@ -957,6 +972,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1038,6 +1054,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/localization': typeof ApiAiSupportLocalizationRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
+  '/api/ai-support/support-replies': typeof ApiAiSupportSupportRepliesRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
@@ -1087,6 +1104,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1172,6 +1190,7 @@ export interface FileRoutesById {
   '/api/ai-support/localization': typeof ApiAiSupportLocalizationRoute
   '/api/ai-support/overview': typeof ApiAiSupportOverviewRoute
   '/api/ai-support/prompt-persona': typeof ApiAiSupportPromptPersonaRoute
+  '/api/ai-support/support-replies': typeof ApiAiSupportSupportRepliesRoute
   '/api/ai-support/sync-jobs': typeof ApiAiSupportSyncJobsRoute
   '/api/ai-support/usage': typeof ApiAiSupportUsageRoute
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
@@ -1221,6 +1240,7 @@ export interface FileRoutesById {
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1306,6 +1326,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/localization'
     | '/api/ai-support/overview'
     | '/api/ai-support/prompt-persona'
+    | '/api/ai-support/support-replies'
     | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
@@ -1355,6 +1376,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
+    | '/api/ai-support/widget/$publicKey/support-replies'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1436,6 +1458,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/localization'
     | '/api/ai-support/overview'
     | '/api/ai-support/prompt-persona'
+    | '/api/ai-support/support-replies'
     | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
@@ -1485,6 +1508,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
+    | '/api/ai-support/widget/$publicKey/support-replies'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1569,6 +1593,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/localization'
     | '/api/ai-support/overview'
     | '/api/ai-support/prompt-persona'
+    | '/api/ai-support/support-replies'
     | '/api/ai-support/sync-jobs'
     | '/api/ai-support/usage'
     | '/api/ai-support/widget-appearance'
@@ -1618,6 +1643,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
+    | '/api/ai-support/widget/$publicKey/support-replies'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1679,6 +1705,7 @@ export interface RootRouteChildren {
   ApiAiSupportLocalizationRoute: typeof ApiAiSupportLocalizationRoute
   ApiAiSupportOverviewRoute: typeof ApiAiSupportOverviewRoute
   ApiAiSupportPromptPersonaRoute: typeof ApiAiSupportPromptPersonaRoute
+  ApiAiSupportSupportRepliesRoute: typeof ApiAiSupportSupportRepliesRoute
   ApiAiSupportSyncJobsRoute: typeof ApiAiSupportSyncJobsRoute
   ApiAiSupportUsageRoute: typeof ApiAiSupportUsageRoute
   ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
@@ -2182,6 +2209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportSyncJobsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-support/support-replies': {
+      id: '/api/ai-support/support-replies'
+      path: '/api/ai-support/support-replies'
+      fullPath: '/api/ai-support/support-replies'
+      preLoaderRoute: typeof ApiAiSupportSupportRepliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/prompt-persona': {
       id: '/api/ai-support/prompt-persona'
       path: '/api/ai-support/prompt-persona'
@@ -2616,6 +2650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/api/ai-support/widget/$publicKey/support-replies': {
+      id: '/api/ai-support/widget/$publicKey/support-replies'
+      path: '/support-replies'
+      fullPath: '/api/ai-support/widget/$publicKey/support-replies'
+      preLoaderRoute: typeof ApiAiSupportWidgetPublicKeySupportRepliesRouteImport
+      parentRoute: typeof ApiAiSupportWidgetPublicKeyRoute
+    }
     '/api/ai-support/widget/$publicKey/messages': {
       id: '/api/ai-support/widget/$publicKey/messages'
       path: '/messages'
@@ -2808,6 +2849,7 @@ interface ApiAiSupportWidgetPublicKeyRouteChildren {
   ApiAiSupportWidgetPublicKeyEscalationsRoute: typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   ApiAiSupportWidgetPublicKeyLeadsRoute: typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   ApiAiSupportWidgetPublicKeyMessagesRoute: typeof ApiAiSupportWidgetPublicKeyMessagesRoute
+  ApiAiSupportWidgetPublicKeySupportRepliesRoute: typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
 }
 
 const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRouteChildren =
@@ -2818,6 +2860,8 @@ const ApiAiSupportWidgetPublicKeyRouteChildren: ApiAiSupportWidgetPublicKeyRoute
       ApiAiSupportWidgetPublicKeyLeadsRoute,
     ApiAiSupportWidgetPublicKeyMessagesRoute:
       ApiAiSupportWidgetPublicKeyMessagesRoute,
+    ApiAiSupportWidgetPublicKeySupportRepliesRoute:
+      ApiAiSupportWidgetPublicKeySupportRepliesRoute,
   }
 
 const ApiAiSupportWidgetPublicKeyRouteWithChildren =
@@ -2872,6 +2916,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportLocalizationRoute: ApiAiSupportLocalizationRoute,
   ApiAiSupportOverviewRoute: ApiAiSupportOverviewRoute,
   ApiAiSupportPromptPersonaRoute: ApiAiSupportPromptPersonaRoute,
+  ApiAiSupportSupportRepliesRoute: ApiAiSupportSupportRepliesRoute,
   ApiAiSupportSyncJobsRoute: ApiAiSupportSyncJobsRoute,
   ApiAiSupportUsageRoute: ApiAiSupportUsageRoute,
   ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,

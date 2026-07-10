@@ -10,6 +10,9 @@
   if (document.getElementById(rootId)) return;
   var conversationId = '';
   var leadSubmitted = false;
+  var userIdentity = {};
+  var widgetMetadata = {};
+  var receivedSupportReplyIds = {};
   var visitorId = localStorage.getItem('ai-support-visitor-id');
   if (!visitorId) {
     visitorId = 'visitor_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -111,7 +114,7 @@
         name: name.value,
         email: email.value,
         sourceUrl: window.location.href,
-        metadata: { widget: 'ai-support-widget', visitorId: visitorId },
+        metadata: Object.assign({ widget: 'ai-support-widget', visitorId: visitorId }, widgetMetadata),
       };
     }
 
@@ -138,6 +141,70 @@
       });
     }
 
+    function identifyUser(user) {
+      if (!user || typeof user !== 'object') return;
+      userIdentity = Object.assign({}, userIdentity, user);
+      if (typeof user.name === 'string') name.value = user.name;
+      if (typeof user.email === 'string') email.value = user.email;
+    }
+
+    function setMetadata(metadata) {
+      if (!metadata || typeof metadata !== 'object') return;
+      widgetMetadata = Object.assign({}, widgetMetadata, metadata);
+    }
+
+    function sendMessage(text) {
+      var messageText = typeof text === 'string' ? text.trim() : '';
+      if (!messageText) {
+        setStatus('Write a message first.');
+        return Promise.reject(new Error('Message is required'));
+      }
+      appendMessage('user', messageText);
+      message.value = '';
+      setStatus('Thinking...');
+      return request('/api/ai-support/widget/' + publicKey + '/messages', {
+        conversationId: conversationId || undefined,
+        message: messageText,
+        visitorId: visitorId,
+        sourceUrl: window.location.href,
+        contactName: name.value || userIdentity.name,
+        contactEmail: email.value || userIdentity.email,
+        metadata: Object.assign({ widget: 'ai-support-widget', userId: userIdentity.id }, widgetMetadata),
+      })
+        .then(function (result) {
+          conversationId = result.conversation.id;
+          appendMessage(
+            'assistant',
+            result.assistantMessage.content,
+            JSON.parse(result.assistantMessage.citations || '[]')
+          );
+          return submitLeadIfUseful().then(function () { return result; });
+        })
+        .then(function (result) {
+          setStatus('Conversation saved.');
+          return result;
+        })
+        .catch(function (error) {
+          setStatus(error.message);
+          throw error;
+        });
+    }
+
+    function pollSupportReplies() {
+      if (!conversationId) return Promise.resolve();
+      return request(
+        '/api/ai-support/widget/' + publicKey + '/support-replies?conversationId=' + encodeURIComponent(conversationId)
+      )
+        .then(function (replies) {
+          (replies || []).forEach(function (reply) {
+            if (receivedSupportReplyIds[reply.id]) return;
+            receivedSupportReplyIds[reply.id] = true;
+            appendMessage('assistant', reply.content, []);
+          });
+        })
+        .catch(function () {});
+    }
+
     panel.appendChild(el('div', { className: 'ai-support-header' }, [
       el('p', { className: 'ai-support-title', text: displayName }),
       el('p', {
@@ -156,38 +223,7 @@
           type: 'button',
           text: 'Send',
           onClick: function () {
-            var text = message.value.trim();
-            if (!text) {
-              setStatus('Write a message first.');
-              return;
-            }
-            appendMessage('user', text);
-            message.value = '';
-            setStatus('Thinking...');
-            request('/api/ai-support/widget/' + publicKey + '/messages', {
-              conversationId: conversationId || undefined,
-              message: text,
-              visitorId: visitorId,
-              sourceUrl: window.location.href,
-              contactName: name.value,
-              contactEmail: email.value,
-              metadata: { widget: 'ai-support-widget' },
-            })
-              .then(function (result) {
-                conversationId = result.conversation.id;
-                appendMessage(
-                  'assistant',
-                  result.assistantMessage.content,
-                  JSON.parse(result.assistantMessage.citations || '[]')
-                );
-                return submitLeadIfUseful();
-              })
-              .then(function () {
-                setStatus('Conversation saved.');
-              })
-              .catch(function (error) {
-                setStatus(error.message);
-              });
+            sendMessage(message.value).catch(function () {});
           },
         }),
         humanSupportEnabled ? el('button', {
@@ -231,6 +267,42 @@
     root.appendChild(panel);
     root.appendChild(button);
     document.body.appendChild(root);
+
+    var instance = {
+      open: function () { panel.hidden = false; },
+      close: function () { panel.hidden = true; },
+      sendMessage: function (text) { return sendMessage(text); },
+      identifyUser: function (user) { identifyUser(user); },
+      setMetadata: function (metadata) { setMetadata(metadata); },
+    };
+    var sdk = window.$sitegpt || {
+      instances: {},
+      activePublicKey: '',
+      open: function (key) {
+        var target = this.instances[key || this.activePublicKey];
+        if (target) target.open();
+      },
+      close: function (key) {
+        var target = this.instances[key || this.activePublicKey];
+        if (target) target.close();
+      },
+      sendMessage: function (text, key) {
+        var target = this.instances[key || this.activePublicKey];
+        return target ? target.sendMessage(text) : Promise.reject(new Error('SiteGPT widget is not initialized'));
+      },
+      identifyUser: function (user, key) {
+        var target = this.instances[key || this.activePublicKey];
+        if (target) target.identifyUser(user);
+      },
+      setMetadata: function (metadata, key) {
+        var target = this.instances[key || this.activePublicKey];
+        if (target) target.setMetadata(metadata);
+      },
+    };
+    sdk.instances[publicKey] = instance;
+    sdk.activePublicKey = publicKey;
+    window.$sitegpt = sdk;
+    window.setInterval(pollSupportReplies, 20000);
   }
 
   request('/api/ai-support/widget/' + publicKey)
