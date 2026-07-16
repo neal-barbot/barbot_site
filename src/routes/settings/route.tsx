@@ -72,11 +72,12 @@ function SettingsLayout() {
   const isFaeArea =
     !!chatbotId ||
     /^\/settings\/(ai-support|chat($|\/)|task-center|wiki-assistant)/.test(pathname);
-  const isChipArea = /^\/settings\/compare-history/.test(pathname);
+  const isChipArea = /^\/settings\/(compare-history|chip-chat)/.test(pathname);
 
   const chipNavItems = [
     { href: "/settings", label: m["console.nav.hub"](), icon: Home, group: undefined },
     { href: "/settings/compare-history", label: m["settings.nav.compare_history"](), icon: History, group: m["console.nav.chip_group"]() },
+    { href: "/settings/chip-chat", label: m["chat.nav"](), icon: MessageSquare, group: m["console.nav.chip_group"]() },
     { href: "/compare", label: m["console.nav.new_compare"](), icon: BarChart3, group: m["console.nav.chip_group"]() },
     { href: "/chips", label: m["console.nav.chip_catalog"](), icon: Database, group: m["console.nav.chip_group"]() },
   ];

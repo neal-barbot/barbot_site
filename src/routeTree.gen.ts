@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as IndustryRouteImport } from './routes/industry'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
@@ -28,6 +29,7 @@ import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPaymentsRouteImport } from './routes/settings/payments'
 import { Route as SettingsCreditsRouteImport } from './routes/settings/credits'
 import { Route as SettingsCompareHistoryRouteImport } from './routes/settings/compare-history'
+import { Route as SettingsChipChatRouteImport } from './routes/settings/chip-chat'
 import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsBillingRouteImport } from './routes/settings/billing'
 import { Route as SettingsApikeysRouteImport } from './routes/settings/apikeys'
@@ -127,6 +129,7 @@ import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categ
 import { Route as SettingsChatbotsChatbotIdIndexRouteImport } from './routes/settings/chatbots/$chatbotId/index'
 import { Route as ApiUserSubscriptionsIndexRouteImport } from './routes/api/user/subscriptions/index'
 import { Route as ApiChipCompareRecordsIndexRouteImport } from './routes/api/chip-compare/records/index'
+import { Route as ApiChipCompareChatsIndexRouteImport } from './routes/api/chip-compare/chats/index'
 import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
 import { Route as ApiAdminRolesIndexRouteImport } from './routes/api/admin/roles/index'
 import { Route as ApiAdminChipsIndexRouteImport } from './routes/api/admin/chips/index'
@@ -139,6 +142,7 @@ import { Route as ApiUserSubscriptionsCurrentRouteImport } from './routes/api/us
 import { Route as ApiUserSubscriptionsCancelRouteImport } from './routes/api/user/subscriptions/cancel'
 import { Route as ApiPaymentNotifyProviderRouteImport } from './routes/api/payment/notify/$provider'
 import { Route as ApiChipCompareRecordsIdRouteImport } from './routes/api/chip-compare/records/$id'
+import { Route as ApiChipCompareChatsIdRouteImport } from './routes/api/chip-compare/chats/$id'
 import { Route as ApiAiSupportWidgetPublicKeyRouteImport } from './routes/api/ai-support/widget/$publicKey'
 import { Route as ApiAgentV1OperationsRouteImport } from './routes/api/agent/v1/operations'
 import { Route as ApiAgentV1KnowledgeSourcesRouteImport } from './routes/api/agent/v1/knowledge-sources'
@@ -187,6 +191,11 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndustryRoute = IndustryRouteImport.update({
+  id: '/industry',
+  path: '/industry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRouteRoute = SettingsRouteRouteImport.update({
@@ -266,6 +275,11 @@ const SettingsCreditsRoute = SettingsCreditsRouteImport.update({
 const SettingsCompareHistoryRoute = SettingsCompareHistoryRouteImport.update({
   id: '/compare-history',
   path: '/compare-history',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsChipChatRoute = SettingsChipChatRouteImport.update({
+  id: '/chip-chat',
+  path: '/chip-chat',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsChatRoute = SettingsChatRouteImport.update({
@@ -782,6 +796,12 @@ const ApiChipCompareRecordsIndexRoute =
     path: '/api/chip-compare/records/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiChipCompareChatsIndexRoute =
+  ApiChipCompareChatsIndexRouteImport.update({
+    id: '/api/chip-compare/chats/',
+    path: '/api/chip-compare/chats/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
   id: '/api/admin/users/',
   path: '/api/admin/users/',
@@ -848,6 +868,11 @@ const ApiPaymentNotifyProviderRoute =
 const ApiChipCompareRecordsIdRoute = ApiChipCompareRecordsIdRouteImport.update({
   id: '/api/chip-compare/records/$id',
   path: '/api/chip-compare/records/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareChatsIdRoute = ApiChipCompareChatsIdRouteImport.update({
+  id: '/api/chip-compare/chats/$id',
+  path: '/api/chip-compare/chats/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiSupportWidgetPublicKeyRoute =
@@ -1051,6 +1076,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/settings': typeof SettingsRouteRouteWithChildren
+  '/industry': typeof IndustryRoute
   '/pricing': typeof PricingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1086,6 +1112,7 @@ export interface FileRoutesByFullPath {
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
+  '/settings/chip-chat': typeof SettingsChipChatRoute
   '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
@@ -1175,6 +1202,7 @@ export interface FileRoutesByFullPath {
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
@@ -1187,6 +1215,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/chips/': typeof ApiAdminChipsIndexRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
+  '/api/chip-compare/chats/': typeof ApiChipCompareChatsIndexRoute
   '/api/chip-compare/records/': typeof ApiChipCompareRecordsIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
   '/settings/chatbots/$chatbotId/': typeof SettingsChatbotsChatbotIdIndexRoute
@@ -1214,6 +1243,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/industry': typeof IndustryRoute
   '/pricing': typeof PricingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1249,6 +1279,7 @@ export interface FileRoutesByTo {
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
+  '/settings/chip-chat': typeof SettingsChipChatRoute
   '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
@@ -1338,6 +1369,7 @@ export interface FileRoutesByTo {
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
@@ -1350,6 +1382,7 @@ export interface FileRoutesByTo {
   '/api/admin/chips': typeof ApiAdminChipsIndexRoute
   '/api/admin/roles': typeof ApiAdminRolesIndexRoute
   '/api/admin/users': typeof ApiAdminUsersIndexRoute
+  '/api/chip-compare/chats': typeof ApiChipCompareChatsIndexRoute
   '/api/chip-compare/records': typeof ApiChipCompareRecordsIndexRoute
   '/api/user/subscriptions': typeof ApiUserSubscriptionsIndexRoute
   '/settings/chatbots/$chatbotId': typeof SettingsChatbotsChatbotIdIndexRoute
@@ -1381,6 +1414,7 @@ export interface FileRoutesById {
   '/(pages)': typeof pagesRouteRouteWithChildren
   '/admin': typeof AdminRouteRouteWithChildren
   '/settings': typeof SettingsRouteRouteWithChildren
+  '/industry': typeof IndustryRoute
   '/pricing': typeof PricingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1416,6 +1450,7 @@ export interface FileRoutesById {
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
+  '/settings/chip-chat': typeof SettingsChipChatRoute
   '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
   '/settings/payments': typeof SettingsPaymentsRoute
@@ -1505,6 +1540,7 @@ export interface FileRoutesById {
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
@@ -1517,6 +1553,7 @@ export interface FileRoutesById {
   '/api/admin/chips/': typeof ApiAdminChipsIndexRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
+  '/api/chip-compare/chats/': typeof ApiChipCompareChatsIndexRoute
   '/api/chip-compare/records/': typeof ApiChipCompareRecordsIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
   '/settings/chatbots/$chatbotId/': typeof SettingsChatbotsChatbotIdIndexRoute
@@ -1548,6 +1585,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/settings'
+    | '/industry'
     | '/pricing'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -1583,6 +1621,7 @@ export interface FileRouteTypes {
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
+    | '/settings/chip-chat'
     | '/settings/compare-history'
     | '/settings/credits'
     | '/settings/payments'
@@ -1672,6 +1711,7 @@ export interface FileRouteTypes {
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
@@ -1684,6 +1724,7 @@ export interface FileRouteTypes {
     | '/api/admin/chips/'
     | '/api/admin/roles/'
     | '/api/admin/users/'
+    | '/api/chip-compare/chats/'
     | '/api/chip-compare/records/'
     | '/api/user/subscriptions/'
     | '/settings/chatbots/$chatbotId/'
@@ -1711,6 +1752,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/industry'
     | '/pricing'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -1746,6 +1788,7 @@ export interface FileRouteTypes {
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
+    | '/settings/chip-chat'
     | '/settings/compare-history'
     | '/settings/credits'
     | '/settings/payments'
@@ -1835,6 +1878,7 @@ export interface FileRouteTypes {
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
@@ -1847,6 +1891,7 @@ export interface FileRouteTypes {
     | '/api/admin/chips'
     | '/api/admin/roles'
     | '/api/admin/users'
+    | '/api/chip-compare/chats'
     | '/api/chip-compare/records'
     | '/api/user/subscriptions'
     | '/settings/chatbots/$chatbotId'
@@ -1877,6 +1922,7 @@ export interface FileRouteTypes {
     | '/(pages)'
     | '/admin'
     | '/settings'
+    | '/industry'
     | '/pricing'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -1912,6 +1958,7 @@ export interface FileRouteTypes {
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
+    | '/settings/chip-chat'
     | '/settings/compare-history'
     | '/settings/credits'
     | '/settings/payments'
@@ -2001,6 +2048,7 @@ export interface FileRouteTypes {
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
@@ -2013,6 +2061,7 @@ export interface FileRouteTypes {
     | '/api/admin/chips/'
     | '/api/admin/roles/'
     | '/api/admin/users/'
+    | '/api/chip-compare/chats/'
     | '/api/chip-compare/records/'
     | '/api/user/subscriptions/'
     | '/settings/chatbots/$chatbotId/'
@@ -2044,6 +2093,7 @@ export interface RootRouteChildren {
   pagesRouteRoute: typeof pagesRouteRouteWithChildren
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
+  IndustryRoute: typeof IndustryRoute
   PricingRoute: typeof PricingRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -2135,6 +2185,7 @@ export interface RootRouteChildren {
   ApiAgentV1KnowledgeSourcesRoute: typeof ApiAgentV1KnowledgeSourcesRoute
   ApiAgentV1OperationsRoute: typeof ApiAgentV1OperationsRoute
   ApiAiSupportWidgetPublicKeyRoute: typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  ApiChipCompareChatsIdRoute: typeof ApiChipCompareChatsIdRoute
   ApiChipCompareRecordsIdRoute: typeof ApiChipCompareRecordsIdRouteWithChildren
   ApiPaymentNotifyProviderRoute: typeof ApiPaymentNotifyProviderRoute
   ApiUserSubscriptionsCancelRoute: typeof ApiUserSubscriptionsCancelRoute
@@ -2142,6 +2193,7 @@ export interface RootRouteChildren {
   ApiAdminChipsIndexRoute: typeof ApiAdminChipsIndexRoute
   ApiAdminRolesIndexRoute: typeof ApiAdminRolesIndexRoute
   ApiAdminUsersIndexRoute: typeof ApiAdminUsersIndexRoute
+  ApiChipCompareChatsIndexRoute: typeof ApiChipCompareChatsIndexRoute
   ApiChipCompareRecordsIndexRoute: typeof ApiChipCompareRecordsIndexRoute
   ApiUserSubscriptionsIndexRoute: typeof ApiUserSubscriptionsIndexRoute
   ApiChipCompareTracesIdNoteRoute: typeof ApiChipCompareTracesIdNoteRoute
@@ -2168,6 +2220,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/industry': {
+      id: '/industry'
+      path: '/industry'
+      fullPath: '/industry'
+      preLoaderRoute: typeof IndustryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -2280,6 +2339,13 @@ declare module '@tanstack/react-router' {
       path: '/compare-history'
       fullPath: '/settings/compare-history'
       preLoaderRoute: typeof SettingsCompareHistoryRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chip-chat': {
+      id: '/settings/chip-chat'
+      path: '/chip-chat'
+      fullPath: '/settings/chip-chat'
+      preLoaderRoute: typeof SettingsChipChatRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
     '/settings/chat': {
@@ -2975,6 +3041,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChipCompareRecordsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chip-compare/chats/': {
+      id: '/api/chip-compare/chats/'
+      path: '/api/chip-compare/chats'
+      fullPath: '/api/chip-compare/chats/'
+      preLoaderRoute: typeof ApiChipCompareChatsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/users/': {
       id: '/api/admin/users/'
       path: '/api/admin/users'
@@ -3057,6 +3130,13 @@ declare module '@tanstack/react-router' {
       path: '/api/chip-compare/records/$id'
       fullPath: '/api/chip-compare/records/$id'
       preLoaderRoute: typeof ApiChipCompareRecordsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/chats/$id': {
+      id: '/api/chip-compare/chats/$id'
+      path: '/api/chip-compare/chats/$id'
+      fullPath: '/api/chip-compare/chats/$id'
+      preLoaderRoute: typeof ApiChipCompareChatsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-support/widget/$publicKey': {
@@ -3359,6 +3439,7 @@ interface SettingsRouteRouteChildren {
   SettingsApikeysRoute: typeof SettingsApikeysRoute
   SettingsBillingRoute: typeof SettingsBillingRoute
   SettingsChatRoute: typeof SettingsChatRoute
+  SettingsChipChatRoute: typeof SettingsChipChatRoute
   SettingsCompareHistoryRoute: typeof SettingsCompareHistoryRoute
   SettingsCreditsRoute: typeof SettingsCreditsRoute
   SettingsPaymentsRoute: typeof SettingsPaymentsRoute
@@ -3393,6 +3474,7 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsApikeysRoute: SettingsApikeysRoute,
   SettingsBillingRoute: SettingsBillingRoute,
   SettingsChatRoute: SettingsChatRoute,
+  SettingsChipChatRoute: SettingsChipChatRoute,
   SettingsCompareHistoryRoute: SettingsCompareHistoryRoute,
   SettingsCreditsRoute: SettingsCreditsRoute,
   SettingsPaymentsRoute: SettingsPaymentsRoute,
@@ -3526,6 +3608,7 @@ const rootRouteChildren: RootRouteChildren = {
   pagesRouteRoute: pagesRouteRouteWithChildren,
   AdminRouteRoute: AdminRouteRouteWithChildren,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
+  IndustryRoute: IndustryRoute,
   PricingRoute: PricingRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -3618,6 +3701,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAgentV1OperationsRoute: ApiAgentV1OperationsRoute,
   ApiAiSupportWidgetPublicKeyRoute:
     ApiAiSupportWidgetPublicKeyRouteWithChildren,
+  ApiChipCompareChatsIdRoute: ApiChipCompareChatsIdRoute,
   ApiChipCompareRecordsIdRoute: ApiChipCompareRecordsIdRouteWithChildren,
   ApiPaymentNotifyProviderRoute: ApiPaymentNotifyProviderRoute,
   ApiUserSubscriptionsCancelRoute: ApiUserSubscriptionsCancelRoute,
@@ -3625,6 +3709,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminChipsIndexRoute: ApiAdminChipsIndexRoute,
   ApiAdminRolesIndexRoute: ApiAdminRolesIndexRoute,
   ApiAdminUsersIndexRoute: ApiAdminUsersIndexRoute,
+  ApiChipCompareChatsIndexRoute: ApiChipCompareChatsIndexRoute,
   ApiChipCompareRecordsIndexRoute: ApiChipCompareRecordsIndexRoute,
   ApiUserSubscriptionsIndexRoute: ApiUserSubscriptionsIndexRoute,
   ApiChipCompareTracesIdNoteRoute: ApiChipCompareTracesIdNoteRoute,
