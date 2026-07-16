@@ -36,7 +36,6 @@ export function Footer() {
       title: m["landing.footer.resources"](),
       links: [
         { label: m["landing.footer.blog"](), href: "/blog" },
-        { label: m["landing.footer.industry"](), href: "/industry" },
         { label: m["landing.footer.github"](), href: "https://github.com", external: true },
       ],
     },

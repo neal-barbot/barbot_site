@@ -48,8 +48,15 @@ if (!DS_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 // Route the Claude Agent SDK to DeepSeek's Anthropic-compatible endpoint.
 // ANTHROPIC_API_KEY outranks any locally stored credential/profile, so set it
 // explicitly in the child env (DeepSeek accepts x-api-key auth).
+// Isolated HOME/config dir: the spawned CLI must never read the machine's
+// logged-in Anthropic credentials (~/.claude keychain/profile).
+const isolatedHome = path.join(process.cwd(), '.agent-home');
+fs.mkdirSync(isolatedHome, { recursive: true });
+
 const agentEnv = {
   ...process.env,
+  HOME: isolatedHome,
+  CLAUDE_CONFIG_DIR: path.join(isolatedHome, '.claude'),
   ANTHROPIC_BASE_URL: 'https://api.deepseek.com/anthropic',
   ANTHROPIC_API_KEY: DS_KEY,
   ANTHROPIC_MODEL: MODEL,

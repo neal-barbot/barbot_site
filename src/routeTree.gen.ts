@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as IndustryRouteImport } from './routes/industry'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
@@ -191,11 +190,6 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndustryRoute = IndustryRouteImport.update({
-  id: '/industry',
-  path: '/industry',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRouteRoute = SettingsRouteRouteImport.update({
@@ -1076,7 +1070,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
   '/settings': typeof SettingsRouteRouteWithChildren
-  '/industry': typeof IndustryRoute
   '/pricing': typeof PricingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1243,7 +1236,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/industry': typeof IndustryRoute
   '/pricing': typeof PricingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1414,7 +1406,6 @@ export interface FileRoutesById {
   '/(pages)': typeof pagesRouteRouteWithChildren
   '/admin': typeof AdminRouteRouteWithChildren
   '/settings': typeof SettingsRouteRouteWithChildren
-  '/industry': typeof IndustryRoute
   '/pricing': typeof PricingRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1585,7 +1576,6 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/settings'
-    | '/industry'
     | '/pricing'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -1752,7 +1742,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/industry'
     | '/pricing'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -1922,7 +1911,6 @@ export interface FileRouteTypes {
     | '/(pages)'
     | '/admin'
     | '/settings'
-    | '/industry'
     | '/pricing'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -2093,7 +2081,6 @@ export interface RootRouteChildren {
   pagesRouteRoute: typeof pagesRouteRouteWithChildren
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
-  IndustryRoute: typeof IndustryRoute
   PricingRoute: typeof PricingRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -2220,13 +2207,6 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/industry': {
-      id: '/industry'
-      path: '/industry'
-      fullPath: '/industry'
-      preLoaderRoute: typeof IndustryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -3608,7 +3588,6 @@ const rootRouteChildren: RootRouteChildren = {
   pagesRouteRoute: pagesRouteRouteWithChildren,
   AdminRouteRoute: AdminRouteRouteWithChildren,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
-  IndustryRoute: IndustryRoute,
   PricingRoute: PricingRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
