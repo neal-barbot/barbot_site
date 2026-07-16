@@ -25,6 +25,8 @@ import { cn } from '@/lib/utils';
 import { apiFormData, apiGet, type PageResult } from '@/lib/api-client';
 import { useCompareStream } from './-use-compare-stream';
 import { TraceTable, type TraceRow } from './-trace-table';
+import { ParamMatrix } from './-param-matrix';
+import { ChipChat } from './-chip-chat';
 
 const LANGUAGES = [
   ['en', 'English'],
@@ -67,7 +69,7 @@ function ComparePage() {
   const [catalogSearch, setCatalogSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [resultTab, setResultTab] = useState<'report' | 'traces'>('report');
+  const [resultTab, setResultTab] = useState<'report' | 'matrix' | 'traces'>('report');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { state, run, cancel } = useCompareStream();
@@ -353,7 +355,7 @@ function ComparePage() {
             <Card className="min-h-[480px]">
               <CardHeader className="flex-row items-center justify-between space-y-0">
                 <div className="flex gap-1 rounded-lg border border-border p-0.5">
-                  {(['report', 'traces'] as const).map((tab) => (
+                  {(['report', 'matrix', 'traces'] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setResultTab(tab)}
@@ -366,7 +368,9 @@ function ComparePage() {
                     >
                       {tab === 'report'
                         ? m['compare.report.tab_report']()
-                        : m['compare.report.tab_traces']()}
+                        : tab === 'matrix'
+                          ? m['compare.matrix.tab']()
+                          : m['compare.report.tab_traces']()}
                     </button>
                   ))}
                 </div>
@@ -410,6 +414,8 @@ function ComparePage() {
                       </p>
                     ) : null}
                   </div>
+                ) : resultTab === 'matrix' ? (
+                  <ParamMatrix traces={tracesQuery.data ?? []} />
                 ) : (
                   <TraceTable traces={tracesQuery.data ?? []} editable={false} />
                 )}
@@ -419,6 +425,7 @@ function ComparePage() {
         </div>
       </main>
       <Footer />
+      <ChipChat recordId={state.recordId} />
     </div>
   );
 }

@@ -83,6 +83,7 @@ import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
 import { Route as ApiChipsIdRouteImport } from './routes/api/chips/$id'
 import { Route as ApiChipCompareUploadRouteImport } from './routes/api/chip-compare/upload'
 import { Route as ApiChipCompareCostRouteImport } from './routes/api/chip-compare/cost'
+import { Route as ApiChipCompareChatRouteImport } from './routes/api/chip-compare/chat'
 import { Route as ApiChipCompareAnalyzeRouteImport } from './routes/api/chip-compare/analyze'
 import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -163,6 +164,7 @@ import { Route as SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport } f
 import { Route as SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport } from './routes/settings/chatbots/$chatbotId/customization/appearance'
 import { Route as ApiChipCompareTracesIdNoteRouteImport } from './routes/api/chip-compare/traces/$id/note'
 import { Route as ApiChipCompareRecordsIdTracesRouteImport } from './routes/api/chip-compare/records/$id/traces'
+import { Route as ApiChipCompareRecordsIdPublishRouteImport } from './routes/api/chip-compare/records/$id/publish'
 import { Route as ApiChipCompareRecordsIdExportRouteImport } from './routes/api/chip-compare/records/$id/export'
 import { Route as ApiAiSupportWidgetPublicKeySupportRepliesRouteImport } from './routes/api/ai-support/widget/$publicKey/support-replies'
 import { Route as ApiAiSupportWidgetPublicKeyMessagesRouteImport } from './routes/api/ai-support/widget/$publicKey/messages'
@@ -538,6 +540,11 @@ const ApiChipCompareUploadRoute = ApiChipCompareUploadRouteImport.update({
 const ApiChipCompareCostRoute = ApiChipCompareCostRouteImport.update({
   id: '/api/chip-compare/cost',
   path: '/api/chip-compare/cost',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareChatRoute = ApiChipCompareChatRouteImport.update({
+  id: '/api/chip-compare/chat',
+  path: '/api/chip-compare/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChipCompareAnalyzeRoute = ApiChipCompareAnalyzeRouteImport.update({
@@ -985,6 +992,12 @@ const ApiChipCompareRecordsIdTracesRoute =
     path: '/traces',
     getParentRoute: () => ApiChipCompareRecordsIdRoute,
   } as any)
+const ApiChipCompareRecordsIdPublishRoute =
+  ApiChipCompareRecordsIdPublishRouteImport.update({
+    id: '/publish',
+    path: '/publish',
+    getParentRoute: () => ApiChipCompareRecordsIdRoute,
+  } as any)
 const ApiChipCompareRecordsIdExportRoute =
   ApiChipCompareRecordsIdExportRouteImport.update({
     id: '/export',
@@ -1109,6 +1122,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
+  '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
   '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
   '/api/chips/$id': typeof ApiChipsIdRoute
@@ -1167,6 +1181,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
   '/api/chip-compare/records/$id/export': typeof ApiChipCompareRecordsIdExportRoute
+  '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
   '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
   '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
@@ -1268,6 +1283,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
+  '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
   '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
   '/api/chips/$id': typeof ApiChipsIdRoute
@@ -1326,6 +1342,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
   '/api/chip-compare/records/$id/export': typeof ApiChipCompareRecordsIdExportRoute
+  '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
   '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
   '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
@@ -1431,6 +1448,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
+  '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
   '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
   '/api/chips/$id': typeof ApiChipsIdRoute
@@ -1489,6 +1507,7 @@ export interface FileRoutesById {
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
   '/api/chip-compare/records/$id/export': typeof ApiChipCompareRecordsIdExportRoute
+  '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
   '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
   '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
@@ -1594,6 +1613,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/chip-compare/analyze'
+    | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
     | '/api/chip-compare/upload'
     | '/api/chips/$id'
@@ -1652,6 +1672,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget/$publicKey/messages'
     | '/api/ai-support/widget/$publicKey/support-replies'
     | '/api/chip-compare/records/$id/export'
+    | '/api/chip-compare/records/$id/publish'
     | '/api/chip-compare/records/$id/traces'
     | '/api/chip-compare/traces/$id/note'
     | '/settings/chatbots/$chatbotId/customization/appearance'
@@ -1753,6 +1774,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/chip-compare/analyze'
+    | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
     | '/api/chip-compare/upload'
     | '/api/chips/$id'
@@ -1811,6 +1833,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget/$publicKey/messages'
     | '/api/ai-support/widget/$publicKey/support-replies'
     | '/api/chip-compare/records/$id/export'
+    | '/api/chip-compare/records/$id/publish'
     | '/api/chip-compare/records/$id/traces'
     | '/api/chip-compare/traces/$id/note'
     | '/settings/chatbots/$chatbotId/customization/appearance'
@@ -1915,6 +1938,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/auth/token'
     | '/api/chip-compare/analyze'
+    | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
     | '/api/chip-compare/upload'
     | '/api/chips/$id'
@@ -1973,6 +1997,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget/$publicKey/messages'
     | '/api/ai-support/widget/$publicKey/support-replies'
     | '/api/chip-compare/records/$id/export'
+    | '/api/chip-compare/records/$id/publish'
     | '/api/chip-compare/records/$id/traces'
     | '/api/chip-compare/traces/$id/note'
     | '/settings/chatbots/$chatbotId/customization/appearance'
@@ -2049,6 +2074,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthTokenRoute: typeof ApiAuthTokenRoute
   ApiChipCompareAnalyzeRoute: typeof ApiChipCompareAnalyzeRoute
+  ApiChipCompareChatRoute: typeof ApiChipCompareChatRoute
   ApiChipCompareCostRoute: typeof ApiChipCompareCostRoute
   ApiChipCompareUploadRoute: typeof ApiChipCompareUploadRoute
   ApiChipsIdRoute: typeof ApiChipsIdRoute
@@ -2615,6 +2641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChipCompareCostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chip-compare/chat': {
+      id: '/api/chip-compare/chat'
+      path: '/api/chip-compare/chat'
+      fullPath: '/api/chip-compare/chat'
+      preLoaderRoute: typeof ApiChipCompareChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chip-compare/analyze': {
       id: '/api/chip-compare/analyze'
       path: '/api/chip-compare/analyze'
@@ -3175,6 +3208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChipCompareRecordsIdTracesRouteImport
       parentRoute: typeof ApiChipCompareRecordsIdRoute
     }
+    '/api/chip-compare/records/$id/publish': {
+      id: '/api/chip-compare/records/$id/publish'
+      path: '/publish'
+      fullPath: '/api/chip-compare/records/$id/publish'
+      preLoaderRoute: typeof ApiChipCompareRecordsIdPublishRouteImport
+      parentRoute: typeof ApiChipCompareRecordsIdRoute
+    }
     '/api/chip-compare/records/$id/export': {
       id: '/api/chip-compare/records/$id/export'
       path: '/export'
@@ -3425,12 +3465,14 @@ const ApiAiSupportWidgetPublicKeyRouteWithChildren =
 
 interface ApiChipCompareRecordsIdRouteChildren {
   ApiChipCompareRecordsIdExportRoute: typeof ApiChipCompareRecordsIdExportRoute
+  ApiChipCompareRecordsIdPublishRoute: typeof ApiChipCompareRecordsIdPublishRoute
   ApiChipCompareRecordsIdTracesRoute: typeof ApiChipCompareRecordsIdTracesRoute
 }
 
 const ApiChipCompareRecordsIdRouteChildren: ApiChipCompareRecordsIdRouteChildren =
   {
     ApiChipCompareRecordsIdExportRoute: ApiChipCompareRecordsIdExportRoute,
+    ApiChipCompareRecordsIdPublishRoute: ApiChipCompareRecordsIdPublishRoute,
     ApiChipCompareRecordsIdTracesRoute: ApiChipCompareRecordsIdTracesRoute,
   }
 
@@ -3498,6 +3540,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthTokenRoute: ApiAuthTokenRoute,
   ApiChipCompareAnalyzeRoute: ApiChipCompareAnalyzeRoute,
+  ApiChipCompareChatRoute: ApiChipCompareChatRoute,
   ApiChipCompareCostRoute: ApiChipCompareCostRoute,
   ApiChipCompareUploadRoute: ApiChipCompareUploadRoute,
   ApiChipsIdRoute: ApiChipsIdRoute,

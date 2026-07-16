@@ -431,6 +431,17 @@ export async function updateTraceNote(
   return true;
 }
 
+export async function updateRecordResult(
+  id: string,
+  userId: string,
+  result: string
+): Promise<boolean> {
+  const record = await getRecord(id, userId);
+  if (!record) return false;
+  await updateRecord(id, { result });
+  return true;
+}
+
 export async function deleteRecord(id: string, userId: string): Promise<boolean> {
   const record = await getRecord(id, userId);
   if (!record) return false;
