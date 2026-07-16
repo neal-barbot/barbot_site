@@ -18,7 +18,7 @@ export function CTA() {
           </p>
           <div className="mt-8 flex justify-center">
             <Link
-              href="/compare"
+              href="/settings"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "gap-2 rounded-full px-8 h-12"

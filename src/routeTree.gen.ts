@@ -32,6 +32,8 @@ import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsBillingRouteImport } from './routes/settings/billing'
 import { Route as SettingsApikeysRouteImport } from './routes/settings/apikeys'
 import { Route as SettingsAiSupportRouteImport } from './routes/settings/ai-support'
+import { Route as ProductsChipP2pRouteImport } from './routes/products/chip-p2p'
+import { Route as ProductsAiFaeRouteImport } from './routes/products/ai-fae'
 import { Route as ChipsIdRouteImport } from './routes/chips/$id'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as ApiTicketsRouteImport } from './routes/api/tickets'
@@ -285,6 +287,16 @@ const SettingsAiSupportRoute = SettingsAiSupportRouteImport.update({
   id: '/ai-support',
   path: '/ai-support',
   getParentRoute: () => SettingsRouteRoute,
+} as any)
+const ProductsChipP2pRoute = ProductsChipP2pRouteImport.update({
+  id: '/products/chip-p2p',
+  path: '/products/chip-p2p',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsAiFaeRoute = ProductsAiFaeRouteImport.update({
+  id: '/products/ai-fae',
+  path: '/products/ai-fae',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ChipsIdRoute = ChipsIdRouteImport.update({
   id: '/chips/$id',
@@ -1068,6 +1080,8 @@ export interface FileRoutesByFullPath {
   '/api/tickets': typeof ApiTicketsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/chips/$id': typeof ChipsIdRoute
+  '/products/ai-fae': typeof ProductsAiFaeRoute
+  '/products/chip-p2p': typeof ProductsChipP2pRoute
   '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
@@ -1229,6 +1243,8 @@ export interface FileRoutesByTo {
   '/api/tickets': typeof ApiTicketsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/chips/$id': typeof ChipsIdRoute
+  '/products/ai-fae': typeof ProductsAiFaeRoute
+  '/products/chip-p2p': typeof ProductsChipP2pRoute
   '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
@@ -1394,6 +1410,8 @@ export interface FileRoutesById {
   '/api/tickets': typeof ApiTicketsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/chips/$id': typeof ChipsIdRoute
+  '/products/ai-fae': typeof ProductsAiFaeRoute
+  '/products/chip-p2p': typeof ProductsChipP2pRoute
   '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
@@ -1559,6 +1577,8 @@ export interface FileRouteTypes {
     | '/api/tickets'
     | '/blog/$slug'
     | '/chips/$id'
+    | '/products/ai-fae'
+    | '/products/chip-p2p'
     | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
@@ -1720,6 +1740,8 @@ export interface FileRouteTypes {
     | '/api/tickets'
     | '/blog/$slug'
     | '/chips/$id'
+    | '/products/ai-fae'
+    | '/products/chip-p2p'
     | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
@@ -1884,6 +1906,8 @@ export interface FileRouteTypes {
     | '/api/tickets'
     | '/blog/$slug'
     | '/chips/$id'
+    | '/products/ai-fae'
+    | '/products/chip-p2p'
     | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
@@ -2033,6 +2057,8 @@ export interface RootRouteChildren {
   ApiTicketsRoute: typeof ApiTicketsRouteWithChildren
   BlogSlugRoute: typeof BlogSlugRoute
   ChipsIdRoute: typeof ChipsIdRoute
+  ProductsAiFaeRoute: typeof ProductsAiFaeRoute
+  ProductsChipP2pRoute: typeof ProductsChipP2pRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ChipsIndexRoute: typeof ChipsIndexRoute
   CompareIndexRoute: typeof CompareIndexRoute
@@ -2283,6 +2309,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/ai-support'
       preLoaderRoute: typeof SettingsAiSupportRouteImport
       parentRoute: typeof SettingsRouteRoute
+    }
+    '/products/chip-p2p': {
+      id: '/products/chip-p2p'
+      path: '/products/chip-p2p'
+      fullPath: '/products/chip-p2p'
+      preLoaderRoute: typeof ProductsChipP2pRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/ai-fae': {
+      id: '/products/ai-fae'
+      path: '/products/ai-fae'
+      fullPath: '/products/ai-fae'
+      preLoaderRoute: typeof ProductsAiFaeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/chips/$id': {
       id: '/chips/$id'
@@ -3499,6 +3539,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTicketsRoute: ApiTicketsRouteWithChildren,
   BlogSlugRoute: BlogSlugRoute,
   ChipsIdRoute: ChipsIdRoute,
+  ProductsAiFaeRoute: ProductsAiFaeRoute,
+  ProductsChipP2pRoute: ProductsChipP2pRoute,
   BlogIndexRoute: BlogIndexRoute,
   ChipsIndexRoute: ChipsIndexRoute,
   CompareIndexRoute: CompareIndexRoute,

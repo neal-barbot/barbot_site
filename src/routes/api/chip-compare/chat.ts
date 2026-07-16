@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { respData, respErr } from '@/lib/resp';
-import { getAuth } from '@/core/auth';
 import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
-import { validate as validateApiKey } from '@/modules/apikeys/service';
+import { resolveUserId } from '@/modules/apikeys/auth';
 import { answerChipQuestion } from '@/modules/chip-compare/qa-agent';
 
 const bodySchema = z.object({
@@ -18,19 +17,6 @@ const bodySchema = z.object({
     .min(1)
     .max(20),
 });
-
-/** Resolve the caller: browser session cookie OR `Authorization: Bearer <api key>` (agent interface). */
-async function resolveUserId(request: Request): Promise<string | null> {
-  const auth = getAuth();
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (session?.user) return session.user.id;
-
-  const bearer = request.headers.get('authorization');
-  if (bearer?.startsWith('Bearer ')) {
-    return validateApiKey(bearer.slice(7).trim());
-  }
-  return null;
-}
 
 async function POST({ request }: { request: Request }) {
   const limited = enforceMinIntervalRateLimit(request, {

@@ -1,15 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { resolveUserId } from '@/modules/apikeys/auth';
 import { respErr } from '@/lib/resp';
-import { getAuth } from '@/core/auth';
 import { exportRecordCsv, getRecord, getTraces } from '@/modules/chip-compare/service';
 
 async function GET({ request, params }: { request: Request; params: { id: string } }) {
   try {
-    const auth = getAuth();
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session?.user) return respErr('Unauthorized');
+    const userId = await resolveUserId(request);
+    if (!userId) return respErr('Unauthorized');
 
-    const record = await getRecord(params.id, session.user.id);
+    const record = await getRecord(params.id, userId);
     if (!record) return respErr('Record not found');
 
     const { searchParams } = new URL(request.url);
@@ -17,7 +16,7 @@ async function GET({ request, params }: { request: Request; params: { id: string
     const baseName = `chip-compare-${record.id.slice(0, 8)}`;
 
     if (format === 'csv') {
-      const traces = await getTraces(params.id, session.user.id);
+      const traces = await getTraces(params.id, userId);
       return new Response(exportRecordCsv(traces), {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',

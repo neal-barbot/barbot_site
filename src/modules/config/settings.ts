@@ -99,6 +99,7 @@ export function getSettings(): Setting[] {
     { name: 'initial_credits_valid_days', title: 'Valid days', type: 'number', placeholder: '365', group: 'credit', tab: 'general' },
     { name: 'initial_credits_description', title: 'Description', type: 'text', placeholder: 'Welcome bonus', group: 'credit', tab: 'general' },
     { name: 'chip_compare_cost_credits', title: 'Chip compare cost (credits)', type: 'number', placeholder: '10', group: 'credit', tab: 'general' },
+    { name: 'ai_fae_cost_credits', title: 'AI FAE answer cost (credits)', type: 'number', placeholder: '1', group: 'credit', tab: 'general' },
     { name: 'chip_compare_model', title: 'Chip compare model', type: 'text', placeholder: 'deepseek-chat (falls back to OpenAI model)', group: 'openai', tab: 'ai' },
 
     // ─── Auth / Email ────────────────────────────────────────────────

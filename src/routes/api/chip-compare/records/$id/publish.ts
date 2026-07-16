@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
+import { resolveUserId } from '@/modules/apikeys/auth';
 import { respData, respErr } from '@/lib/resp';
-import { getAuth } from '@/core/auth';
 import { getRecord } from '@/modules/chip-compare/service';
 import { create as createPost, findBySlug } from '@/modules/posts/service';
 
@@ -19,11 +19,10 @@ const bodySchema = z.object({
 /** Publish an edited comparison report to the blog as an article. */
 async function POST({ request, params }: { request: Request; params: { id: string } }) {
   try {
-    const auth = getAuth();
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session?.user) return respErr('Unauthorized');
+    const userId = await resolveUserId(request);
+    if (!userId) return respErr('Unauthorized');
 
-    const record = await getRecord(params.id, session.user.id);
+    const record = await getRecord(params.id, userId);
     if (!record) return respErr('Record not found');
     if (!record.result) return respErr('Record has no report to publish');
 
@@ -31,12 +30,12 @@ async function POST({ request, params }: { request: Request; params: { id: strin
     if (await findBySlug(input.slug)) return respErr('Slug already exists');
 
     const post = await createPost({
-      userId: session.user.id,
+      userId: userId,
       slug: input.slug,
       title: input.title,
       description: input.description,
       content: record.result,
-      authorName: session.user.name || '',
+      authorName: '',
       status: input.status,
     });
     return respData({ id: post.id, slug: post.slug, status: post.status });

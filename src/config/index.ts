@@ -15,7 +15,7 @@ const publicEnv = (key: string) => metaEnv[key] ?? procEnv[key];
 export const envConfigs: Record<string, string> = {
   // App (public)
   app_url: publicEnv('VITE_APP_URL') ?? 'http://localhost:3000',
-  app_name: publicEnv('VITE_APP_NAME') ?? 'SiteGPT',
+  app_name: publicEnv('VITE_APP_NAME') ?? 'Barbot',
   app_description: publicEnv('VITE_APP_DESCRIPTION') ?? 'AI customer support dashboard',
   app_logo: publicEnv('VITE_APP_LOGO') ?? '/logo.svg',
 

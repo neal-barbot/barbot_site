@@ -4,9 +4,8 @@ import { m } from "@/paraglide/messages.js";
 export function Header() {
   
   const navLinks = [
-    { href: "/chips", label: m["common.nav.chips"]() },
-    { href: "/compare", label: m["common.nav.compare"]() },
-    { href: "/#features", label: m["landing.nav.features"]() },
+    { href: "/products/chip-p2p", label: m["landing.products.chip_p2p.name"]() },
+    { href: "/products/ai-fae", label: m["landing.products.ai_fae.name"]() },
     { href: "/pricing", label: m["landing.nav.pricing"]() },
     { href: "/blog", label: m["landing.nav.blog"]() },
   ];

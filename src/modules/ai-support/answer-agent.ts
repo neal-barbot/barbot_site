@@ -44,7 +44,7 @@ export async function generateAnswerWithAgent(input: AnswerAgentInput): Promise<
     const provider = new OpenAIProvider({ apiKey, baseURL: baseUrl || undefined });
     const model = await provider.getModel(modelName);
     const agent = new Agent({
-      name: 'SiteGPT Support',
+      name: 'AI FAE Support',
       model,
       instructions: [
         'You are a careful customer-support agent.',

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
+import { resolveUserId } from '@/modules/apikeys/auth';
 import { respErr } from '@/lib/resp';
-import { getAuth } from '@/core/auth';
 import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
 import {
   MAX_CHIPS,
@@ -40,9 +40,8 @@ async function POST({ request }: { request: Request }) {
   });
   if (limited) return limited;
 
-  const auth = getAuth();
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session?.user) return respErr('Unauthorized');
+  const userId = await resolveUserId(request);
+  if (!userId) return respErr('Unauthorized');
 
   let input: z.infer<typeof bodySchema>;
   try {
@@ -51,7 +50,6 @@ async function POST({ request }: { request: Request }) {
     return respErr(error.issues?.[0]?.message || 'Invalid request');
   }
 
-  const userId = session.user.id;
   const encoder = new TextEncoder();
   const abortController = new AbortController();
   request.signal?.addEventListener('abort', () => abortController.abort());

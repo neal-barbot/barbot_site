@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { md5 } from '@/lib/hash';
+import { resolveUserId } from '@/modules/apikeys/auth';
 import { respData, respErr } from '@/lib/resp';
-import { getAuth } from '@/core/auth';
 import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
 import { getStorage } from '@/modules/storage/service';
 import { getCachedParse, parseAndCachePdf } from '@/modules/chip-compare/pdf-extract';
@@ -24,9 +24,8 @@ async function POST({ request }: { request: Request }) {
   if (limited) return limited;
 
   try {
-    const auth = getAuth();
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session?.user) return respErr('Unauthorized');
+    const userId = await resolveUserId(request);
+    if (!userId) return respErr('Unauthorized');
 
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];

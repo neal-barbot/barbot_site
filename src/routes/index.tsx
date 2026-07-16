@@ -4,8 +4,7 @@ import { getLocale, locales, localizeUrl } from '@/paraglide/runtime.js';
 import { m } from '@/paraglide/messages.js';
 import { Header } from '@/blocks/header';
 import { Hero } from '@/blocks/hero';
-import { Features } from '@/blocks/features';
-import { HowItWorks } from '@/blocks/how-it-works';
+import { Products } from '@/blocks/products';
 import { Pricing } from '@/blocks/pricing';
 import { FAQ } from '@/blocks/faq';
 import { CTA } from '@/blocks/cta';
@@ -17,8 +16,7 @@ function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <Features />
-        <HowItWorks />
+        <Products />
         <Pricing />
         <FAQ />
         <CTA />
