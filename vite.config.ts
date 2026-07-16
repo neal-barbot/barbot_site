@@ -43,6 +43,11 @@ const keepPostgres = workersDb === 'postgresql' || workersDb === 'postgres';
 export default defineConfig({
   server: {
     port: 3000,
+    fs: {
+      // Worktree checkouts symlink node_modules to the main checkout; allow
+      // vite to load modules through that symlink (outside the worktree root).
+      allow: ['.', '/Users/neal/Downloads/Projects/AI-agent-project'],
+    },
   },
   resolve: {
     tsconfigPaths: true,

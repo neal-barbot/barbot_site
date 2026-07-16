@@ -29,7 +29,7 @@ export function Hero() {
 
         <div className="flex items-center justify-center gap-3 pt-4">
           <Link
-            href="/settings"
+            href="/compare"
             className={cn(
               buttonVariants({ size: "lg" }),
               "gap-2 rounded-full px-8 h-12"
@@ -37,6 +37,15 @@ export function Hero() {
           >
             {m["landing.hero.cta"]()}
             <ArrowRight className="size-4" />
+          </Link>
+          <Link
+            href="/chips"
+            className={cn(
+              buttonVariants({ size: "lg", variant: "outline" }),
+              "gap-2 rounded-full px-8 h-12"
+            )}
+          >
+            {m["landing.hero.secondary"]()}
           </Link>
         </div>
       </div>

@@ -71,6 +71,7 @@ function SettingsLayout() {
     : [
         ...navItems.filter((item) => item.label === 'Dashboard'),
         { href: '/settings/task-center', label: 'Task Center', icon: ClipboardList, group: workspaceGroup },
+        { href: '/settings/compare-history', label: m['settings.nav.compare_history'](), icon: History, group: workspaceGroup },
       ];
 
   const headerExtra = <SiteGptTopNavLinks active="Chatbots" />;

@@ -1004,3 +1004,190 @@ export type InviteCode = typeof inviteCode.$inferSelect;
 export type NewInviteCode = typeof inviteCode.$inferInsert;
 export type UserInvite = typeof userInvite.$inferSelect;
 export type NewUserInvite = typeof userInvite.$inferInsert;
+
+// ─── Chip P2P ────────────────────────────────────────────────────────────────
+
+export const chipSegment = table(
+  'chip_segment',
+  {
+    id: text('id').primaryKey(),
+    parentId: text('parent_id'),
+    name: text('name').notNull(),
+    description: text('description'),
+    sort: integer('sort').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index('idx_chip_segment_parent').on(table.parentId)]
+);
+
+export const chip = table(
+  'chip',
+  {
+    id: text('id').primaryKey(),
+    manufacturer: text('manufacturer'),
+    partNumber: text('part_number').notNull(),
+    partNumberNorm: text('part_number_norm').notNull(),
+    description: text('description'),
+    sheetUrl: text('sheet_url'),
+    parameter: text('parameter'),
+    segmentId: text('segment_id').references(() => chipSegment.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_chip_part_number').on(table.partNumber),
+    index('idx_chip_part_number_norm').on(table.partNumberNorm),
+    index('idx_chip_manufacturer').on(table.manufacturer),
+  ]
+);
+
+export const pin2pin = table(
+  'pin2pin',
+  {
+    id: text('id').primaryKey(),
+    chipId: text('chip_id')
+      .notNull()
+      .references(() => chip.id, { onDelete: 'cascade' }),
+    supplier: text('supplier'),
+    partNumber: text('part_number').notNull(),
+    supplierP2p: text('supplier_p2p'),
+    partNumberP2p: text('part_number_p2p').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_pin2pin_chip').on(table.chipId),
+    index('idx_pin2pin_part_number').on(table.partNumber),
+  ]
+);
+
+export const bom = table(
+  'bom',
+  {
+    id: text('id').primaryKey(),
+    chipId: text('chip_id')
+      .notNull()
+      .references(() => chip.id, { onDelete: 'cascade' }),
+    manufacturer: text('manufacturer'),
+    categoryName: text('category_name'),
+    partNumber: text('part_number').notNull(),
+    quantity: integer('quantity').notNull().default(1),
+    unitPrice: integer('unit_price').notNull().default(0),
+    totalPrice: integer('total_price').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index('idx_bom_chip').on(table.chipId)]
+);
+
+export const pdfParseCache = table(
+  'pdf_parse_cache',
+  {
+    id: text('id').primaryKey(),
+    fileMd5: text('file_md5').notNull().unique(),
+    fileName: text('file_name').notNull(),
+    chipPartNumber: text('chip_part_number').notNull().default(''),
+    sourceUrl: text('source_url'),
+    pageCount: integer('page_count').notNull().default(0),
+    pages: text('pages'),
+    status: text('status').notNull().default('pending'),
+    error: text('error'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_pdf_parse_cache_part_number').on(table.chipPartNumber),
+    index('idx_pdf_parse_cache_status').on(table.status),
+  ]
+);
+
+export const chipCompareRecord = table(
+  'chip_compare_record',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chipPartNumbers: text('chip_part_numbers').notNull(),
+    fileList: text('file_list').notNull().default('[]'),
+    status: text('status').notNull().default('pending'),
+    stage: text('stage').notNull().default(''),
+    provider: text('provider').notNull().default('openai'),
+    model: text('model').notNull(),
+    language: text('language').notNull().default('en'),
+    prompt: text('prompt'),
+    result: text('result'),
+    inputTokens: integer('input_tokens'),
+    outputTokens: integer('output_tokens'),
+    durationMs: integer('duration_ms'),
+    costCredits: integer('cost_credits').notNull().default(0),
+    creditId: text('credit_id'),
+    cacheKey: text('cache_key').notNull().default(''),
+    cacheHit: boolean('cache_hit').notNull().default(false),
+    source: text('source').notNull().default('user'),
+    error: text('error'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => [
+    index('idx_chip_compare_record_user').on(table.userId, table.createdAt),
+    index('idx_chip_compare_record_cache').on(table.cacheKey, table.status),
+  ]
+);
+
+export const chipCompareTrace = table(
+  'chip_compare_trace',
+  {
+    id: text('id').primaryKey(),
+    recordId: text('record_id')
+      .notNull()
+      .references(() => chipCompareRecord.id, { onDelete: 'cascade' }),
+    paramName: text('param_name').notNull(),
+    paramCategory: text('param_category'),
+    chipsTrace: text('chips_trace').notNull(),
+    diffLevel: text('diff_level'),
+    diffNote: text('diff_note'),
+    userNote: text('user_note'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index('idx_chip_compare_trace_record').on(table.recordId)]
+);
+
+export type ChipSegment = typeof chipSegment.$inferSelect;
+export type NewChipSegment = typeof chipSegment.$inferInsert;
+export type Chip = typeof chip.$inferSelect;
+export type NewChip = typeof chip.$inferInsert;
+export type Pin2Pin = typeof pin2pin.$inferSelect;
+export type NewPin2Pin = typeof pin2pin.$inferInsert;
+export type Bom = typeof bom.$inferSelect;
+export type NewBom = typeof bom.$inferInsert;
+export type PdfParseCache = typeof pdfParseCache.$inferSelect;
+export type NewPdfParseCache = typeof pdfParseCache.$inferInsert;
+export type ChipCompareRecord = typeof chipCompareRecord.$inferSelect;
+export type NewChipCompareRecord = typeof chipCompareRecord.$inferInsert;
+export type ChipCompareTrace = typeof chipCompareTrace.$inferSelect;
+export type NewChipCompareTrace = typeof chipCompareTrace.$inferInsert;
