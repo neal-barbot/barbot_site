@@ -79,8 +79,10 @@ import { Route as ApiPaymentCheckoutRouteImport } from './routes/api/payment/che
 import { Route as ApiPaymentCallbackRouteImport } from './routes/api/payment/callback'
 import { Route as ApiInviteCodesValidateRouteImport } from './routes/api/invite-codes/validate'
 import { Route as ApiInviteCodesRedeemRouteImport } from './routes/api/invite-codes/redeem'
+import { Route as ApiInternalUsageRouteImport } from './routes/api/internal/usage'
 import { Route as ApiInternalSessionRouteImport } from './routes/api/internal/session'
 import { Route as ApiInternalCreditsRouteImport } from './routes/api/internal/credits'
+import { Route as ApiInternalBalanceRouteImport } from './routes/api/internal/balance'
 import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
 import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
 import { Route as ApiChipsIdRouteImport } from './routes/api/chips/$id'
@@ -115,6 +117,7 @@ import { Route as ApiAiSupportChatbotsRouteImport } from './routes/api/ai-suppor
 import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-support/audit-logs'
 import { Route as ApiAiSupportAgentTokensRouteImport } from './routes/api/ai-support/agent-tokens'
 import { Route as ApiAiSupportAgentRunsRouteImport } from './routes/api/ai-support/agent-runs'
+import { Route as ApiAgentTokenRouteImport } from './routes/api/agent/token'
 import { Route as ApiAdminTicketsRouteImport } from './routes/api/admin/tickets'
 import { Route as ApiAdminSubscriptionsRouteImport } from './routes/api/admin/subscriptions'
 import { Route as ApiAdminPostsRouteImport } from './routes/api/admin/posts'
@@ -527,6 +530,11 @@ const ApiInviteCodesRedeemRoute = ApiInviteCodesRedeemRouteImport.update({
   path: '/api/invite-codes/redeem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInternalUsageRoute = ApiInternalUsageRouteImport.update({
+  id: '/api/internal/usage',
+  path: '/api/internal/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInternalSessionRoute = ApiInternalSessionRouteImport.update({
   id: '/api/internal/session',
   path: '/api/internal/session',
@@ -535,6 +543,11 @@ const ApiInternalSessionRoute = ApiInternalSessionRouteImport.update({
 const ApiInternalCreditsRoute = ApiInternalCreditsRouteImport.update({
   id: '/api/internal/credits',
   path: '/api/internal/credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInternalBalanceRoute = ApiInternalBalanceRouteImport.update({
+  id: '/api/internal/balance',
+  path: '/api/internal/balance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDocqaIngestRoute = ApiDocqaIngestRouteImport.update({
@@ -720,6 +733,11 @@ const ApiAiSupportAgentTokensRoute = ApiAiSupportAgentTokensRouteImport.update({
 const ApiAiSupportAgentRunsRoute = ApiAiSupportAgentRunsRouteImport.update({
   id: '/api/ai-support/agent-runs',
   path: '/api/ai-support/agent-runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentTokenRoute = ApiAgentTokenRouteImport.update({
+  id: '/api/agent/token',
+  path: '/api/agent/token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminTicketsRoute = ApiAdminTicketsRouteImport.update({
@@ -1128,6 +1146,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
@@ -1162,8 +1181,10 @@ export interface FileRoutesByFullPath {
   '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/balance': typeof ApiInternalBalanceRoute
   '/api/internal/credits': typeof ApiInternalCreditsRoute
   '/api/internal/session': typeof ApiInternalSessionRoute
+  '/api/internal/usage': typeof ApiInternalUsageRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
@@ -1294,6 +1315,7 @@ export interface FileRoutesByTo {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
@@ -1328,8 +1350,10 @@ export interface FileRoutesByTo {
   '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/balance': typeof ApiInternalBalanceRoute
   '/api/internal/credits': typeof ApiInternalCreditsRoute
   '/api/internal/session': typeof ApiInternalSessionRoute
+  '/api/internal/usage': typeof ApiInternalUsageRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
@@ -1464,6 +1488,7 @@ export interface FileRoutesById {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
@@ -1498,8 +1523,10 @@ export interface FileRoutesById {
   '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/balance': typeof ApiInternalBalanceRoute
   '/api/internal/credits': typeof ApiInternalCreditsRoute
   '/api/internal/session': typeof ApiInternalSessionRoute
+  '/api/internal/usage': typeof ApiInternalUsageRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
@@ -1634,6 +1661,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
@@ -1668,8 +1696,10 @@ export interface FileRouteTypes {
     | '/api/chips/$id'
     | '/api/config/public'
     | '/api/docqa/ingest'
+    | '/api/internal/balance'
     | '/api/internal/credits'
     | '/api/internal/session'
+    | '/api/internal/usage'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
@@ -1800,6 +1830,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
@@ -1834,8 +1865,10 @@ export interface FileRouteTypes {
     | '/api/chips/$id'
     | '/api/config/public'
     | '/api/docqa/ingest'
+    | '/api/internal/balance'
     | '/api/internal/credits'
     | '/api/internal/session'
+    | '/api/internal/usage'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
@@ -1969,6 +2002,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
@@ -2003,8 +2037,10 @@ export interface FileRouteTypes {
     | '/api/chips/$id'
     | '/api/config/public'
     | '/api/docqa/ingest'
+    | '/api/internal/balance'
     | '/api/internal/credits'
     | '/api/internal/session'
+    | '/api/internal/usage'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
@@ -2109,6 +2145,7 @@ export interface RootRouteChildren {
   ApiAdminPostsRoute: typeof ApiAdminPostsRoute
   ApiAdminSubscriptionsRoute: typeof ApiAdminSubscriptionsRoute
   ApiAdminTicketsRoute: typeof ApiAdminTicketsRouteWithChildren
+  ApiAgentTokenRoute: typeof ApiAgentTokenRoute
   ApiAiSupportAgentRunsRoute: typeof ApiAiSupportAgentRunsRoute
   ApiAiSupportAgentTokensRoute: typeof ApiAiSupportAgentTokensRoute
   ApiAiSupportAuditLogsRoute: typeof ApiAiSupportAuditLogsRoute
@@ -2143,8 +2180,10 @@ export interface RootRouteChildren {
   ApiChipsIdRoute: typeof ApiChipsIdRoute
   ApiConfigPublicRoute: typeof ApiConfigPublicRoute
   ApiDocqaIngestRoute: typeof ApiDocqaIngestRoute
+  ApiInternalBalanceRoute: typeof ApiInternalBalanceRoute
   ApiInternalCreditsRoute: typeof ApiInternalCreditsRoute
   ApiInternalSessionRoute: typeof ApiInternalSessionRoute
+  ApiInternalUsageRoute: typeof ApiInternalUsageRoute
   ApiInviteCodesRedeemRoute: typeof ApiInviteCodesRedeemRoute
   ApiInviteCodesValidateRoute: typeof ApiInviteCodesValidateRoute
   ApiPaymentCallbackRoute: typeof ApiPaymentCallbackRoute
@@ -2678,6 +2717,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInviteCodesRedeemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/usage': {
+      id: '/api/internal/usage'
+      path: '/api/internal/usage'
+      fullPath: '/api/internal/usage'
+      preLoaderRoute: typeof ApiInternalUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/internal/session': {
       id: '/api/internal/session'
       path: '/api/internal/session'
@@ -2690,6 +2736,13 @@ declare module '@tanstack/react-router' {
       path: '/api/internal/credits'
       fullPath: '/api/internal/credits'
       preLoaderRoute: typeof ApiInternalCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/internal/balance': {
+      id: '/api/internal/balance'
+      path: '/api/internal/balance'
+      fullPath: '/api/internal/balance'
+      preLoaderRoute: typeof ApiInternalBalanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/docqa/ingest': {
@@ -2928,6 +2981,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-support/agent-runs'
       fullPath: '/api/ai-support/agent-runs'
       preLoaderRoute: typeof ApiAiSupportAgentRunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/token': {
+      id: '/api/agent/token'
+      path: '/api/agent/token'
+      fullPath: '/api/agent/token'
+      preLoaderRoute: typeof ApiAgentTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/tickets': {
@@ -3616,6 +3676,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminPostsRoute: ApiAdminPostsRoute,
   ApiAdminSubscriptionsRoute: ApiAdminSubscriptionsRoute,
   ApiAdminTicketsRoute: ApiAdminTicketsRouteWithChildren,
+  ApiAgentTokenRoute: ApiAgentTokenRoute,
   ApiAiSupportAgentRunsRoute: ApiAiSupportAgentRunsRoute,
   ApiAiSupportAgentTokensRoute: ApiAiSupportAgentTokensRoute,
   ApiAiSupportAuditLogsRoute: ApiAiSupportAuditLogsRoute,
@@ -3650,8 +3711,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChipsIdRoute: ApiChipsIdRoute,
   ApiConfigPublicRoute: ApiConfigPublicRoute,
   ApiDocqaIngestRoute: ApiDocqaIngestRoute,
+  ApiInternalBalanceRoute: ApiInternalBalanceRoute,
   ApiInternalCreditsRoute: ApiInternalCreditsRoute,
   ApiInternalSessionRoute: ApiInternalSessionRoute,
+  ApiInternalUsageRoute: ApiInternalUsageRoute,
   ApiInviteCodesRedeemRoute: ApiInviteCodesRedeemRoute,
   ApiInviteCodesValidateRoute: ApiInviteCodesValidateRoute,
   ApiPaymentCallbackRoute: ApiPaymentCallbackRoute,

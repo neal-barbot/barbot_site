@@ -83,6 +83,9 @@ export const envConfigs: Record<string, string> = {
   gateway_port: procEnv.GATEWAY_PORT ?? '8520',
   mineru_url: procEnv.MINERU_URL ?? 'http://127.0.0.1:8530',
   internal_api_token: procEnv.INTERNAL_API_TOKEN ?? '',
+  // Agent gateway: signs short-lived JWTs for external agent executors.
+  // Falls back to AUTH_SECRET when unset.
+  agent_jwt_secret: procEnv.AGENT_JWT_SECRET ?? '',
   credit_cost_per_prompt: procEnv.CREDIT_COST_PER_PROMPT ?? '1',
   doc_qa_bucket: procEnv.DOC_QA_BUCKET ?? 'doc-qa',
   llm_base_url: procEnv.LLM_BASE_URL ?? '',

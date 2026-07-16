@@ -100,6 +100,7 @@ export function getSettings(): Setting[] {
     { name: 'initial_credits_description', title: 'Description', type: 'text', placeholder: 'Welcome bonus', group: 'credit', tab: 'general' },
     { name: 'chip_compare_cost_credits', title: 'Chip compare cost (credits)', type: 'number', placeholder: '10', group: 'credit', tab: 'general' },
     { name: 'ai_fae_cost_credits', title: 'AI FAE answer cost (credits)', type: 'number', placeholder: '1', group: 'credit', tab: 'general' },
+    { name: 'agent_task_cost_credits', title: 'Agent task cost (credits per unit)', type: 'number', placeholder: '5', group: 'credit', tab: 'general' },
     { name: 'chip_compare_model', title: 'Chip compare model', type: 'text', placeholder: 'deepseek-chat (falls back to OpenAI model)', group: 'openai', tab: 'ai' },
 
     // ─── Auth / Email ────────────────────────────────────────────────
