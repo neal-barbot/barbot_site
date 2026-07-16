@@ -26,6 +26,7 @@ import { Route as SettingsTicketsRouteImport } from './routes/settings/tickets'
 import { Route as SettingsTaskCenterRouteImport } from './routes/settings/task-center'
 import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPaymentsRouteImport } from './routes/settings/payments'
+import { Route as SettingsDeviceRouteImport } from './routes/settings/device'
 import { Route as SettingsCreditsRouteImport } from './routes/settings/credits'
 import { Route as SettingsCompareHistoryRouteImport } from './routes/settings/compare-history'
 import { Route as SettingsChipChatRouteImport } from './routes/settings/chip-chat'
@@ -148,6 +149,9 @@ import { Route as ApiChipCompareChatsIdRouteImport } from './routes/api/chip-com
 import { Route as ApiAiSupportWidgetPublicKeyRouteImport } from './routes/api/ai-support/widget/$publicKey'
 import { Route as ApiAgentV1OperationsRouteImport } from './routes/api/agent/v1/operations'
 import { Route as ApiAgentV1KnowledgeSourcesRouteImport } from './routes/api/agent/v1/knowledge-sources'
+import { Route as ApiAgentDeviceTokenRouteImport } from './routes/api/agent/device/token'
+import { Route as ApiAgentDeviceCodeRouteImport } from './routes/api/agent/device/code'
+import { Route as ApiAgentDeviceApproveRouteImport } from './routes/api/agent/device/approve'
 import { Route as ApiAdminUsersCreditsRouteImport } from './routes/api/admin/users/credits'
 import { Route as ApiAdminTicketsIdRouteImport } from './routes/api/admin/tickets/$id'
 import { Route as ApiAdminSettingsTestRouteImport } from './routes/api/admin/settings/test'
@@ -262,6 +266,11 @@ const SettingsProfileRoute = SettingsProfileRouteImport.update({
 const SettingsPaymentsRoute = SettingsPaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsDeviceRoute = SettingsDeviceRouteImport.update({
+  id: '/device',
+  path: '/device',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsCreditsRoute = SettingsCreditsRouteImport.update({
@@ -904,6 +913,21 @@ const ApiAgentV1KnowledgeSourcesRoute =
     path: '/api/agent/v1/knowledge-sources',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAgentDeviceTokenRoute = ApiAgentDeviceTokenRouteImport.update({
+  id: '/api/agent/device/token',
+  path: '/api/agent/device/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentDeviceCodeRoute = ApiAgentDeviceCodeRouteImport.update({
+  id: '/api/agent/device/code',
+  path: '/api/agent/device/code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentDeviceApproveRoute = ApiAgentDeviceApproveRouteImport.update({
+  id: '/api/agent/device/approve',
+  path: '/api/agent/device/approve',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminUsersCreditsRoute = ApiAdminUsersCreditsRouteImport.update({
   id: '/api/admin/users/credits',
   path: '/api/admin/users/credits',
@@ -1126,6 +1150,7 @@ export interface FileRoutesByFullPath {
   '/settings/chip-chat': typeof SettingsChipChatRoute
   '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
+  '/settings/device': typeof SettingsDeviceRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/task-center': typeof SettingsTaskCenterRoute
@@ -1213,6 +1238,9 @@ export interface FileRoutesByFullPath {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/device/approve': typeof ApiAgentDeviceApproveRoute
+  '/api/agent/device/code': typeof ApiAgentDeviceCodeRoute
+  '/api/agent/device/token': typeof ApiAgentDeviceTokenRoute
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
@@ -1295,6 +1323,7 @@ export interface FileRoutesByTo {
   '/settings/chip-chat': typeof SettingsChipChatRoute
   '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
+  '/settings/device': typeof SettingsDeviceRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/task-center': typeof SettingsTaskCenterRoute
@@ -1382,6 +1411,9 @@ export interface FileRoutesByTo {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/device/approve': typeof ApiAgentDeviceApproveRoute
+  '/api/agent/device/code': typeof ApiAgentDeviceCodeRoute
+  '/api/agent/device/token': typeof ApiAgentDeviceTokenRoute
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
@@ -1468,6 +1500,7 @@ export interface FileRoutesById {
   '/settings/chip-chat': typeof SettingsChipChatRoute
   '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
+  '/settings/device': typeof SettingsDeviceRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/task-center': typeof SettingsTaskCenterRoute
@@ -1555,6 +1588,9 @@ export interface FileRoutesById {
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/device/approve': typeof ApiAgentDeviceApproveRoute
+  '/api/agent/device/code': typeof ApiAgentDeviceCodeRoute
+  '/api/agent/device/token': typeof ApiAgentDeviceTokenRoute
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
@@ -1641,6 +1677,7 @@ export interface FileRouteTypes {
     | '/settings/chip-chat'
     | '/settings/compare-history'
     | '/settings/credits'
+    | '/settings/device'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/task-center'
@@ -1728,6 +1765,9 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/device/approve'
+    | '/api/agent/device/code'
+    | '/api/agent/device/token'
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
@@ -1810,6 +1850,7 @@ export interface FileRouteTypes {
     | '/settings/chip-chat'
     | '/settings/compare-history'
     | '/settings/credits'
+    | '/settings/device'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/task-center'
@@ -1897,6 +1938,9 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/device/approve'
+    | '/api/agent/device/code'
+    | '/api/agent/device/token'
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
@@ -1982,6 +2026,7 @@ export interface FileRouteTypes {
     | '/settings/chip-chat'
     | '/settings/compare-history'
     | '/settings/credits'
+    | '/settings/device'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/task-center'
@@ -2069,6 +2114,9 @@ export interface FileRouteTypes {
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/device/approve'
+    | '/api/agent/device/code'
+    | '/api/agent/device/token'
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
@@ -2208,6 +2256,9 @@ export interface RootRouteChildren {
   ApiAdminRolesPermissionsRoute: typeof ApiAdminRolesPermissionsRoute
   ApiAdminSettingsTestRoute: typeof ApiAdminSettingsTestRoute
   ApiAdminUsersCreditsRoute: typeof ApiAdminUsersCreditsRoute
+  ApiAgentDeviceApproveRoute: typeof ApiAgentDeviceApproveRoute
+  ApiAgentDeviceCodeRoute: typeof ApiAgentDeviceCodeRoute
+  ApiAgentDeviceTokenRoute: typeof ApiAgentDeviceTokenRoute
   ApiAgentV1KnowledgeSourcesRoute: typeof ApiAgentV1KnowledgeSourcesRoute
   ApiAgentV1OperationsRoute: typeof ApiAgentV1OperationsRoute
   ApiAiSupportWidgetPublicKeyRoute: typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
@@ -2344,6 +2395,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/settings/payments'
       preLoaderRoute: typeof SettingsPaymentsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/device': {
+      id: '/settings/device'
+      path: '/device'
+      fullPath: '/settings/device'
+      preLoaderRoute: typeof SettingsDeviceRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
     '/settings/credits': {
@@ -3200,6 +3258,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentV1KnowledgeSourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent/device/token': {
+      id: '/api/agent/device/token'
+      path: '/api/agent/device/token'
+      fullPath: '/api/agent/device/token'
+      preLoaderRoute: typeof ApiAgentDeviceTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/device/code': {
+      id: '/api/agent/device/code'
+      path: '/api/agent/device/code'
+      fullPath: '/api/agent/device/code'
+      preLoaderRoute: typeof ApiAgentDeviceCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/device/approve': {
+      id: '/api/agent/device/approve'
+      path: '/api/agent/device/approve'
+      fullPath: '/api/agent/device/approve'
+      preLoaderRoute: typeof ApiAgentDeviceApproveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/users/credits': {
       id: '/api/admin/users/credits'
       path: '/api/admin/users/credits'
@@ -3482,6 +3561,7 @@ interface SettingsRouteRouteChildren {
   SettingsChipChatRoute: typeof SettingsChipChatRoute
   SettingsCompareHistoryRoute: typeof SettingsCompareHistoryRoute
   SettingsCreditsRoute: typeof SettingsCreditsRoute
+  SettingsDeviceRoute: typeof SettingsDeviceRoute
   SettingsPaymentsRoute: typeof SettingsPaymentsRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
   SettingsTaskCenterRoute: typeof SettingsTaskCenterRoute
@@ -3517,6 +3597,7 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsChipChatRoute: SettingsChipChatRoute,
   SettingsCompareHistoryRoute: SettingsCompareHistoryRoute,
   SettingsCreditsRoute: SettingsCreditsRoute,
+  SettingsDeviceRoute: SettingsDeviceRoute,
   SettingsPaymentsRoute: SettingsPaymentsRoute,
   SettingsProfileRoute: SettingsProfileRoute,
   SettingsTaskCenterRoute: SettingsTaskCenterRoute,
@@ -3739,6 +3820,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminRolesPermissionsRoute: ApiAdminRolesPermissionsRoute,
   ApiAdminSettingsTestRoute: ApiAdminSettingsTestRoute,
   ApiAdminUsersCreditsRoute: ApiAdminUsersCreditsRoute,
+  ApiAgentDeviceApproveRoute: ApiAgentDeviceApproveRoute,
+  ApiAgentDeviceCodeRoute: ApiAgentDeviceCodeRoute,
+  ApiAgentDeviceTokenRoute: ApiAgentDeviceTokenRoute,
   ApiAgentV1KnowledgeSourcesRoute: ApiAgentV1KnowledgeSourcesRoute,
   ApiAgentV1OperationsRoute: ApiAgentV1OperationsRoute,
   ApiAiSupportWidgetPublicKeyRoute:

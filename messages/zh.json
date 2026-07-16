@@ -1332,5 +1332,15 @@
   "chat.input_placeholder": "输入芯片相关问题…",
   "chat.send": "发送",
   "chat.thinking": "思考中…",
-  "chat.error": "获取回答失败"
+  "chat.error": "获取回答失败",
+  "settings.device.title": "设备授权",
+  "settings.device.description": "一个 agent 或命令行工具正在请求访问你的 Barbot 账号。",
+  "settings.device.code_label": "配对码",
+  "settings.device.approve": "授权",
+  "settings.device.deny": "拒绝",
+  "settings.device.approved": "已授权——回到终端继续操作。",
+  "settings.device.denied": "已拒绝该请求。",
+  "settings.device.invalid": "配对码不存在或已过期。",
+  "settings.device.signin_required": "请先登录后再授权此设备。",
+  "settings.device.warning": "仅当这是你本人发起的请求时才授权。设备将获得一个可消耗你积分的 API key。"
 }

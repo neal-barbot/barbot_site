@@ -1332,5 +1332,15 @@
   "chat.input_placeholder": "Ask a chip question…",
   "chat.send": "Send",
   "chat.thinking": "Thinking…",
-  "chat.error": "Failed to get an answer"
+  "chat.error": "Failed to get an answer",
+  "settings.device.title": "Device authorization",
+  "settings.device.description": "An agent or CLI tool is requesting access to your Barbot account.",
+  "settings.device.code_label": "Pairing code",
+  "settings.device.approve": "Authorize",
+  "settings.device.deny": "Deny",
+  "settings.device.approved": "Authorized — return to your terminal to continue.",
+  "settings.device.denied": "Request denied.",
+  "settings.device.invalid": "Code not found or expired.",
+  "settings.device.signin_required": "Please sign in first to authorize this device.",
+  "settings.device.warning": "Only authorize if you started this request yourself. The device will receive an API key that can spend your credits."
 }
