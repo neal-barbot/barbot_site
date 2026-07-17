@@ -67,3 +67,4 @@ package-lock.json
 /public/uploads/
 apikey.md
 .agent-home
+.claude/launch.json

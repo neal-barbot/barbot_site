@@ -1,0 +1,47 @@
+# Barbot execution plane — Harvey (craft-agents) server in a container.
+#
+# The shipany control plane (this repo) runs separately: `pnpm dev` locally,
+# Cloudflare Workers in production. This compose file owns only the agent
+# executor(s); in production it becomes the per-customer/per-user instance
+# template (one service instance = one isolated workspace + data volume).
+#
+# Dev usage:
+#   docker compose build harvey            # slow first time (~3-4 GB image, webui build needs 4 GB heap)
+#   docker compose up -d harvey            # web UI + WS RPC on http://localhost:9100
+#
+# CRAFT_REPO: path to the craft-agents fork checkout. Default assumes the
+# standard sibling layout next to shipany-tanstack; from a .claude worktree,
+# export CRAFT_REPO=/Users/neal/Downloads/Projects/AI-agent-project/craft-agents-oss
+#
+# Membership login from inside the container reaches the host's shipany via
+# host.docker.internal. To make the SAME URL work in your browser (the auth
+# page opens there), add once to /etc/hosts:
+#   127.0.0.1 host.docker.internal
+# Then the Server URL http://host.docker.internal:3100 works on both sides.
+
+services:
+  harvey:
+    build:
+      context: ${CRAFT_REPO:-../craft-agents-oss}
+      dockerfile: Dockerfile.server
+      args:
+        # Baked-in default for the webui's membership Server URL field.
+        VITE_BARBOT_SERVER_URL: ${BARBOT_SERVER_URL:-http://host.docker.internal:3100}
+    image: barbot/harvey-server:dev
+    # TLS is terminated by the reverse proxy (caddy/nginx) in front; inside
+    # the compose network the server binds plain ws/http on 0.0.0.0.
+    command: ['--allow-insecure-bind']
+    ports:
+      - '${HARVEY_PORT:-9100}:9100'
+    environment:
+      CRAFT_SERVER_TOKEN: ${CRAFT_SERVER_TOKEN:-dev-token-1234567890}
+      # Optional shorter web-login password (falls back to the token).
+      CRAFT_WEBUI_PASSWORD: ${CRAFT_WEBUI_PASSWORD:-}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - harvey-data:/home/craftagents/.craft-agent
+    restart: unless-stopped
+
+volumes:
+  harvey-data:
