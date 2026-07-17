@@ -1,11 +1,11 @@
 import { m } from "@/paraglide/messages.js";
 import { tDynamic } from "@/core/i18n/dynamic";
 import {
-  ShieldCheck,
-  CreditCard,
-  Users,
-  Globe,
-  FileText,
+  Search,
+  GitCompareArrows,
+  Sparkles,
+  BookMarked,
+  Zap,
   Coins,
   type LucideIcon,
 } from "lucide-react";
@@ -13,11 +13,11 @@ import {
 export function Features() {
   
   const features: { key: string; icon: LucideIcon }[] = [
-    { key: "auth", icon: ShieldCheck },
-    { key: "payment", icon: CreditCard },
-    { key: "rbac", icon: Users },
-    { key: "i18n", icon: Globe },
-    { key: "cms", icon: FileText },
+    { key: "catalog", icon: Search },
+    { key: "pin2pin", icon: GitCompareArrows },
+    { key: "ai_compare", icon: Sparkles },
+    { key: "provenance", icon: BookMarked },
+    { key: "fast_parse", icon: Zap },
     { key: "credits", icon: Coins },
   ];
 

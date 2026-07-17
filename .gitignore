@@ -65,3 +65,8 @@ package-lock.json
 
 # Runtime image uploads (no-storage local fallback)
 /public/uploads/
+apikey.md
+.agent-home
+.claude/launch.json
+public/imgs/generated/
+data/generated/

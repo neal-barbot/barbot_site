@@ -152,3 +152,94 @@
     .animate-drift-a, .animate-drift-b, .animate-drift-c { animation: none !important; }
   }
 }
+
+
+/* ── Motion vocabulary (ported from the Harvey docs design system) ──
+   Ease: exponential-out spring; entrances settle downward-up; grids
+   stagger by --i; hovers get a single sheen sweep, never loops. */
+:root {
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes bb-settle {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes bb-tile-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes bb-sheen {
+  0% { opacity: 0; transform: translateX(-72%); }
+  24% { opacity: 0.72; }
+  100% { opacity: 0; transform: translateX(72%); }
+}
+
+.anim-settle {
+  animation: bb-settle 720ms var(--ease-spring) both;
+  animation-delay: calc(var(--stagger, 0) * 90ms);
+}
+
+.anim-tile {
+  animation: bb-tile-in 560ms var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.hover-lift {
+  transition:
+    transform 240ms var(--ease-spring),
+    box-shadow 240ms var(--ease-spring),
+    border-color 240ms var(--ease-spring);
+}
+.hover-lift:hover { transform: translateY(-3px); }
+
+.sheen-host { position: relative; overflow: hidden; }
+.sheen-host::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    color-mix(in srgb, var(--foreground) 7%, transparent) 50%,
+    transparent 68%
+  );
+}
+.sheen-host:hover::after { animation: bb-sheen 900ms var(--ease-spring); }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-settle, .anim-tile { animation: none; }
+  .hover-lift, .hover-lift:hover { transition: none; transform: none; }
+  .sheen-host:hover::after { animation: none; }
+}
+
+
+/* ── Marquee (fumadocs pattern) ── */
+@keyframes bb-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% - var(--gap))); }
+}
+@keyframes bb-marquee-vertical {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(-100% - var(--gap))); }
+}
+.marquee-track { animation: bb-marquee var(--duration, 40s) linear infinite; }
+.marquee-track-vertical { animation: bb-marquee-vertical var(--duration, 40s) linear infinite; }
+
+/* ── Scroll reveal (progressive enhancement; static without support) ── */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: bb-settle both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 40%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .marquee-track-vertical { animation-play-state: paused; }
+  .reveal { animation: none; }
+}

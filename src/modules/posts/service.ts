@@ -89,6 +89,15 @@ export async function listPublishedArticles(
     .limit(limit);
 }
 
+export async function findBySlug(slug: string): Promise<Post | undefined> {
+  const [result] = await db()
+    .select()
+    .from(post)
+    .where(eq(post.slug, slug.toLowerCase()))
+    .limit(1);
+  return result;
+}
+
 export async function findPublishedBySlug(
   slug: string
 ): Promise<Post | undefined> {

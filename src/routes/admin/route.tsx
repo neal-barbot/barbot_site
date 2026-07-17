@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { m } from "@/paraglide/messages.js";
-import { LayoutDashboard, Shield, CreditCard, FolderOpen, Settings, Home, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Shield, CreditCard, Cpu, FolderOpen, Settings, Home, LifeBuoy } from "lucide-react";
 
 import { AppLayout } from "@/components/app-layout";
 import { envConfigs } from "@/config";
@@ -34,6 +34,17 @@ function AdminLayout() {
       items: [
         { href: "/admin/categories", label: m["admin.nav.categories"]() },
         { href: "/admin/posts", label: m["admin.nav.posts"]() },
+      ],
+    },
+    {
+      href: "/admin/chips",
+      label: m["admin.nav.chips_group"](),
+      icon: Cpu,
+      group,
+      items: [
+        { href: "/admin/chips", label: m["admin.nav.chips"]() },
+        { href: "/admin/chip-segments", label: m["admin.nav.chip_segments"]() },
+        { href: "/admin/chip-compare", label: m["admin.nav.chip_compare"]() },
       ],
     },
     {

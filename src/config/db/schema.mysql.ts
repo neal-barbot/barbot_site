@@ -674,6 +674,137 @@ export const aiConversationMessage = table(
   ]
 );
 
+export const aiKnowledgeChunk = table(
+  'ai_knowledge_chunk',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    sourceId: varchar191('source_id')
+      .notNull()
+      .references(() => aiKnowledgeSource.id, { onDelete: 'cascade' }),
+    ordinal: int('ordinal').notNull(),
+    content: longtext('content').notNull(),
+    checksum: varchar('checksum', { length: 191 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_knowledge_chunk_source').on(t.sourceId, t.ordinal),
+    index('idx_ai_knowledge_chunk_chatbot').on(t.chatbotId),
+  ]
+);
+
+export const aiKnowledgeSyncJob = table(
+  'ai_knowledge_sync_job',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    sourceId: varchar191('source_id')
+      .notNull()
+      .references(() => aiKnowledgeSource.id, { onDelete: 'cascade' }),
+    enabled: boolean('enabled').notNull().default(true),
+    intervalMinutes: int('interval_minutes').notNull().default(1440),
+    status: varchar('status', { length: 50 }).notNull().default('pending'),
+    attempts: int('attempts').notNull().default(0),
+    lastError: longtext('last_error'),
+    lastRunAt: timestamp('last_run_at'),
+    nextRunAt: timestamp('next_run_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_knowledge_sync_source').on(t.sourceId),
+    index('idx_ai_knowledge_sync_due').on(t.enabled, t.nextRunAt),
+  ]
+);
+
+export const aiConversationTag = table(
+  'ai_conversation_tag',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    conversationId: varchar191('conversation_id')
+      .notNull()
+      .references(() => aiConversation.id, { onDelete: 'cascade' }),
+    label: varchar('label', { length: 191 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_ai_conversation_tag_conversation').on(t.conversationId)]
+);
+
+export const aiKnowledgeGap = table(
+  'ai_knowledge_gap',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    conversationId: varchar191('conversation_id').references(() => aiConversation.id),
+    question: longtext('question').notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('open'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    resolvedAt: timestamp('resolved_at'),
+  },
+  (t) => [index('idx_ai_knowledge_gap_chatbot_status').on(t.chatbotId, t.status)]
+);
+
+export const inviteCode = table(
+  'invite_code',
+  {
+    id: varchar191('id').primaryKey(),
+    code: varchar('code', { length: 191 }).notNull().unique(),
+    maxUses: int('max_uses').notNull().default(1),
+    usedCount: int('used_count').notNull().default(0),
+    trialDays: int('trial_days').notNull().default(15),
+    note: varchar('note', { length: 500 }).default(''),
+    createdBy: varchar191('created_by').references(() => user.id),
+    expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [index('idx_invite_code_code').on(t.code)]
+);
+
+export const userInvite = table(
+  'user_invite',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id),
+    inviteCodeId: varchar191('invite_code_id')
+      .notNull()
+      .references(() => inviteCode.id),
+    activatedAt: timestamp('activated_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+    trialEndsAt: timestamp('trial_ends_at').notNull(),
+  },
+  (t) => [
+    index('idx_user_invite_user').on(t.userId),
+    index('idx_user_invite_code').on(t.inviteCodeId),
+  ]
+);
+
+
 export const aiLead = table(
   'ai_lead',
   {
@@ -905,6 +1036,18 @@ export type AiKnowledgeSource = typeof aiKnowledgeSource.$inferSelect;
 export type NewAiKnowledgeSource = typeof aiKnowledgeSource.$inferInsert;
 export type AiConversation = typeof aiConversation.$inferSelect;
 export type NewAiConversation = typeof aiConversation.$inferInsert;
+export type AiKnowledgeChunk = typeof aiKnowledgeChunk.$inferSelect;
+export type NewAiKnowledgeChunk = typeof aiKnowledgeChunk.$inferInsert;
+export type AiKnowledgeSyncJob = typeof aiKnowledgeSyncJob.$inferSelect;
+export type NewAiKnowledgeSyncJob = typeof aiKnowledgeSyncJob.$inferInsert;
+export type AiConversationTag = typeof aiConversationTag.$inferSelect;
+export type NewAiConversationTag = typeof aiConversationTag.$inferInsert;
+export type AiKnowledgeGap = typeof aiKnowledgeGap.$inferSelect;
+export type NewAiKnowledgeGap = typeof aiKnowledgeGap.$inferInsert;
+export type InviteCode = typeof inviteCode.$inferSelect;
+export type NewInviteCode = typeof inviteCode.$inferInsert;
+export type UserInvite = typeof userInvite.$inferSelect;
+export type NewUserInvite = typeof userInvite.$inferInsert;
 export type AiConversationMessage = typeof aiConversationMessage.$inferSelect;
 export type NewAiConversationMessage = typeof aiConversationMessage.$inferInsert;
 export type AiLead = typeof aiLead.$inferSelect;
@@ -927,3 +1070,173 @@ export type AiConfigVersion = typeof aiConfigVersion.$inferSelect;
 export type NewAiConfigVersion = typeof aiConfigVersion.$inferInsert;
 export type AiAuditLog = typeof aiAuditLog.$inferSelect;
 export type NewAiAuditLog = typeof aiAuditLog.$inferInsert;
+
+// ─── Chip P2P ────────────────────────────────────────────────────────────────
+
+export const chipSegment = table(
+  'chip_segment',
+  {
+    id: varchar191('id').primaryKey(),
+    parentId: varchar191('parent_id'),
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    sort: int('sort').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [index('idx_chip_segment_parent').on(table.parentId)]
+);
+
+export const chip = table(
+  'chip',
+  {
+    id: varchar191('id').primaryKey(),
+    manufacturer: varchar('manufacturer', { length: 255 }),
+    partNumber: varchar('part_number', { length: 255 }).notNull(),
+    partNumberNorm: varchar('part_number_norm', { length: 255 }).notNull(),
+    description: text('description'),
+    sheetUrl: varchar('sheet_url', { length: 512 }),
+    parameter: longtext('parameter'),
+    segmentId: varchar191('segment_id').references(() => chipSegment.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    index('idx_chip_part_number').on(table.partNumber),
+    index('idx_chip_part_number_norm').on(table.partNumberNorm),
+    index('idx_chip_manufacturer').on(table.manufacturer),
+  ]
+);
+
+export const pin2pin = table(
+  'pin2pin',
+  {
+    id: varchar191('id').primaryKey(),
+    chipId: varchar191('chip_id')
+      .notNull()
+      .references(() => chip.id, { onDelete: 'cascade' }),
+    supplier: varchar('supplier', { length: 255 }),
+    partNumber: varchar('part_number', { length: 255 }).notNull(),
+    supplierP2p: varchar('supplier_p2p', { length: 255 }),
+    partNumberP2p: varchar('part_number_p2p', { length: 255 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    index('idx_pin2pin_chip').on(table.chipId),
+    index('idx_pin2pin_part_number').on(table.partNumber),
+  ]
+);
+
+export const bom = table(
+  'bom',
+  {
+    id: varchar191('id').primaryKey(),
+    chipId: varchar191('chip_id')
+      .notNull()
+      .references(() => chip.id, { onDelete: 'cascade' }),
+    manufacturer: varchar('manufacturer', { length: 255 }),
+    categoryName: varchar('category_name', { length: 255 }),
+    partNumber: varchar('part_number', { length: 255 }).notNull(),
+    quantity: int('quantity').notNull().default(1),
+    unitPrice: int('unit_price').notNull().default(0),
+    totalPrice: int('total_price').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [index('idx_bom_chip').on(table.chipId)]
+);
+
+export const pdfParseCache = table(
+  'pdf_parse_cache',
+  {
+    id: varchar191('id').primaryKey(),
+    fileMd5: varchar191('file_md5').notNull().unique(),
+    fileName: varchar('file_name', { length: 512 }).notNull(),
+    chipPartNumber: varchar('chip_part_number', { length: 255 })
+      .notNull()
+      .default(''),
+    sourceUrl: varchar('source_url', { length: 1024 }),
+    pageCount: int('page_count').notNull().default(0),
+    pages: longtext('pages'),
+    status: varchar('status', { length: 50 }).notNull().default('pending'),
+    error: text('error'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    index('idx_pdf_parse_cache_part_number').on(table.chipPartNumber),
+    index('idx_pdf_parse_cache_status').on(table.status),
+  ]
+);
+
+export const chipCompareRecord = table(
+  'chip_compare_record',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chipPartNumbers: text('chip_part_numbers').notNull(),
+    fileList: text('file_list').notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('pending'),
+    stage: varchar('stage', { length: 255 }).notNull().default(''),
+    provider: varchar('provider', { length: 50 }).notNull().default('openai'),
+    model: varchar191('model').notNull(),
+    language: varchar('language', { length: 20 }).notNull().default('en'),
+    prompt: longtext('prompt'),
+    result: longtext('result'),
+    inputTokens: int('input_tokens'),
+    outputTokens: int('output_tokens'),
+    durationMs: int('duration_ms'),
+    costCredits: int('cost_credits').notNull().default(0),
+    creditId: varchar191('credit_id'),
+    cacheKey: varchar191('cache_key').notNull().default(''),
+    cacheHit: boolean('cache_hit').notNull().default(false),
+    // Substitution verdict tag: pin2pin | non_pin2pin | functional | '' (unknown)
+    substitutionLevel: varchar('substitution_level', { length: 20 }).notNull().default(''),
+    source: varchar('source', { length: 50 }).notNull().default('user'),
+    error: text('error'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => [
+    index('idx_chip_compare_record_user').on(table.userId, table.createdAt),
+    index('idx_chip_compare_record_cache').on(table.cacheKey, table.status),
+  ]
+);
+
+export const chipCompareTrace = table(
+  'chip_compare_trace',
+  {
+    id: varchar191('id').primaryKey(),
+    recordId: varchar191('record_id')
+      .notNull()
+      .references(() => chipCompareRecord.id, { onDelete: 'cascade' }),
+    paramName: varchar('param_name', { length: 255 }).notNull(),
+    paramCategory: varchar('param_category', { length: 255 }),
+    chipsTrace: longtext('chips_trace').notNull(),
+    diffLevel: varchar('diff_level', { length: 50 }),
+    diffNote: text('diff_note'),
+    userNote: text('user_note'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [index('idx_chip_compare_trace_record').on(table.recordId)]
+);
+
+export type ChipSegment = typeof chipSegment.$inferSelect;
+export type NewChipSegment = typeof chipSegment.$inferInsert;
+export type Chip = typeof chip.$inferSelect;
+export type NewChip = typeof chip.$inferInsert;
+export type Pin2Pin = typeof pin2pin.$inferSelect;
+export type NewPin2Pin = typeof pin2pin.$inferInsert;
+export type Bom = typeof bom.$inferSelect;
+export type NewBom = typeof bom.$inferInsert;
+export type PdfParseCache = typeof pdfParseCache.$inferSelect;
+export type NewPdfParseCache = typeof pdfParseCache.$inferInsert;
+export type ChipCompareRecord = typeof chipCompareRecord.$inferSelect;
+export type NewChipCompareRecord = typeof chipCompareRecord.$inferInsert;
+export type ChipCompareTrace = typeof chipCompareTrace.$inferSelect;
+export type NewChipCompareTrace = typeof chipCompareTrace.$inferInsert;

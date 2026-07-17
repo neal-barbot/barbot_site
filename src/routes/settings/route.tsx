@@ -2,6 +2,9 @@ import { createFileRoute, Outlet, useRouterState } from '@tanstack/react-router'
 import { m } from "@/paraglide/messages.js";
 import {
   BarChart3,
+  Workflow,
+  Cpu,
+  CreditCard as CreditCardIcon,
   Bot,
   Briefcase,
   ClipboardList,
@@ -66,21 +69,61 @@ function SettingsLayout() {
     { href: "/settings/profile", label: m["settings.nav.profile"](), icon: User },
     { href: "/", label: m["common.systems.home"](), icon: Home, newTab: true },
   ];
-  const visibleNavItems = chatbotId
+  // ── Barbot area detection: fae workspace / chip workspace / account+hub ──
+  const isFaeArea =
+    !!chatbotId ||
+    /^\/settings\/(ai-support|chat($|\/)|task-center|wiki-assistant)/.test(pathname);
+  const isChipArea = /^\/settings\/(compare-history|chip-chat)/.test(pathname);
+
+  const chipNavItems = [
+    { href: "/settings", label: m["console.nav.hub"](), icon: Home, group: undefined },
+    { href: "/settings/compare-history", label: m["settings.nav.compare_history"](), icon: History, group: m["console.nav.chip_group"]() },
+    { href: "/settings/chip-chat", label: m["chat.nav"](), icon: MessageSquare, group: m["console.nav.chip_group"]() },
+    { href: "/compare", label: m["console.nav.new_compare"](), icon: BarChart3, group: m["console.nav.chip_group"]() },
+    { href: "/diagram", label: m["compare.tabs.diagram"](), icon: Workflow, group: m["console.nav.chip_group"]() },
+    { href: "/chips", label: m["console.nav.chip_catalog"](), icon: Database, group: m["console.nav.chip_group"]() },
+  ];
+
+  const accountNavItems = [
+    { href: "/settings", label: m["console.nav.hub"](), icon: Home, group: undefined },
+    { href: "/settings/profile", label: m["settings.nav.profile"](), icon: User, group: m["console.nav.account_group"]() },
+    { href: "/settings/billing", label: "Billing", icon: CreditCardIcon, group: m["console.nav.account_group"]() },
+    { href: "/settings/credits", label: "Credits", icon: Gauge, group: m["console.nav.account_group"]() },
+    { href: "/settings/payments", label: "Payments", icon: ClipboardList, group: m["console.nav.account_group"]() },
+    { href: "/settings/apikeys", label: "API Keys", icon: Link2, group: m["console.nav.account_group"]() },
+    { href: "/settings/tickets", label: "Support", icon: LifeBuoy, group: m["console.nav.account_group"]() },
+  ];
+
+  const faeNavItems = chatbotId
     ? navItems
     : [
-        ...navItems.filter((item) => item.label === 'Dashboard'),
+        { href: "/settings", label: m["console.nav.hub"](), icon: Home, group: undefined },
+        ...navItems.filter((item) => item.label === 'Dashboard').map((i) => ({ ...i, href: '/settings/ai-support', label: 'FAE Dashboard' })),
         { href: '/settings/task-center', label: 'Task Center', icon: ClipboardList, group: workspaceGroup },
       ];
 
-  const headerExtra = <SiteGptTopNavLinks active="Chatbots" />;
+  const visibleNavItems = isFaeArea ? faeNavItems : isChipArea ? chipNavItems : accountNavItems;
 
-  const brand = (
+  const headerExtra = isFaeArea ? <SiteGptTopNavLinks active="Chatbots" /> : undefined;
+
+  const brand = isFaeArea ? (
     <span className="inline-flex items-center gap-2">
       <span className="grid size-7 place-items-center rounded-md bg-blue-600 text-white">
         <Bot className="size-4" />
       </span>
-      <span>SiteGPT</span>
+      <span>AI FAE</span>
+    </span>
+  ) : isChipArea ? (
+    <span className="inline-flex items-center gap-2">
+      <span className="grid size-7 place-items-center rounded-md bg-foreground text-background">
+        <Cpu className="size-4" />
+      </span>
+      <span>Chip P2P</span>
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-2">
+      <img src="/logo.svg" alt="" className="size-6" />
+      <span className="font-serif text-lg font-semibold tracking-tight">Barbot</span>
     </span>
   );
 

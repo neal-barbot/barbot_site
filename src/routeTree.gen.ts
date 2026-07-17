@@ -17,6 +17,9 @@ import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as DiagramIndexRouteImport } from './routes/diagram/index'
+import { Route as CompareIndexRouteImport } from './routes/compare/index'
+import { Route as ChipsIndexRouteImport } from './routes/chips/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as SettingsWikiAssistantRouteImport } from './routes/settings/wiki-assistant'
@@ -24,13 +27,21 @@ import { Route as SettingsTicketsRouteImport } from './routes/settings/tickets'
 import { Route as SettingsTaskCenterRouteImport } from './routes/settings/task-center'
 import { Route as SettingsProfileRouteImport } from './routes/settings/profile'
 import { Route as SettingsPaymentsRouteImport } from './routes/settings/payments'
+import { Route as SettingsDeviceRouteImport } from './routes/settings/device'
 import { Route as SettingsCreditsRouteImport } from './routes/settings/credits'
+import { Route as SettingsCompareHistoryRouteImport } from './routes/settings/compare-history'
+import { Route as SettingsChipChatRouteImport } from './routes/settings/chip-chat'
 import { Route as SettingsChatRouteImport } from './routes/settings/chat'
 import { Route as SettingsBillingRouteImport } from './routes/settings/billing'
 import { Route as SettingsApikeysRouteImport } from './routes/settings/apikeys'
 import { Route as SettingsAiSupportRouteImport } from './routes/settings/ai-support'
+import { Route as ProductsChipP2pRouteImport } from './routes/products/chip-p2p'
+import { Route as ProductsAiFaeRouteImport } from './routes/products/ai-fae'
+import { Route as ChipsIdRouteImport } from './routes/chips/$id'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as AuthDesktopRouteImport } from './routes/auth/desktop'
 import { Route as ApiTicketsRouteImport } from './routes/api/tickets'
+import { Route as ApiEntitlementsRouteImport } from './routes/api/entitlements'
 import { Route as ApiCreditsRouteImport } from './routes/api/credits'
 import { Route as ApiApikeysRouteImport } from './routes/api/apikeys'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
@@ -43,6 +54,9 @@ import { Route as AdminPermissionsRouteImport } from './routes/admin/permissions
 import { Route as AdminPaymentsRouteImport } from './routes/admin/payments'
 import { Route as AdminInviteCodesRouteImport } from './routes/admin/invite-codes'
 import { Route as AdminCreditsRouteImport } from './routes/admin/credits'
+import { Route as AdminChipsRouteImport } from './routes/admin/chips'
+import { Route as AdminChipSegmentsRouteImport } from './routes/admin/chip-segments'
+import { Route as AdminChipCompareRouteImport } from './routes/admin/chip-compare'
 import { Route as AdminCategoriesRouteImport } from './routes/admin/categories'
 import { Route as pagesTermsOfServiceRouteImport } from './routes/(pages)/terms-of-service'
 import { Route as pagesPrivacyPolicyRouteImport } from './routes/(pages)/privacy-policy'
@@ -51,10 +65,14 @@ import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as ApiChipsIndexRouteImport } from './routes/api/chips/index'
+import { Route as SettingsCompareHistoryIdRouteImport } from './routes/settings/compare-history_.$id'
 import { Route as ApiWikiContextsRouteImport } from './routes/api/wiki/contexts'
 import { Route as ApiWikiContextRouteImport } from './routes/api/wiki/context'
 import { Route as ApiWikiAssetRouteImport } from './routes/api/wiki/asset'
 import { Route as ApiWikiAskRouteImport } from './routes/api/wiki/ask'
+import { Route as ApiV1ProviderConfigRouteImport } from './routes/api/v1/provider-config'
+import { Route as ApiV1EntitlementRouteImport } from './routes/api/v1/entitlement'
 import { Route as ApiUserProfileRouteImport } from './routes/api/user/profile'
 import { Route as ApiUserPermissionsRouteImport } from './routes/api/user/permissions'
 import { Route as ApiUserOrdersRouteImport } from './routes/api/user/orders'
@@ -67,10 +85,19 @@ import { Route as ApiPaymentCheckoutRouteImport } from './routes/api/payment/che
 import { Route as ApiPaymentCallbackRouteImport } from './routes/api/payment/callback'
 import { Route as ApiInviteCodesValidateRouteImport } from './routes/api/invite-codes/validate'
 import { Route as ApiInviteCodesRedeemRouteImport } from './routes/api/invite-codes/redeem'
+import { Route as ApiInternalUsageRouteImport } from './routes/api/internal/usage'
 import { Route as ApiInternalSessionRouteImport } from './routes/api/internal/session'
 import { Route as ApiInternalCreditsRouteImport } from './routes/api/internal/credits'
+import { Route as ApiInternalBalanceRouteImport } from './routes/api/internal/balance'
 import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
 import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
+import { Route as ApiChipsIdRouteImport } from './routes/api/chips/$id'
+import { Route as ApiChipCompareUploadRouteImport } from './routes/api/chip-compare/upload'
+import { Route as ApiChipCompareDiagramRouteImport } from './routes/api/chip-compare/diagram'
+import { Route as ApiChipCompareCostRouteImport } from './routes/api/chip-compare/cost'
+import { Route as ApiChipCompareChatRouteImport } from './routes/api/chip-compare/chat'
+import { Route as ApiChipCompareAnalyzeRouteImport } from './routes/api/chip-compare/analyze'
+import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth/verify'
 import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
@@ -98,6 +125,7 @@ import { Route as ApiAiSupportChatbotsRouteImport } from './routes/api/ai-suppor
 import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-support/audit-logs'
 import { Route as ApiAiSupportAgentTokensRouteImport } from './routes/api/ai-support/agent-tokens'
 import { Route as ApiAiSupportAgentRunsRouteImport } from './routes/api/ai-support/agent-runs'
+import { Route as ApiAgentTokenRouteImport } from './routes/api/agent/token'
 import { Route as ApiAdminTicketsRouteImport } from './routes/api/admin/tickets'
 import { Route as ApiAdminSubscriptionsRouteImport } from './routes/api/admin/subscriptions'
 import { Route as ApiAdminPostsRouteImport } from './routes/api/admin/posts'
@@ -106,28 +134,50 @@ import { Route as ApiAdminOrdersRouteImport } from './routes/api/admin/orders'
 import { Route as ApiAdminInviteCodesRouteImport } from './routes/api/admin/invite-codes'
 import { Route as ApiAdminCreditsRouteImport } from './routes/api/admin/credits'
 import { Route as ApiAdminConfigRouteImport } from './routes/api/admin/config'
+import { Route as ApiAdminChipSegmentsRouteImport } from './routes/api/admin/chip-segments'
 import { Route as ApiAdminCategoriesRouteImport } from './routes/api/admin/categories'
 import { Route as SettingsChatbotsChatbotIdIndexRouteImport } from './routes/settings/chatbots/$chatbotId/index'
 import { Route as ApiUserSubscriptionsIndexRouteImport } from './routes/api/user/subscriptions/index'
+import { Route as ApiChipCompareRecordsIndexRouteImport } from './routes/api/chip-compare/records/index'
+import { Route as ApiChipCompareChatsIndexRouteImport } from './routes/api/chip-compare/chats/index'
 import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
 import { Route as ApiAdminRolesIndexRouteImport } from './routes/api/admin/roles/index'
+import { Route as ApiAdminChipsIndexRouteImport } from './routes/api/admin/chips/index'
 import { Route as SettingsChatbotsChatbotIdSettingsRouteImport } from './routes/settings/chatbots/$chatbotId/settings'
 import { Route as SettingsChatbotsChatbotIdSdkRouteImport } from './routes/settings/chatbots/$chatbotId/sdk'
 import { Route as SettingsChatbotsChatbotIdLeadsRouteImport } from './routes/settings/chatbots/$chatbotId/leads'
 import { Route as SettingsChatbotsChatbotIdInstallationRouteImport } from './routes/settings/chatbots/$chatbotId/installation'
 import { Route as SettingsChatbotsChatbotIdHistoryRouteImport } from './routes/settings/chatbots/$chatbotId/history'
+import { Route as ApiV1UsageReportRouteImport } from './routes/api/v1/usage/report'
+import { Route as ApiV1DeviceRegisterRouteImport } from './routes/api/v1/device/register'
+import { Route as ApiV1DeviceHeartbeatRouteImport } from './routes/api/v1/device/heartbeat'
 import { Route as ApiUserSubscriptionsCurrentRouteImport } from './routes/api/user/subscriptions/current'
 import { Route as ApiUserSubscriptionsCancelRouteImport } from './routes/api/user/subscriptions/cancel'
 import { Route as ApiPaymentNotifyProviderRouteImport } from './routes/api/payment/notify/$provider'
+import { Route as ApiFilesGeneratedNameRouteImport } from './routes/api/files/generated/$name'
+import { Route as ApiChipCompareRecordsIdRouteImport } from './routes/api/chip-compare/records/$id'
+import { Route as ApiChipCompareChatsIdRouteImport } from './routes/api/chip-compare/chats/$id'
+import { Route as ApiAuthDesktopRefreshRouteImport } from './routes/api/auth/desktop/refresh'
+import { Route as ApiAuthDesktopLogoutRouteImport } from './routes/api/auth/desktop/logout'
+import { Route as ApiAuthDesktopLoginRouteImport } from './routes/api/auth/desktop/login'
+import { Route as ApiAuthDesktopExchangeRouteImport } from './routes/api/auth/desktop/exchange'
+import { Route as ApiAuthDesktopAuthorizeRouteImport } from './routes/api/auth/desktop/authorize'
 import { Route as ApiAiSupportWidgetPublicKeyRouteImport } from './routes/api/ai-support/widget/$publicKey'
 import { Route as ApiAgentV1OperationsRouteImport } from './routes/api/agent/v1/operations'
 import { Route as ApiAgentV1KnowledgeSourcesRouteImport } from './routes/api/agent/v1/knowledge-sources'
+import { Route as ApiAgentDeviceTokenRouteImport } from './routes/api/agent/device/token'
+import { Route as ApiAgentDeviceCodeRouteImport } from './routes/api/agent/device/code'
+import { Route as ApiAgentDeviceApproveRouteImport } from './routes/api/agent/device/approve'
 import { Route as ApiAdminUsersCreditsRouteImport } from './routes/api/admin/users/credits'
 import { Route as ApiAdminTicketsIdRouteImport } from './routes/api/admin/tickets/$id'
 import { Route as ApiAdminSettingsTestRouteImport } from './routes/api/admin/settings/test'
 import { Route as ApiAdminRolesPermissionsRouteImport } from './routes/api/admin/roles/permissions'
 import { Route as ApiAdminRolesAssignRouteImport } from './routes/api/admin/roles/assign'
 import { Route as ApiAdminConfigCustomRouteImport } from './routes/api/admin/config/custom'
+import { Route as ApiAdminChipsImportRouteImport } from './routes/api/admin/chips/import'
+import { Route as ApiAdminChipsIdRouteImport } from './routes/api/admin/chips/$id'
+import { Route as ApiAdminChipCompareRecordsRouteImport } from './routes/api/admin/chip-compare/records'
+import { Route as ApiAdminChipComparePreheatRouteImport } from './routes/api/admin/chip-compare/preheat'
 import { Route as SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/website-links'
 import { Route as SettingsChatbotsChatbotIdKnowledgeTextSnippetsRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/text-snippets'
 import { Route as SettingsChatbotsChatbotIdKnowledgeSyncJobsRouteImport } from './routes/settings/chatbots/$chatbotId/knowledge/sync-jobs'
@@ -140,6 +190,11 @@ import { Route as SettingsChatbotsChatbotIdCustomizationInstructionsRouteImport 
 import { Route as SettingsChatbotsChatbotIdCustomizationHumanSupportRouteImport } from './routes/settings/chatbots/$chatbotId/customization/human-support'
 import { Route as SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport } from './routes/settings/chatbots/$chatbotId/customization/followups'
 import { Route as SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport } from './routes/settings/chatbots/$chatbotId/customization/appearance'
+import { Route as ApiV1UsageReportBatchRouteImport } from './routes/api/v1/usage/report.batch'
+import { Route as ApiChipCompareTracesIdNoteRouteImport } from './routes/api/chip-compare/traces/$id/note'
+import { Route as ApiChipCompareRecordsIdTracesRouteImport } from './routes/api/chip-compare/records/$id/traces'
+import { Route as ApiChipCompareRecordsIdPublishRouteImport } from './routes/api/chip-compare/records/$id/publish'
+import { Route as ApiChipCompareRecordsIdExportRouteImport } from './routes/api/chip-compare/records/$id/export'
 import { Route as ApiAiSupportWidgetPublicKeySupportRepliesRouteImport } from './routes/api/ai-support/widget/$publicKey/support-replies'
 import { Route as ApiAiSupportWidgetPublicKeyMessagesRouteImport } from './routes/api/ai-support/widget/$publicKey/messages'
 import { Route as ApiAiSupportWidgetPublicKeyLeadsRouteImport } from './routes/api/ai-support/widget/$publicKey/leads'
@@ -185,6 +240,21 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
+const DiagramIndexRoute = DiagramIndexRouteImport.update({
+  id: '/diagram/',
+  path: '/diagram/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareIndexRoute = CompareIndexRouteImport.update({
+  id: '/compare/',
+  path: '/compare/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChipsIndexRoute = ChipsIndexRouteImport.update({
+  id: '/chips/',
+  path: '/chips/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -220,9 +290,24 @@ const SettingsPaymentsRoute = SettingsPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
+const SettingsDeviceRoute = SettingsDeviceRouteImport.update({
+  id: '/device',
+  path: '/device',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
 const SettingsCreditsRoute = SettingsCreditsRouteImport.update({
   id: '/credits',
   path: '/credits',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsCompareHistoryRoute = SettingsCompareHistoryRouteImport.update({
+  id: '/compare-history',
+  path: '/compare-history',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
+const SettingsChipChatRoute = SettingsChipChatRouteImport.update({
+  id: '/chip-chat',
+  path: '/chip-chat',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
 const SettingsChatRoute = SettingsChatRouteImport.update({
@@ -245,14 +330,39 @@ const SettingsAiSupportRoute = SettingsAiSupportRouteImport.update({
   path: '/ai-support',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
+const ProductsChipP2pRoute = ProductsChipP2pRouteImport.update({
+  id: '/products/chip-p2p',
+  path: '/products/chip-p2p',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsAiFaeRoute = ProductsAiFaeRouteImport.update({
+  id: '/products/ai-fae',
+  path: '/products/ai-fae',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChipsIdRoute = ChipsIdRouteImport.update({
+  id: '/chips/$id',
+  path: '/chips/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthDesktopRoute = AuthDesktopRouteImport.update({
+  id: '/auth/desktop',
+  path: '/auth/desktop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTicketsRoute = ApiTicketsRouteImport.update({
   id: '/api/tickets',
   path: '/api/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEntitlementsRoute = ApiEntitlementsRouteImport.update({
+  id: '/api/entitlements',
+  path: '/api/entitlements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCreditsRoute = ApiCreditsRouteImport.update({
@@ -315,6 +425,21 @@ const AdminCreditsRoute = AdminCreditsRouteImport.update({
   path: '/credits',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminChipsRoute = AdminChipsRouteImport.update({
+  id: '/chips',
+  path: '/chips',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminChipSegmentsRoute = AdminChipSegmentsRouteImport.update({
+  id: '/chip-segments',
+  path: '/chip-segments',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminChipCompareRoute = AdminChipCompareRouteImport.update({
+  id: '/chip-compare',
+  path: '/chip-compare',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -355,6 +480,17 @@ const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChipsIndexRoute = ApiChipsIndexRouteImport.update({
+  id: '/api/chips/',
+  path: '/api/chips/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsCompareHistoryIdRoute =
+  SettingsCompareHistoryIdRouteImport.update({
+    id: '/compare-history_/$id',
+    path: '/compare-history/$id',
+    getParentRoute: () => SettingsRouteRoute,
+  } as any)
 const ApiWikiContextsRoute = ApiWikiContextsRouteImport.update({
   id: '/api/wiki/contexts',
   path: '/api/wiki/contexts',
@@ -373,6 +509,16 @@ const ApiWikiAssetRoute = ApiWikiAssetRouteImport.update({
 const ApiWikiAskRoute = ApiWikiAskRouteImport.update({
   id: '/api/wiki/ask',
   path: '/api/wiki/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ProviderConfigRoute = ApiV1ProviderConfigRouteImport.update({
+  id: '/api/v1/provider-config',
+  path: '/api/v1/provider-config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1EntitlementRoute = ApiV1EntitlementRouteImport.update({
+  id: '/api/v1/entitlement',
+  path: '/api/v1/entitlement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUserProfileRoute = ApiUserProfileRouteImport.update({
@@ -435,6 +581,11 @@ const ApiInviteCodesRedeemRoute = ApiInviteCodesRedeemRouteImport.update({
   path: '/api/invite-codes/redeem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInternalUsageRoute = ApiInternalUsageRouteImport.update({
+  id: '/api/internal/usage',
+  path: '/api/internal/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInternalSessionRoute = ApiInternalSessionRouteImport.update({
   id: '/api/internal/session',
   path: '/api/internal/session',
@@ -445,6 +596,11 @@ const ApiInternalCreditsRoute = ApiInternalCreditsRouteImport.update({
   path: '/api/internal/credits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInternalBalanceRoute = ApiInternalBalanceRouteImport.update({
+  id: '/api/internal/balance',
+  path: '/api/internal/balance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDocqaIngestRoute = ApiDocqaIngestRouteImport.update({
   id: '/api/docqa/ingest',
   path: '/api/docqa/ingest',
@@ -453,6 +609,41 @@ const ApiDocqaIngestRoute = ApiDocqaIngestRouteImport.update({
 const ApiConfigPublicRoute = ApiConfigPublicRouteImport.update({
   id: '/api/config/public',
   path: '/api/config/public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipsIdRoute = ApiChipsIdRouteImport.update({
+  id: '/api/chips/$id',
+  path: '/api/chips/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareUploadRoute = ApiChipCompareUploadRouteImport.update({
+  id: '/api/chip-compare/upload',
+  path: '/api/chip-compare/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareDiagramRoute = ApiChipCompareDiagramRouteImport.update({
+  id: '/api/chip-compare/diagram',
+  path: '/api/chip-compare/diagram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareCostRoute = ApiChipCompareCostRouteImport.update({
+  id: '/api/chip-compare/cost',
+  path: '/api/chip-compare/cost',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareChatRoute = ApiChipCompareChatRouteImport.update({
+  id: '/api/chip-compare/chat',
+  path: '/api/chip-compare/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareAnalyzeRoute = ApiChipCompareAnalyzeRouteImport.update({
+  id: '/api/chip-compare/analyze',
+  path: '/api/chip-compare/analyze',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
+  id: '/api/auth/verify',
+  path: '/api/auth/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthTokenRoute = ApiAuthTokenRouteImport.update({
@@ -605,6 +796,11 @@ const ApiAiSupportAgentRunsRoute = ApiAiSupportAgentRunsRouteImport.update({
   path: '/api/ai-support/agent-runs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentTokenRoute = ApiAgentTokenRouteImport.update({
+  id: '/api/agent/token',
+  path: '/api/agent/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminTicketsRoute = ApiAdminTicketsRouteImport.update({
   id: '/api/admin/tickets',
   path: '/api/admin/tickets',
@@ -645,6 +841,11 @@ const ApiAdminConfigRoute = ApiAdminConfigRouteImport.update({
   path: '/api/admin/config',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminChipSegmentsRoute = ApiAdminChipSegmentsRouteImport.update({
+  id: '/api/admin/chip-segments',
+  path: '/api/admin/chip-segments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminCategoriesRoute = ApiAdminCategoriesRouteImport.update({
   id: '/api/admin/categories',
   path: '/api/admin/categories',
@@ -662,6 +863,18 @@ const ApiUserSubscriptionsIndexRoute =
     path: '/api/user/subscriptions/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiChipCompareRecordsIndexRoute =
+  ApiChipCompareRecordsIndexRouteImport.update({
+    id: '/api/chip-compare/records/',
+    path: '/api/chip-compare/records/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChipCompareChatsIndexRoute =
+  ApiChipCompareChatsIndexRouteImport.update({
+    id: '/api/chip-compare/chats/',
+    path: '/api/chip-compare/chats/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
   id: '/api/admin/users/',
   path: '/api/admin/users/',
@@ -670,6 +883,11 @@ const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
 const ApiAdminRolesIndexRoute = ApiAdminRolesIndexRouteImport.update({
   id: '/api/admin/roles/',
   path: '/api/admin/roles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminChipsIndexRoute = ApiAdminChipsIndexRouteImport.update({
+  id: '/api/admin/chips/',
+  path: '/api/admin/chips/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsChatbotsChatbotIdSettingsRoute =
@@ -702,6 +920,21 @@ const SettingsChatbotsChatbotIdHistoryRoute =
     path: '/chatbots/$chatbotId/history',
     getParentRoute: () => SettingsRouteRoute,
   } as any)
+const ApiV1UsageReportRoute = ApiV1UsageReportRouteImport.update({
+  id: '/api/v1/usage/report',
+  path: '/api/v1/usage/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1DeviceRegisterRoute = ApiV1DeviceRegisterRouteImport.update({
+  id: '/api/v1/device/register',
+  path: '/api/v1/device/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1DeviceHeartbeatRoute = ApiV1DeviceHeartbeatRouteImport.update({
+  id: '/api/v1/device/heartbeat',
+  path: '/api/v1/device/heartbeat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUserSubscriptionsCurrentRoute =
   ApiUserSubscriptionsCurrentRouteImport.update({
     id: '/api/user/subscriptions/current',
@@ -720,6 +953,46 @@ const ApiPaymentNotifyProviderRoute =
     path: '/api/payment/notify/$provider',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiFilesGeneratedNameRoute = ApiFilesGeneratedNameRouteImport.update({
+  id: '/api/files/generated/$name',
+  path: '/api/files/generated/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareRecordsIdRoute = ApiChipCompareRecordsIdRouteImport.update({
+  id: '/api/chip-compare/records/$id',
+  path: '/api/chip-compare/records/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareChatsIdRoute = ApiChipCompareChatsIdRouteImport.update({
+  id: '/api/chip-compare/chats/$id',
+  path: '/api/chip-compare/chats/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopRefreshRoute = ApiAuthDesktopRefreshRouteImport.update({
+  id: '/api/auth/desktop/refresh',
+  path: '/api/auth/desktop/refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopLogoutRoute = ApiAuthDesktopLogoutRouteImport.update({
+  id: '/api/auth/desktop/logout',
+  path: '/api/auth/desktop/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopLoginRoute = ApiAuthDesktopLoginRouteImport.update({
+  id: '/api/auth/desktop/login',
+  path: '/api/auth/desktop/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopExchangeRoute = ApiAuthDesktopExchangeRouteImport.update({
+  id: '/api/auth/desktop/exchange',
+  path: '/api/auth/desktop/exchange',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopAuthorizeRoute = ApiAuthDesktopAuthorizeRouteImport.update({
+  id: '/api/auth/desktop/authorize',
+  path: '/api/auth/desktop/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiSupportWidgetPublicKeyRoute =
   ApiAiSupportWidgetPublicKeyRouteImport.update({
     id: '/api/ai-support/widget/$publicKey',
@@ -737,6 +1010,21 @@ const ApiAgentV1KnowledgeSourcesRoute =
     path: '/api/agent/v1/knowledge-sources',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAgentDeviceTokenRoute = ApiAgentDeviceTokenRouteImport.update({
+  id: '/api/agent/device/token',
+  path: '/api/agent/device/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentDeviceCodeRoute = ApiAgentDeviceCodeRouteImport.update({
+  id: '/api/agent/device/code',
+  path: '/api/agent/device/code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentDeviceApproveRoute = ApiAgentDeviceApproveRouteImport.update({
+  id: '/api/agent/device/approve',
+  path: '/api/agent/device/approve',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminUsersCreditsRoute = ApiAdminUsersCreditsRouteImport.update({
   id: '/api/admin/users/credits',
   path: '/api/admin/users/credits',
@@ -768,6 +1056,28 @@ const ApiAdminConfigCustomRoute = ApiAdminConfigCustomRouteImport.update({
   path: '/custom',
   getParentRoute: () => ApiAdminConfigRoute,
 } as any)
+const ApiAdminChipsImportRoute = ApiAdminChipsImportRouteImport.update({
+  id: '/api/admin/chips/import',
+  path: '/api/admin/chips/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminChipsIdRoute = ApiAdminChipsIdRouteImport.update({
+  id: '/api/admin/chips/$id',
+  path: '/api/admin/chips/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminChipCompareRecordsRoute =
+  ApiAdminChipCompareRecordsRouteImport.update({
+    id: '/api/admin/chip-compare/records',
+    path: '/api/admin/chip-compare/records',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminChipComparePreheatRoute =
+  ApiAdminChipComparePreheatRouteImport.update({
+    id: '/api/admin/chip-compare/preheat',
+    path: '/api/admin/chip-compare/preheat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRoute =
   SettingsChatbotsChatbotIdKnowledgeWebsiteLinksRouteImport.update({
     id: '/chatbots/$chatbotId/knowledge/website-links',
@@ -840,6 +1150,35 @@ const SettingsChatbotsChatbotIdCustomizationAppearanceRoute =
     path: '/chatbots/$chatbotId/customization/appearance',
     getParentRoute: () => SettingsRouteRoute,
   } as any)
+const ApiV1UsageReportBatchRoute = ApiV1UsageReportBatchRouteImport.update({
+  id: '/batch',
+  path: '/batch',
+  getParentRoute: () => ApiV1UsageReportRoute,
+} as any)
+const ApiChipCompareTracesIdNoteRoute =
+  ApiChipCompareTracesIdNoteRouteImport.update({
+    id: '/api/chip-compare/traces/$id/note',
+    path: '/api/chip-compare/traces/$id/note',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChipCompareRecordsIdTracesRoute =
+  ApiChipCompareRecordsIdTracesRouteImport.update({
+    id: '/traces',
+    path: '/traces',
+    getParentRoute: () => ApiChipCompareRecordsIdRoute,
+  } as any)
+const ApiChipCompareRecordsIdPublishRoute =
+  ApiChipCompareRecordsIdPublishRouteImport.update({
+    id: '/publish',
+    path: '/publish',
+    getParentRoute: () => ApiChipCompareRecordsIdRoute,
+  } as any)
+const ApiChipCompareRecordsIdExportRoute =
+  ApiChipCompareRecordsIdExportRouteImport.update({
+    id: '/export',
+    path: '/export',
+    getParentRoute: () => ApiChipCompareRecordsIdRoute,
+  } as any)
 const ApiAiSupportWidgetPublicKeySupportRepliesRoute =
   ApiAiSupportWidgetPublicKeySupportRepliesRouteImport.update({
     id: '/support-replies',
@@ -886,6 +1225,9 @@ export interface FileRoutesByFullPath {
   '/privacy-policy': typeof pagesPrivacyPolicyRoute
   '/terms-of-service': typeof pagesTermsOfServiceRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/chip-compare': typeof AdminChipCompareRoute
+  '/admin/chip-segments': typeof AdminChipSegmentsRoute
+  '/admin/chips': typeof AdminChipsRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/invite-codes': typeof AdminInviteCodesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -898,13 +1240,21 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/api/apikeys': typeof ApiApikeysRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/entitlements': typeof ApiEntitlementsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
+  '/auth/desktop': typeof AuthDesktopRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/chips/$id': typeof ChipsIdRoute
+  '/products/ai-fae': typeof ProductsAiFaeRoute
+  '/products/chip-p2p': typeof ProductsChipP2pRoute
   '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
+  '/settings/chip-chat': typeof SettingsChipChatRoute
+  '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
+  '/settings/device': typeof SettingsDeviceRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/task-center': typeof SettingsTaskCenterRoute
@@ -912,8 +1262,12 @@ export interface FileRoutesByFullPath {
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/chips/': typeof ChipsIndexRoute
+  '/compare/': typeof CompareIndexRoute
+  '/diagram/': typeof DiagramIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/admin/categories': typeof ApiAdminCategoriesRoute
+  '/api/admin/chip-segments': typeof ApiAdminChipSegmentsRoute
   '/api/admin/config': typeof ApiAdminConfigRouteWithChildren
   '/api/admin/credits': typeof ApiAdminCreditsRoute
   '/api/admin/invite-codes': typeof ApiAdminInviteCodesRoute
@@ -922,6 +1276,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
@@ -949,10 +1304,19 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
+  '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
+  '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
+  '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
+  '/api/chip-compare/diagram': typeof ApiChipCompareDiagramRoute
+  '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
+  '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/balance': typeof ApiInternalBalanceRoute
   '/api/internal/credits': typeof ApiInternalCreditsRoute
   '/api/internal/session': typeof ApiInternalSessionRoute
+  '/api/internal/usage': typeof ApiInternalUsageRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
@@ -965,35 +1329,65 @@ export interface FileRoutesByFullPath {
   '/api/user/orders': typeof ApiUserOrdersRoute
   '/api/user/permissions': typeof ApiUserPermissionsRoute
   '/api/user/profile': typeof ApiUserProfileRoute
+  '/api/v1/entitlement': typeof ApiV1EntitlementRoute
+  '/api/v1/provider-config': typeof ApiV1ProviderConfigRoute
   '/api/wiki/ask': typeof ApiWikiAskRoute
   '/api/wiki/asset': typeof ApiWikiAssetRoute
   '/api/wiki/context': typeof ApiWikiContextRoute
   '/api/wiki/contexts': typeof ApiWikiContextsRoute
+  '/settings/compare-history/$id': typeof SettingsCompareHistoryIdRoute
+  '/api/chips/': typeof ApiChipsIndexRoute
+  '/api/admin/chip-compare/preheat': typeof ApiAdminChipComparePreheatRoute
+  '/api/admin/chip-compare/records': typeof ApiAdminChipCompareRecordsRoute
+  '/api/admin/chips/$id': typeof ApiAdminChipsIdRoute
+  '/api/admin/chips/import': typeof ApiAdminChipsImportRoute
   '/api/admin/config/custom': typeof ApiAdminConfigCustomRoute
   '/api/admin/roles/assign': typeof ApiAdminRolesAssignRoute
   '/api/admin/roles/permissions': typeof ApiAdminRolesPermissionsRoute
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/device/approve': typeof ApiAgentDeviceApproveRoute
+  '/api/agent/device/code': typeof ApiAgentDeviceCodeRoute
+  '/api/agent/device/token': typeof ApiAgentDeviceTokenRoute
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/auth/desktop/authorize': typeof ApiAuthDesktopAuthorizeRoute
+  '/api/auth/desktop/exchange': typeof ApiAuthDesktopExchangeRoute
+  '/api/auth/desktop/login': typeof ApiAuthDesktopLoginRoute
+  '/api/auth/desktop/logout': typeof ApiAuthDesktopLogoutRoute
+  '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
+  '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
+  '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
+  '/api/files/generated/$name': typeof ApiFilesGeneratedNameRoute
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/api/v1/device/heartbeat': typeof ApiV1DeviceHeartbeatRoute
+  '/api/v1/device/register': typeof ApiV1DeviceRegisterRoute
+  '/api/v1/usage/report': typeof ApiV1UsageReportRouteWithChildren
   '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
   '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
   '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
   '/settings/chatbots/$chatbotId/sdk': typeof SettingsChatbotsChatbotIdSdkRoute
   '/settings/chatbots/$chatbotId/settings': typeof SettingsChatbotsChatbotIdSettingsRoute
+  '/api/admin/chips/': typeof ApiAdminChipsIndexRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
+  '/api/chip-compare/chats/': typeof ApiChipCompareChatsIndexRoute
+  '/api/chip-compare/records/': typeof ApiChipCompareRecordsIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
   '/settings/chatbots/$chatbotId/': typeof SettingsChatbotsChatbotIdIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
+  '/api/chip-compare/records/$id/export': typeof ApiChipCompareRecordsIdExportRoute
+  '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
+  '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
+  '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
+  '/api/v1/usage/report/batch': typeof ApiV1UsageReportBatchRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1021,6 +1415,9 @@ export interface FileRoutesByTo {
   '/privacy-policy': typeof pagesPrivacyPolicyRoute
   '/terms-of-service': typeof pagesTermsOfServiceRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/chip-compare': typeof AdminChipCompareRoute
+  '/admin/chip-segments': typeof AdminChipSegmentsRoute
+  '/admin/chips': typeof AdminChipsRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/invite-codes': typeof AdminInviteCodesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -1033,13 +1430,21 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/api/apikeys': typeof ApiApikeysRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/entitlements': typeof ApiEntitlementsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
+  '/auth/desktop': typeof AuthDesktopRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/chips/$id': typeof ChipsIdRoute
+  '/products/ai-fae': typeof ProductsAiFaeRoute
+  '/products/chip-p2p': typeof ProductsChipP2pRoute
   '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
+  '/settings/chip-chat': typeof SettingsChipChatRoute
+  '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
+  '/settings/device': typeof SettingsDeviceRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/task-center': typeof SettingsTaskCenterRoute
@@ -1047,8 +1452,12 @@ export interface FileRoutesByTo {
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/chips': typeof ChipsIndexRoute
+  '/compare': typeof CompareIndexRoute
+  '/diagram': typeof DiagramIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/admin/categories': typeof ApiAdminCategoriesRoute
+  '/api/admin/chip-segments': typeof ApiAdminChipSegmentsRoute
   '/api/admin/config': typeof ApiAdminConfigRouteWithChildren
   '/api/admin/credits': typeof ApiAdminCreditsRoute
   '/api/admin/invite-codes': typeof ApiAdminInviteCodesRoute
@@ -1057,6 +1466,7 @@ export interface FileRoutesByTo {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
@@ -1084,10 +1494,19 @@ export interface FileRoutesByTo {
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
+  '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
+  '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
+  '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
+  '/api/chip-compare/diagram': typeof ApiChipCompareDiagramRoute
+  '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
+  '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/balance': typeof ApiInternalBalanceRoute
   '/api/internal/credits': typeof ApiInternalCreditsRoute
   '/api/internal/session': typeof ApiInternalSessionRoute
+  '/api/internal/usage': typeof ApiInternalUsageRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
@@ -1100,35 +1519,65 @@ export interface FileRoutesByTo {
   '/api/user/orders': typeof ApiUserOrdersRoute
   '/api/user/permissions': typeof ApiUserPermissionsRoute
   '/api/user/profile': typeof ApiUserProfileRoute
+  '/api/v1/entitlement': typeof ApiV1EntitlementRoute
+  '/api/v1/provider-config': typeof ApiV1ProviderConfigRoute
   '/api/wiki/ask': typeof ApiWikiAskRoute
   '/api/wiki/asset': typeof ApiWikiAssetRoute
   '/api/wiki/context': typeof ApiWikiContextRoute
   '/api/wiki/contexts': typeof ApiWikiContextsRoute
+  '/settings/compare-history/$id': typeof SettingsCompareHistoryIdRoute
+  '/api/chips': typeof ApiChipsIndexRoute
+  '/api/admin/chip-compare/preheat': typeof ApiAdminChipComparePreheatRoute
+  '/api/admin/chip-compare/records': typeof ApiAdminChipCompareRecordsRoute
+  '/api/admin/chips/$id': typeof ApiAdminChipsIdRoute
+  '/api/admin/chips/import': typeof ApiAdminChipsImportRoute
   '/api/admin/config/custom': typeof ApiAdminConfigCustomRoute
   '/api/admin/roles/assign': typeof ApiAdminRolesAssignRoute
   '/api/admin/roles/permissions': typeof ApiAdminRolesPermissionsRoute
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/device/approve': typeof ApiAgentDeviceApproveRoute
+  '/api/agent/device/code': typeof ApiAgentDeviceCodeRoute
+  '/api/agent/device/token': typeof ApiAgentDeviceTokenRoute
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/auth/desktop/authorize': typeof ApiAuthDesktopAuthorizeRoute
+  '/api/auth/desktop/exchange': typeof ApiAuthDesktopExchangeRoute
+  '/api/auth/desktop/login': typeof ApiAuthDesktopLoginRoute
+  '/api/auth/desktop/logout': typeof ApiAuthDesktopLogoutRoute
+  '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
+  '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
+  '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
+  '/api/files/generated/$name': typeof ApiFilesGeneratedNameRoute
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/api/v1/device/heartbeat': typeof ApiV1DeviceHeartbeatRoute
+  '/api/v1/device/register': typeof ApiV1DeviceRegisterRoute
+  '/api/v1/usage/report': typeof ApiV1UsageReportRouteWithChildren
   '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
   '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
   '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
   '/settings/chatbots/$chatbotId/sdk': typeof SettingsChatbotsChatbotIdSdkRoute
   '/settings/chatbots/$chatbotId/settings': typeof SettingsChatbotsChatbotIdSettingsRoute
+  '/api/admin/chips': typeof ApiAdminChipsIndexRoute
   '/api/admin/roles': typeof ApiAdminRolesIndexRoute
   '/api/admin/users': typeof ApiAdminUsersIndexRoute
+  '/api/chip-compare/chats': typeof ApiChipCompareChatsIndexRoute
+  '/api/chip-compare/records': typeof ApiChipCompareRecordsIndexRoute
   '/api/user/subscriptions': typeof ApiUserSubscriptionsIndexRoute
   '/settings/chatbots/$chatbotId': typeof SettingsChatbotsChatbotIdIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
+  '/api/chip-compare/records/$id/export': typeof ApiChipCompareRecordsIdExportRoute
+  '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
+  '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
+  '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
+  '/api/v1/usage/report/batch': typeof ApiV1UsageReportBatchRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1160,6 +1609,9 @@ export interface FileRoutesById {
   '/(pages)/privacy-policy': typeof pagesPrivacyPolicyRoute
   '/(pages)/terms-of-service': typeof pagesTermsOfServiceRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/chip-compare': typeof AdminChipCompareRoute
+  '/admin/chip-segments': typeof AdminChipSegmentsRoute
+  '/admin/chips': typeof AdminChipsRoute
   '/admin/credits': typeof AdminCreditsRoute
   '/admin/invite-codes': typeof AdminInviteCodesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -1172,13 +1624,21 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/api/apikeys': typeof ApiApikeysRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/entitlements': typeof ApiEntitlementsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
+  '/auth/desktop': typeof AuthDesktopRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/chips/$id': typeof ChipsIdRoute
+  '/products/ai-fae': typeof ProductsAiFaeRoute
+  '/products/chip-p2p': typeof ProductsChipP2pRoute
   '/settings/ai-support': typeof SettingsAiSupportRoute
   '/settings/apikeys': typeof SettingsApikeysRoute
   '/settings/billing': typeof SettingsBillingRoute
   '/settings/chat': typeof SettingsChatRoute
+  '/settings/chip-chat': typeof SettingsChipChatRoute
+  '/settings/compare-history': typeof SettingsCompareHistoryRoute
   '/settings/credits': typeof SettingsCreditsRoute
+  '/settings/device': typeof SettingsDeviceRoute
   '/settings/payments': typeof SettingsPaymentsRoute
   '/settings/profile': typeof SettingsProfileRoute
   '/settings/task-center': typeof SettingsTaskCenterRoute
@@ -1186,8 +1646,12 @@ export interface FileRoutesById {
   '/settings/wiki-assistant': typeof SettingsWikiAssistantRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/chips/': typeof ChipsIndexRoute
+  '/compare/': typeof CompareIndexRoute
+  '/diagram/': typeof DiagramIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/admin/categories': typeof ApiAdminCategoriesRoute
+  '/api/admin/chip-segments': typeof ApiAdminChipSegmentsRoute
   '/api/admin/config': typeof ApiAdminConfigRouteWithChildren
   '/api/admin/credits': typeof ApiAdminCreditsRoute
   '/api/admin/invite-codes': typeof ApiAdminInviteCodesRoute
@@ -1196,6 +1660,7 @@ export interface FileRoutesById {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
   '/api/ai-support/audit-logs': typeof ApiAiSupportAuditLogsRoute
@@ -1223,10 +1688,19 @@ export interface FileRoutesById {
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
+  '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
+  '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
+  '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
+  '/api/chip-compare/diagram': typeof ApiChipCompareDiagramRoute
+  '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
+  '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
   '/api/docqa/ingest': typeof ApiDocqaIngestRoute
+  '/api/internal/balance': typeof ApiInternalBalanceRoute
   '/api/internal/credits': typeof ApiInternalCreditsRoute
   '/api/internal/session': typeof ApiInternalSessionRoute
+  '/api/internal/usage': typeof ApiInternalUsageRoute
   '/api/invite-codes/redeem': typeof ApiInviteCodesRedeemRoute
   '/api/invite-codes/validate': typeof ApiInviteCodesValidateRoute
   '/api/payment/callback': typeof ApiPaymentCallbackRoute
@@ -1239,35 +1713,65 @@ export interface FileRoutesById {
   '/api/user/orders': typeof ApiUserOrdersRoute
   '/api/user/permissions': typeof ApiUserPermissionsRoute
   '/api/user/profile': typeof ApiUserProfileRoute
+  '/api/v1/entitlement': typeof ApiV1EntitlementRoute
+  '/api/v1/provider-config': typeof ApiV1ProviderConfigRoute
   '/api/wiki/ask': typeof ApiWikiAskRoute
   '/api/wiki/asset': typeof ApiWikiAssetRoute
   '/api/wiki/context': typeof ApiWikiContextRoute
   '/api/wiki/contexts': typeof ApiWikiContextsRoute
+  '/settings/compare-history_/$id': typeof SettingsCompareHistoryIdRoute
+  '/api/chips/': typeof ApiChipsIndexRoute
+  '/api/admin/chip-compare/preheat': typeof ApiAdminChipComparePreheatRoute
+  '/api/admin/chip-compare/records': typeof ApiAdminChipCompareRecordsRoute
+  '/api/admin/chips/$id': typeof ApiAdminChipsIdRoute
+  '/api/admin/chips/import': typeof ApiAdminChipsImportRoute
   '/api/admin/config/custom': typeof ApiAdminConfigCustomRoute
   '/api/admin/roles/assign': typeof ApiAdminRolesAssignRoute
   '/api/admin/roles/permissions': typeof ApiAdminRolesPermissionsRoute
   '/api/admin/settings/test': typeof ApiAdminSettingsTestRoute
   '/api/admin/tickets/$id': typeof ApiAdminTicketsIdRoute
   '/api/admin/users/credits': typeof ApiAdminUsersCreditsRoute
+  '/api/agent/device/approve': typeof ApiAgentDeviceApproveRoute
+  '/api/agent/device/code': typeof ApiAgentDeviceCodeRoute
+  '/api/agent/device/token': typeof ApiAgentDeviceTokenRoute
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/auth/desktop/authorize': typeof ApiAuthDesktopAuthorizeRoute
+  '/api/auth/desktop/exchange': typeof ApiAuthDesktopExchangeRoute
+  '/api/auth/desktop/login': typeof ApiAuthDesktopLoginRoute
+  '/api/auth/desktop/logout': typeof ApiAuthDesktopLogoutRoute
+  '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
+  '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
+  '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
+  '/api/files/generated/$name': typeof ApiFilesGeneratedNameRoute
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/api/v1/device/heartbeat': typeof ApiV1DeviceHeartbeatRoute
+  '/api/v1/device/register': typeof ApiV1DeviceRegisterRoute
+  '/api/v1/usage/report': typeof ApiV1UsageReportRouteWithChildren
   '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
   '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
   '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
   '/settings/chatbots/$chatbotId/sdk': typeof SettingsChatbotsChatbotIdSdkRoute
   '/settings/chatbots/$chatbotId/settings': typeof SettingsChatbotsChatbotIdSettingsRoute
+  '/api/admin/chips/': typeof ApiAdminChipsIndexRoute
   '/api/admin/roles/': typeof ApiAdminRolesIndexRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
+  '/api/chip-compare/chats/': typeof ApiChipCompareChatsIndexRoute
+  '/api/chip-compare/records/': typeof ApiChipCompareRecordsIndexRoute
   '/api/user/subscriptions/': typeof ApiUserSubscriptionsIndexRoute
   '/settings/chatbots/$chatbotId/': typeof SettingsChatbotsChatbotIdIndexRoute
   '/api/ai-support/widget/$publicKey/escalations': typeof ApiAiSupportWidgetPublicKeyEscalationsRoute
   '/api/ai-support/widget/$publicKey/leads': typeof ApiAiSupportWidgetPublicKeyLeadsRoute
   '/api/ai-support/widget/$publicKey/messages': typeof ApiAiSupportWidgetPublicKeyMessagesRoute
   '/api/ai-support/widget/$publicKey/support-replies': typeof ApiAiSupportWidgetPublicKeySupportRepliesRoute
+  '/api/chip-compare/records/$id/export': typeof ApiChipCompareRecordsIdExportRoute
+  '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
+  '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
+  '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
+  '/api/v1/usage/report/batch': typeof ApiV1UsageReportBatchRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1299,6 +1803,9 @@ export interface FileRouteTypes {
     | '/privacy-policy'
     | '/terms-of-service'
     | '/admin/categories'
+    | '/admin/chip-compare'
+    | '/admin/chip-segments'
+    | '/admin/chips'
     | '/admin/credits'
     | '/admin/invite-codes'
     | '/admin/payments'
@@ -1311,13 +1818,21 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/apikeys'
     | '/api/credits'
+    | '/api/entitlements'
     | '/api/tickets'
+    | '/auth/desktop'
     | '/blog/$slug'
+    | '/chips/$id'
+    | '/products/ai-fae'
+    | '/products/chip-p2p'
     | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
+    | '/settings/chip-chat'
+    | '/settings/compare-history'
     | '/settings/credits'
+    | '/settings/device'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/task-center'
@@ -1325,8 +1840,12 @@ export interface FileRouteTypes {
     | '/settings/wiki-assistant'
     | '/admin/'
     | '/blog/'
+    | '/chips/'
+    | '/compare/'
+    | '/diagram/'
     | '/settings/'
     | '/api/admin/categories'
+    | '/api/admin/chip-segments'
     | '/api/admin/config'
     | '/api/admin/credits'
     | '/api/admin/invite-codes'
@@ -1335,6 +1854,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
@@ -1362,10 +1882,19 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
+    | '/api/auth/verify'
+    | '/api/chip-compare/analyze'
+    | '/api/chip-compare/chat'
+    | '/api/chip-compare/cost'
+    | '/api/chip-compare/diagram'
+    | '/api/chip-compare/upload'
+    | '/api/chips/$id'
     | '/api/config/public'
     | '/api/docqa/ingest'
+    | '/api/internal/balance'
     | '/api/internal/credits'
     | '/api/internal/session'
+    | '/api/internal/usage'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
@@ -1378,35 +1907,65 @@ export interface FileRouteTypes {
     | '/api/user/orders'
     | '/api/user/permissions'
     | '/api/user/profile'
+    | '/api/v1/entitlement'
+    | '/api/v1/provider-config'
     | '/api/wiki/ask'
     | '/api/wiki/asset'
     | '/api/wiki/context'
     | '/api/wiki/contexts'
+    | '/settings/compare-history/$id'
+    | '/api/chips/'
+    | '/api/admin/chip-compare/preheat'
+    | '/api/admin/chip-compare/records'
+    | '/api/admin/chips/$id'
+    | '/api/admin/chips/import'
     | '/api/admin/config/custom'
     | '/api/admin/roles/assign'
     | '/api/admin/roles/permissions'
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/device/approve'
+    | '/api/agent/device/code'
+    | '/api/agent/device/token'
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/auth/desktop/authorize'
+    | '/api/auth/desktop/exchange'
+    | '/api/auth/desktop/login'
+    | '/api/auth/desktop/logout'
+    | '/api/auth/desktop/refresh'
+    | '/api/chip-compare/chats/$id'
+    | '/api/chip-compare/records/$id'
+    | '/api/files/generated/$name'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/api/v1/device/heartbeat'
+    | '/api/v1/device/register'
+    | '/api/v1/usage/report'
     | '/settings/chatbots/$chatbotId/history'
     | '/settings/chatbots/$chatbotId/installation'
     | '/settings/chatbots/$chatbotId/leads'
     | '/settings/chatbots/$chatbotId/sdk'
     | '/settings/chatbots/$chatbotId/settings'
+    | '/api/admin/chips/'
     | '/api/admin/roles/'
     | '/api/admin/users/'
+    | '/api/chip-compare/chats/'
+    | '/api/chip-compare/records/'
     | '/api/user/subscriptions/'
     | '/settings/chatbots/$chatbotId/'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
     | '/api/ai-support/widget/$publicKey/support-replies'
+    | '/api/chip-compare/records/$id/export'
+    | '/api/chip-compare/records/$id/publish'
+    | '/api/chip-compare/records/$id/traces'
+    | '/api/chip-compare/traces/$id/note'
+    | '/api/v1/usage/report/batch'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1434,6 +1993,9 @@ export interface FileRouteTypes {
     | '/privacy-policy'
     | '/terms-of-service'
     | '/admin/categories'
+    | '/admin/chip-compare'
+    | '/admin/chip-segments'
+    | '/admin/chips'
     | '/admin/credits'
     | '/admin/invite-codes'
     | '/admin/payments'
@@ -1446,13 +2008,21 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/apikeys'
     | '/api/credits'
+    | '/api/entitlements'
     | '/api/tickets'
+    | '/auth/desktop'
     | '/blog/$slug'
+    | '/chips/$id'
+    | '/products/ai-fae'
+    | '/products/chip-p2p'
     | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
+    | '/settings/chip-chat'
+    | '/settings/compare-history'
     | '/settings/credits'
+    | '/settings/device'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/task-center'
@@ -1460,8 +2030,12 @@ export interface FileRouteTypes {
     | '/settings/wiki-assistant'
     | '/admin'
     | '/blog'
+    | '/chips'
+    | '/compare'
+    | '/diagram'
     | '/settings'
     | '/api/admin/categories'
+    | '/api/admin/chip-segments'
     | '/api/admin/config'
     | '/api/admin/credits'
     | '/api/admin/invite-codes'
@@ -1470,6 +2044,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
@@ -1497,10 +2072,19 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
+    | '/api/auth/verify'
+    | '/api/chip-compare/analyze'
+    | '/api/chip-compare/chat'
+    | '/api/chip-compare/cost'
+    | '/api/chip-compare/diagram'
+    | '/api/chip-compare/upload'
+    | '/api/chips/$id'
     | '/api/config/public'
     | '/api/docqa/ingest'
+    | '/api/internal/balance'
     | '/api/internal/credits'
     | '/api/internal/session'
+    | '/api/internal/usage'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
@@ -1513,35 +2097,65 @@ export interface FileRouteTypes {
     | '/api/user/orders'
     | '/api/user/permissions'
     | '/api/user/profile'
+    | '/api/v1/entitlement'
+    | '/api/v1/provider-config'
     | '/api/wiki/ask'
     | '/api/wiki/asset'
     | '/api/wiki/context'
     | '/api/wiki/contexts'
+    | '/settings/compare-history/$id'
+    | '/api/chips'
+    | '/api/admin/chip-compare/preheat'
+    | '/api/admin/chip-compare/records'
+    | '/api/admin/chips/$id'
+    | '/api/admin/chips/import'
     | '/api/admin/config/custom'
     | '/api/admin/roles/assign'
     | '/api/admin/roles/permissions'
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/device/approve'
+    | '/api/agent/device/code'
+    | '/api/agent/device/token'
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/auth/desktop/authorize'
+    | '/api/auth/desktop/exchange'
+    | '/api/auth/desktop/login'
+    | '/api/auth/desktop/logout'
+    | '/api/auth/desktop/refresh'
+    | '/api/chip-compare/chats/$id'
+    | '/api/chip-compare/records/$id'
+    | '/api/files/generated/$name'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/api/v1/device/heartbeat'
+    | '/api/v1/device/register'
+    | '/api/v1/usage/report'
     | '/settings/chatbots/$chatbotId/history'
     | '/settings/chatbots/$chatbotId/installation'
     | '/settings/chatbots/$chatbotId/leads'
     | '/settings/chatbots/$chatbotId/sdk'
     | '/settings/chatbots/$chatbotId/settings'
+    | '/api/admin/chips'
     | '/api/admin/roles'
     | '/api/admin/users'
+    | '/api/chip-compare/chats'
+    | '/api/chip-compare/records'
     | '/api/user/subscriptions'
     | '/settings/chatbots/$chatbotId'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
     | '/api/ai-support/widget/$publicKey/support-replies'
+    | '/api/chip-compare/records/$id/export'
+    | '/api/chip-compare/records/$id/publish'
+    | '/api/chip-compare/records/$id/traces'
+    | '/api/chip-compare/traces/$id/note'
+    | '/api/v1/usage/report/batch'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1572,6 +2186,9 @@ export interface FileRouteTypes {
     | '/(pages)/privacy-policy'
     | '/(pages)/terms-of-service'
     | '/admin/categories'
+    | '/admin/chip-compare'
+    | '/admin/chip-segments'
+    | '/admin/chips'
     | '/admin/credits'
     | '/admin/invite-codes'
     | '/admin/payments'
@@ -1584,13 +2201,21 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/apikeys'
     | '/api/credits'
+    | '/api/entitlements'
     | '/api/tickets'
+    | '/auth/desktop'
     | '/blog/$slug'
+    | '/chips/$id'
+    | '/products/ai-fae'
+    | '/products/chip-p2p'
     | '/settings/ai-support'
     | '/settings/apikeys'
     | '/settings/billing'
     | '/settings/chat'
+    | '/settings/chip-chat'
+    | '/settings/compare-history'
     | '/settings/credits'
+    | '/settings/device'
     | '/settings/payments'
     | '/settings/profile'
     | '/settings/task-center'
@@ -1598,8 +2223,12 @@ export interface FileRouteTypes {
     | '/settings/wiki-assistant'
     | '/admin/'
     | '/blog/'
+    | '/chips/'
+    | '/compare/'
+    | '/diagram/'
     | '/settings/'
     | '/api/admin/categories'
+    | '/api/admin/chip-segments'
     | '/api/admin/config'
     | '/api/admin/credits'
     | '/api/admin/invite-codes'
@@ -1608,6 +2237,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
     | '/api/ai-support/audit-logs'
@@ -1635,10 +2265,19 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
+    | '/api/auth/verify'
+    | '/api/chip-compare/analyze'
+    | '/api/chip-compare/chat'
+    | '/api/chip-compare/cost'
+    | '/api/chip-compare/diagram'
+    | '/api/chip-compare/upload'
+    | '/api/chips/$id'
     | '/api/config/public'
     | '/api/docqa/ingest'
+    | '/api/internal/balance'
     | '/api/internal/credits'
     | '/api/internal/session'
+    | '/api/internal/usage'
     | '/api/invite-codes/redeem'
     | '/api/invite-codes/validate'
     | '/api/payment/callback'
@@ -1651,35 +2290,65 @@ export interface FileRouteTypes {
     | '/api/user/orders'
     | '/api/user/permissions'
     | '/api/user/profile'
+    | '/api/v1/entitlement'
+    | '/api/v1/provider-config'
     | '/api/wiki/ask'
     | '/api/wiki/asset'
     | '/api/wiki/context'
     | '/api/wiki/contexts'
+    | '/settings/compare-history_/$id'
+    | '/api/chips/'
+    | '/api/admin/chip-compare/preheat'
+    | '/api/admin/chip-compare/records'
+    | '/api/admin/chips/$id'
+    | '/api/admin/chips/import'
     | '/api/admin/config/custom'
     | '/api/admin/roles/assign'
     | '/api/admin/roles/permissions'
     | '/api/admin/settings/test'
     | '/api/admin/tickets/$id'
     | '/api/admin/users/credits'
+    | '/api/agent/device/approve'
+    | '/api/agent/device/code'
+    | '/api/agent/device/token'
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/auth/desktop/authorize'
+    | '/api/auth/desktop/exchange'
+    | '/api/auth/desktop/login'
+    | '/api/auth/desktop/logout'
+    | '/api/auth/desktop/refresh'
+    | '/api/chip-compare/chats/$id'
+    | '/api/chip-compare/records/$id'
+    | '/api/files/generated/$name'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/api/v1/device/heartbeat'
+    | '/api/v1/device/register'
+    | '/api/v1/usage/report'
     | '/settings/chatbots/$chatbotId/history'
     | '/settings/chatbots/$chatbotId/installation'
     | '/settings/chatbots/$chatbotId/leads'
     | '/settings/chatbots/$chatbotId/sdk'
     | '/settings/chatbots/$chatbotId/settings'
+    | '/api/admin/chips/'
     | '/api/admin/roles/'
     | '/api/admin/users/'
+    | '/api/chip-compare/chats/'
+    | '/api/chip-compare/records/'
     | '/api/user/subscriptions/'
     | '/settings/chatbots/$chatbotId/'
     | '/api/ai-support/widget/$publicKey/escalations'
     | '/api/ai-support/widget/$publicKey/leads'
     | '/api/ai-support/widget/$publicKey/messages'
     | '/api/ai-support/widget/$publicKey/support-replies'
+    | '/api/chip-compare/records/$id/export'
+    | '/api/chip-compare/records/$id/publish'
+    | '/api/chip-compare/records/$id/traces'
+    | '/api/chip-compare/traces/$id/note'
+    | '/api/v1/usage/report/batch'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1710,10 +2379,19 @@ export interface RootRouteChildren {
   authVerifyEmailRoute: typeof authVerifyEmailRoute
   ApiApikeysRoute: typeof ApiApikeysRoute
   ApiCreditsRoute: typeof ApiCreditsRoute
+  ApiEntitlementsRoute: typeof ApiEntitlementsRoute
   ApiTicketsRoute: typeof ApiTicketsRouteWithChildren
+  AuthDesktopRoute: typeof AuthDesktopRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  ChipsIdRoute: typeof ChipsIdRoute
+  ProductsAiFaeRoute: typeof ProductsAiFaeRoute
+  ProductsChipP2pRoute: typeof ProductsChipP2pRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ChipsIndexRoute: typeof ChipsIndexRoute
+  CompareIndexRoute: typeof CompareIndexRoute
+  DiagramIndexRoute: typeof DiagramIndexRoute
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRoute
+  ApiAdminChipSegmentsRoute: typeof ApiAdminChipSegmentsRoute
   ApiAdminConfigRoute: typeof ApiAdminConfigRouteWithChildren
   ApiAdminCreditsRoute: typeof ApiAdminCreditsRoute
   ApiAdminInviteCodesRoute: typeof ApiAdminInviteCodesRoute
@@ -1722,6 +2400,7 @@ export interface RootRouteChildren {
   ApiAdminPostsRoute: typeof ApiAdminPostsRoute
   ApiAdminSubscriptionsRoute: typeof ApiAdminSubscriptionsRoute
   ApiAdminTicketsRoute: typeof ApiAdminTicketsRouteWithChildren
+  ApiAgentTokenRoute: typeof ApiAgentTokenRoute
   ApiAiSupportAgentRunsRoute: typeof ApiAiSupportAgentRunsRoute
   ApiAiSupportAgentTokensRoute: typeof ApiAiSupportAgentTokensRoute
   ApiAiSupportAuditLogsRoute: typeof ApiAiSupportAuditLogsRoute
@@ -1749,10 +2428,19 @@ export interface RootRouteChildren {
   ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthTokenRoute: typeof ApiAuthTokenRoute
+  ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
+  ApiChipCompareAnalyzeRoute: typeof ApiChipCompareAnalyzeRoute
+  ApiChipCompareChatRoute: typeof ApiChipCompareChatRoute
+  ApiChipCompareCostRoute: typeof ApiChipCompareCostRoute
+  ApiChipCompareDiagramRoute: typeof ApiChipCompareDiagramRoute
+  ApiChipCompareUploadRoute: typeof ApiChipCompareUploadRoute
+  ApiChipsIdRoute: typeof ApiChipsIdRoute
   ApiConfigPublicRoute: typeof ApiConfigPublicRoute
   ApiDocqaIngestRoute: typeof ApiDocqaIngestRoute
+  ApiInternalBalanceRoute: typeof ApiInternalBalanceRoute
   ApiInternalCreditsRoute: typeof ApiInternalCreditsRoute
   ApiInternalSessionRoute: typeof ApiInternalSessionRoute
+  ApiInternalUsageRoute: typeof ApiInternalUsageRoute
   ApiInviteCodesRedeemRoute: typeof ApiInviteCodesRedeemRoute
   ApiInviteCodesValidateRoute: typeof ApiInviteCodesValidateRoute
   ApiPaymentCallbackRoute: typeof ApiPaymentCallbackRoute
@@ -1764,23 +2452,48 @@ export interface RootRouteChildren {
   ApiUserOrdersRoute: typeof ApiUserOrdersRoute
   ApiUserPermissionsRoute: typeof ApiUserPermissionsRoute
   ApiUserProfileRoute: typeof ApiUserProfileRoute
+  ApiV1EntitlementRoute: typeof ApiV1EntitlementRoute
+  ApiV1ProviderConfigRoute: typeof ApiV1ProviderConfigRoute
   ApiWikiAskRoute: typeof ApiWikiAskRoute
   ApiWikiAssetRoute: typeof ApiWikiAssetRoute
   ApiWikiContextRoute: typeof ApiWikiContextRoute
   ApiWikiContextsRoute: typeof ApiWikiContextsRoute
+  ApiChipsIndexRoute: typeof ApiChipsIndexRoute
+  ApiAdminChipComparePreheatRoute: typeof ApiAdminChipComparePreheatRoute
+  ApiAdminChipCompareRecordsRoute: typeof ApiAdminChipCompareRecordsRoute
+  ApiAdminChipsIdRoute: typeof ApiAdminChipsIdRoute
+  ApiAdminChipsImportRoute: typeof ApiAdminChipsImportRoute
   ApiAdminRolesAssignRoute: typeof ApiAdminRolesAssignRoute
   ApiAdminRolesPermissionsRoute: typeof ApiAdminRolesPermissionsRoute
   ApiAdminSettingsTestRoute: typeof ApiAdminSettingsTestRoute
   ApiAdminUsersCreditsRoute: typeof ApiAdminUsersCreditsRoute
+  ApiAgentDeviceApproveRoute: typeof ApiAgentDeviceApproveRoute
+  ApiAgentDeviceCodeRoute: typeof ApiAgentDeviceCodeRoute
+  ApiAgentDeviceTokenRoute: typeof ApiAgentDeviceTokenRoute
   ApiAgentV1KnowledgeSourcesRoute: typeof ApiAgentV1KnowledgeSourcesRoute
   ApiAgentV1OperationsRoute: typeof ApiAgentV1OperationsRoute
   ApiAiSupportWidgetPublicKeyRoute: typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  ApiAuthDesktopAuthorizeRoute: typeof ApiAuthDesktopAuthorizeRoute
+  ApiAuthDesktopExchangeRoute: typeof ApiAuthDesktopExchangeRoute
+  ApiAuthDesktopLoginRoute: typeof ApiAuthDesktopLoginRoute
+  ApiAuthDesktopLogoutRoute: typeof ApiAuthDesktopLogoutRoute
+  ApiAuthDesktopRefreshRoute: typeof ApiAuthDesktopRefreshRoute
+  ApiChipCompareChatsIdRoute: typeof ApiChipCompareChatsIdRoute
+  ApiChipCompareRecordsIdRoute: typeof ApiChipCompareRecordsIdRouteWithChildren
+  ApiFilesGeneratedNameRoute: typeof ApiFilesGeneratedNameRoute
   ApiPaymentNotifyProviderRoute: typeof ApiPaymentNotifyProviderRoute
   ApiUserSubscriptionsCancelRoute: typeof ApiUserSubscriptionsCancelRoute
   ApiUserSubscriptionsCurrentRoute: typeof ApiUserSubscriptionsCurrentRoute
+  ApiV1DeviceHeartbeatRoute: typeof ApiV1DeviceHeartbeatRoute
+  ApiV1DeviceRegisterRoute: typeof ApiV1DeviceRegisterRoute
+  ApiV1UsageReportRoute: typeof ApiV1UsageReportRouteWithChildren
+  ApiAdminChipsIndexRoute: typeof ApiAdminChipsIndexRoute
   ApiAdminRolesIndexRoute: typeof ApiAdminRolesIndexRoute
   ApiAdminUsersIndexRoute: typeof ApiAdminUsersIndexRoute
+  ApiChipCompareChatsIndexRoute: typeof ApiChipCompareChatsIndexRoute
+  ApiChipCompareRecordsIndexRoute: typeof ApiChipCompareRecordsIndexRoute
   ApiUserSubscriptionsIndexRoute: typeof ApiUserSubscriptionsIndexRoute
+  ApiChipCompareTracesIdNoteRoute: typeof ApiChipCompareTracesIdNoteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1841,6 +2554,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/diagram/': {
+      id: '/diagram/'
+      path: '/diagram'
+      fullPath: '/diagram/'
+      preLoaderRoute: typeof DiagramIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/': {
+      id: '/compare/'
+      path: '/compare'
+      fullPath: '/compare/'
+      preLoaderRoute: typeof CompareIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chips/': {
+      id: '/chips/'
+      path: '/chips'
+      fullPath: '/chips/'
+      preLoaderRoute: typeof ChipsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -1890,11 +2624,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsPaymentsRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/settings/device': {
+      id: '/settings/device'
+      path: '/device'
+      fullPath: '/settings/device'
+      preLoaderRoute: typeof SettingsDeviceRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
     '/settings/credits': {
       id: '/settings/credits'
       path: '/credits'
       fullPath: '/settings/credits'
       preLoaderRoute: typeof SettingsCreditsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/compare-history': {
+      id: '/settings/compare-history'
+      path: '/compare-history'
+      fullPath: '/settings/compare-history'
+      preLoaderRoute: typeof SettingsCompareHistoryRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
+    '/settings/chip-chat': {
+      id: '/settings/chip-chat'
+      path: '/chip-chat'
+      fullPath: '/settings/chip-chat'
+      preLoaderRoute: typeof SettingsChipChatRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
     '/settings/chat': {
@@ -1925,6 +2680,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsAiSupportRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/products/chip-p2p': {
+      id: '/products/chip-p2p'
+      path: '/products/chip-p2p'
+      fullPath: '/products/chip-p2p'
+      preLoaderRoute: typeof ProductsChipP2pRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/ai-fae': {
+      id: '/products/ai-fae'
+      path: '/products/ai-fae'
+      fullPath: '/products/ai-fae'
+      preLoaderRoute: typeof ProductsAiFaeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chips/$id': {
+      id: '/chips/$id'
+      path: '/chips/$id'
+      fullPath: '/chips/$id'
+      preLoaderRoute: typeof ChipsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/blog/$slug'
@@ -1932,11 +2708,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/desktop': {
+      id: '/auth/desktop'
+      path: '/auth/desktop'
+      fullPath: '/auth/desktop'
+      preLoaderRoute: typeof AuthDesktopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tickets': {
       id: '/api/tickets'
       path: '/api/tickets'
       fullPath: '/api/tickets'
       preLoaderRoute: typeof ApiTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/entitlements': {
+      id: '/api/entitlements'
+      path: '/api/entitlements'
+      fullPath: '/api/entitlements'
+      preLoaderRoute: typeof ApiEntitlementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/credits': {
@@ -2023,6 +2813,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCreditsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/chips': {
+      id: '/admin/chips'
+      path: '/chips'
+      fullPath: '/admin/chips'
+      preLoaderRoute: typeof AdminChipsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/chip-segments': {
+      id: '/admin/chip-segments'
+      path: '/chip-segments'
+      fullPath: '/admin/chip-segments'
+      preLoaderRoute: typeof AdminChipSegmentsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/chip-compare': {
+      id: '/admin/chip-compare'
+      path: '/chip-compare'
+      fullPath: '/admin/chip-compare'
+      preLoaderRoute: typeof AdminChipCompareRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -2079,6 +2890,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chips/': {
+      id: '/api/chips/'
+      path: '/api/chips'
+      fullPath: '/api/chips/'
+      preLoaderRoute: typeof ApiChipsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/compare-history_/$id': {
+      id: '/settings/compare-history_/$id'
+      path: '/compare-history/$id'
+      fullPath: '/settings/compare-history/$id'
+      preLoaderRoute: typeof SettingsCompareHistoryIdRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
     '/api/wiki/contexts': {
       id: '/api/wiki/contexts'
       path: '/api/wiki/contexts'
@@ -2105,6 +2930,20 @@ declare module '@tanstack/react-router' {
       path: '/api/wiki/ask'
       fullPath: '/api/wiki/ask'
       preLoaderRoute: typeof ApiWikiAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/provider-config': {
+      id: '/api/v1/provider-config'
+      path: '/api/v1/provider-config'
+      fullPath: '/api/v1/provider-config'
+      preLoaderRoute: typeof ApiV1ProviderConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/entitlement': {
+      id: '/api/v1/entitlement'
+      path: '/api/v1/entitlement'
+      fullPath: '/api/v1/entitlement'
+      preLoaderRoute: typeof ApiV1EntitlementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/user/profile': {
@@ -2191,6 +3030,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInviteCodesRedeemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/usage': {
+      id: '/api/internal/usage'
+      path: '/api/internal/usage'
+      fullPath: '/api/internal/usage'
+      preLoaderRoute: typeof ApiInternalUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/internal/session': {
       id: '/api/internal/session'
       path: '/api/internal/session'
@@ -2205,6 +3051,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalCreditsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/balance': {
+      id: '/api/internal/balance'
+      path: '/api/internal/balance'
+      fullPath: '/api/internal/balance'
+      preLoaderRoute: typeof ApiInternalBalanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/docqa/ingest': {
       id: '/api/docqa/ingest'
       path: '/api/docqa/ingest'
@@ -2217,6 +3070,55 @@ declare module '@tanstack/react-router' {
       path: '/api/config/public'
       fullPath: '/api/config/public'
       preLoaderRoute: typeof ApiConfigPublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chips/$id': {
+      id: '/api/chips/$id'
+      path: '/api/chips/$id'
+      fullPath: '/api/chips/$id'
+      preLoaderRoute: typeof ApiChipsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/upload': {
+      id: '/api/chip-compare/upload'
+      path: '/api/chip-compare/upload'
+      fullPath: '/api/chip-compare/upload'
+      preLoaderRoute: typeof ApiChipCompareUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/diagram': {
+      id: '/api/chip-compare/diagram'
+      path: '/api/chip-compare/diagram'
+      fullPath: '/api/chip-compare/diagram'
+      preLoaderRoute: typeof ApiChipCompareDiagramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/cost': {
+      id: '/api/chip-compare/cost'
+      path: '/api/chip-compare/cost'
+      fullPath: '/api/chip-compare/cost'
+      preLoaderRoute: typeof ApiChipCompareCostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/chat': {
+      id: '/api/chip-compare/chat'
+      path: '/api/chip-compare/chat'
+      fullPath: '/api/chip-compare/chat'
+      preLoaderRoute: typeof ApiChipCompareChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/analyze': {
+      id: '/api/chip-compare/analyze'
+      path: '/api/chip-compare/analyze'
+      fullPath: '/api/chip-compare/analyze'
+      preLoaderRoute: typeof ApiChipCompareAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/verify': {
+      id: '/api/auth/verify'
+      path: '/api/auth/verify'
+      fullPath: '/api/auth/verify'
+      preLoaderRoute: typeof ApiAuthVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/token': {
@@ -2408,6 +3310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiSupportAgentRunsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent/token': {
+      id: '/api/agent/token'
+      path: '/api/agent/token'
+      fullPath: '/api/agent/token'
+      preLoaderRoute: typeof ApiAgentTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/tickets': {
       id: '/api/admin/tickets'
       path: '/api/admin/tickets'
@@ -2464,6 +3373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/chip-segments': {
+      id: '/api/admin/chip-segments'
+      path: '/api/admin/chip-segments'
+      fullPath: '/api/admin/chip-segments'
+      preLoaderRoute: typeof ApiAdminChipSegmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/categories': {
       id: '/api/admin/categories'
       path: '/api/admin/categories'
@@ -2485,6 +3401,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUserSubscriptionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chip-compare/records/': {
+      id: '/api/chip-compare/records/'
+      path: '/api/chip-compare/records'
+      fullPath: '/api/chip-compare/records/'
+      preLoaderRoute: typeof ApiChipCompareRecordsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/chats/': {
+      id: '/api/chip-compare/chats/'
+      path: '/api/chip-compare/chats'
+      fullPath: '/api/chip-compare/chats/'
+      preLoaderRoute: typeof ApiChipCompareChatsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/users/': {
       id: '/api/admin/users/'
       path: '/api/admin/users'
@@ -2497,6 +3427,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/roles'
       fullPath: '/api/admin/roles/'
       preLoaderRoute: typeof ApiAdminRolesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/chips/': {
+      id: '/api/admin/chips/'
+      path: '/api/admin/chips'
+      fullPath: '/api/admin/chips/'
+      preLoaderRoute: typeof ApiAdminChipsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/chatbots/$chatbotId/settings': {
@@ -2534,6 +3471,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsChatbotsChatbotIdHistoryRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/api/v1/usage/report': {
+      id: '/api/v1/usage/report'
+      path: '/api/v1/usage/report'
+      fullPath: '/api/v1/usage/report'
+      preLoaderRoute: typeof ApiV1UsageReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/device/register': {
+      id: '/api/v1/device/register'
+      path: '/api/v1/device/register'
+      fullPath: '/api/v1/device/register'
+      preLoaderRoute: typeof ApiV1DeviceRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/device/heartbeat': {
+      id: '/api/v1/device/heartbeat'
+      path: '/api/v1/device/heartbeat'
+      fullPath: '/api/v1/device/heartbeat'
+      preLoaderRoute: typeof ApiV1DeviceHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/user/subscriptions/current': {
       id: '/api/user/subscriptions/current'
       path: '/api/user/subscriptions/current'
@@ -2555,6 +3513,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPaymentNotifyProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/files/generated/$name': {
+      id: '/api/files/generated/$name'
+      path: '/api/files/generated/$name'
+      fullPath: '/api/files/generated/$name'
+      preLoaderRoute: typeof ApiFilesGeneratedNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/records/$id': {
+      id: '/api/chip-compare/records/$id'
+      path: '/api/chip-compare/records/$id'
+      fullPath: '/api/chip-compare/records/$id'
+      preLoaderRoute: typeof ApiChipCompareRecordsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/chats/$id': {
+      id: '/api/chip-compare/chats/$id'
+      path: '/api/chip-compare/chats/$id'
+      fullPath: '/api/chip-compare/chats/$id'
+      preLoaderRoute: typeof ApiChipCompareChatsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/refresh': {
+      id: '/api/auth/desktop/refresh'
+      path: '/api/auth/desktop/refresh'
+      fullPath: '/api/auth/desktop/refresh'
+      preLoaderRoute: typeof ApiAuthDesktopRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/logout': {
+      id: '/api/auth/desktop/logout'
+      path: '/api/auth/desktop/logout'
+      fullPath: '/api/auth/desktop/logout'
+      preLoaderRoute: typeof ApiAuthDesktopLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/login': {
+      id: '/api/auth/desktop/login'
+      path: '/api/auth/desktop/login'
+      fullPath: '/api/auth/desktop/login'
+      preLoaderRoute: typeof ApiAuthDesktopLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/exchange': {
+      id: '/api/auth/desktop/exchange'
+      path: '/api/auth/desktop/exchange'
+      fullPath: '/api/auth/desktop/exchange'
+      preLoaderRoute: typeof ApiAuthDesktopExchangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/authorize': {
+      id: '/api/auth/desktop/authorize'
+      path: '/api/auth/desktop/authorize'
+      fullPath: '/api/auth/desktop/authorize'
+      preLoaderRoute: typeof ApiAuthDesktopAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-support/widget/$publicKey': {
       id: '/api/ai-support/widget/$publicKey'
       path: '/api/ai-support/widget/$publicKey'
@@ -2574,6 +3588,27 @@ declare module '@tanstack/react-router' {
       path: '/api/agent/v1/knowledge-sources'
       fullPath: '/api/agent/v1/knowledge-sources'
       preLoaderRoute: typeof ApiAgentV1KnowledgeSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/device/token': {
+      id: '/api/agent/device/token'
+      path: '/api/agent/device/token'
+      fullPath: '/api/agent/device/token'
+      preLoaderRoute: typeof ApiAgentDeviceTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/device/code': {
+      id: '/api/agent/device/code'
+      path: '/api/agent/device/code'
+      fullPath: '/api/agent/device/code'
+      preLoaderRoute: typeof ApiAgentDeviceCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/device/approve': {
+      id: '/api/agent/device/approve'
+      path: '/api/agent/device/approve'
+      fullPath: '/api/agent/device/approve'
+      preLoaderRoute: typeof ApiAgentDeviceApproveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/users/credits': {
@@ -2617,6 +3652,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/config/custom'
       preLoaderRoute: typeof ApiAdminConfigCustomRouteImport
       parentRoute: typeof ApiAdminConfigRoute
+    }
+    '/api/admin/chips/import': {
+      id: '/api/admin/chips/import'
+      path: '/api/admin/chips/import'
+      fullPath: '/api/admin/chips/import'
+      preLoaderRoute: typeof ApiAdminChipsImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/chips/$id': {
+      id: '/api/admin/chips/$id'
+      path: '/api/admin/chips/$id'
+      fullPath: '/api/admin/chips/$id'
+      preLoaderRoute: typeof ApiAdminChipsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/chip-compare/records': {
+      id: '/api/admin/chip-compare/records'
+      path: '/api/admin/chip-compare/records'
+      fullPath: '/api/admin/chip-compare/records'
+      preLoaderRoute: typeof ApiAdminChipCompareRecordsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/chip-compare/preheat': {
+      id: '/api/admin/chip-compare/preheat'
+      path: '/api/admin/chip-compare/preheat'
+      fullPath: '/api/admin/chip-compare/preheat'
+      preLoaderRoute: typeof ApiAdminChipComparePreheatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/settings/chatbots/$chatbotId/knowledge/website-links': {
       id: '/settings/chatbots/$chatbotId/knowledge/website-links'
@@ -2702,6 +3765,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/api/v1/usage/report/batch': {
+      id: '/api/v1/usage/report/batch'
+      path: '/batch'
+      fullPath: '/api/v1/usage/report/batch'
+      preLoaderRoute: typeof ApiV1UsageReportBatchRouteImport
+      parentRoute: typeof ApiV1UsageReportRoute
+    }
+    '/api/chip-compare/traces/$id/note': {
+      id: '/api/chip-compare/traces/$id/note'
+      path: '/api/chip-compare/traces/$id/note'
+      fullPath: '/api/chip-compare/traces/$id/note'
+      preLoaderRoute: typeof ApiChipCompareTracesIdNoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/records/$id/traces': {
+      id: '/api/chip-compare/records/$id/traces'
+      path: '/traces'
+      fullPath: '/api/chip-compare/records/$id/traces'
+      preLoaderRoute: typeof ApiChipCompareRecordsIdTracesRouteImport
+      parentRoute: typeof ApiChipCompareRecordsIdRoute
+    }
+    '/api/chip-compare/records/$id/publish': {
+      id: '/api/chip-compare/records/$id/publish'
+      path: '/publish'
+      fullPath: '/api/chip-compare/records/$id/publish'
+      preLoaderRoute: typeof ApiChipCompareRecordsIdPublishRouteImport
+      parentRoute: typeof ApiChipCompareRecordsIdRoute
+    }
+    '/api/chip-compare/records/$id/export': {
+      id: '/api/chip-compare/records/$id/export'
+      path: '/export'
+      fullPath: '/api/chip-compare/records/$id/export'
+      preLoaderRoute: typeof ApiChipCompareRecordsIdExportRouteImport
+      parentRoute: typeof ApiChipCompareRecordsIdRoute
+    }
     '/api/ai-support/widget/$publicKey/support-replies': {
       id: '/api/ai-support/widget/$publicKey/support-replies'
       path: '/support-replies'
@@ -2756,6 +3854,9 @@ const pagesRouteRouteWithChildren = pagesRouteRoute._addFileChildren(
 
 interface AdminRouteRouteChildren {
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminChipCompareRoute: typeof AdminChipCompareRoute
+  AdminChipSegmentsRoute: typeof AdminChipSegmentsRoute
+  AdminChipsRoute: typeof AdminChipsRoute
   AdminCreditsRoute: typeof AdminCreditsRoute
   AdminInviteCodesRoute: typeof AdminInviteCodesRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
@@ -2771,6 +3872,9 @@ interface AdminRouteRouteChildren {
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminChipCompareRoute: AdminChipCompareRoute,
+  AdminChipSegmentsRoute: AdminChipSegmentsRoute,
+  AdminChipsRoute: AdminChipsRoute,
   AdminCreditsRoute: AdminCreditsRoute,
   AdminInviteCodesRoute: AdminInviteCodesRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
@@ -2793,13 +3897,17 @@ interface SettingsRouteRouteChildren {
   SettingsApikeysRoute: typeof SettingsApikeysRoute
   SettingsBillingRoute: typeof SettingsBillingRoute
   SettingsChatRoute: typeof SettingsChatRoute
+  SettingsChipChatRoute: typeof SettingsChipChatRoute
+  SettingsCompareHistoryRoute: typeof SettingsCompareHistoryRoute
   SettingsCreditsRoute: typeof SettingsCreditsRoute
+  SettingsDeviceRoute: typeof SettingsDeviceRoute
   SettingsPaymentsRoute: typeof SettingsPaymentsRoute
   SettingsProfileRoute: typeof SettingsProfileRoute
   SettingsTaskCenterRoute: typeof SettingsTaskCenterRoute
   SettingsTicketsRoute: typeof SettingsTicketsRoute
   SettingsWikiAssistantRoute: typeof SettingsWikiAssistantRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
+  SettingsCompareHistoryIdRoute: typeof SettingsCompareHistoryIdRoute
   SettingsChatbotsChatbotIdHistoryRoute: typeof SettingsChatbotsChatbotIdHistoryRoute
   SettingsChatbotsChatbotIdInstallationRoute: typeof SettingsChatbotsChatbotIdInstallationRoute
   SettingsChatbotsChatbotIdLeadsRoute: typeof SettingsChatbotsChatbotIdLeadsRoute
@@ -2825,13 +3933,17 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsApikeysRoute: SettingsApikeysRoute,
   SettingsBillingRoute: SettingsBillingRoute,
   SettingsChatRoute: SettingsChatRoute,
+  SettingsChipChatRoute: SettingsChipChatRoute,
+  SettingsCompareHistoryRoute: SettingsCompareHistoryRoute,
   SettingsCreditsRoute: SettingsCreditsRoute,
+  SettingsDeviceRoute: SettingsDeviceRoute,
   SettingsPaymentsRoute: SettingsPaymentsRoute,
   SettingsProfileRoute: SettingsProfileRoute,
   SettingsTaskCenterRoute: SettingsTaskCenterRoute,
   SettingsTicketsRoute: SettingsTicketsRoute,
   SettingsWikiAssistantRoute: SettingsWikiAssistantRoute,
   SettingsIndexRoute: SettingsIndexRoute,
+  SettingsCompareHistoryIdRoute: SettingsCompareHistoryIdRoute,
   SettingsChatbotsChatbotIdHistoryRoute: SettingsChatbotsChatbotIdHistoryRoute,
   SettingsChatbotsChatbotIdInstallationRoute:
     SettingsChatbotsChatbotIdInstallationRoute,
@@ -2933,6 +4045,35 @@ const ApiAiSupportWidgetPublicKeyRouteWithChildren =
     ApiAiSupportWidgetPublicKeyRouteChildren,
   )
 
+interface ApiChipCompareRecordsIdRouteChildren {
+  ApiChipCompareRecordsIdExportRoute: typeof ApiChipCompareRecordsIdExportRoute
+  ApiChipCompareRecordsIdPublishRoute: typeof ApiChipCompareRecordsIdPublishRoute
+  ApiChipCompareRecordsIdTracesRoute: typeof ApiChipCompareRecordsIdTracesRoute
+}
+
+const ApiChipCompareRecordsIdRouteChildren: ApiChipCompareRecordsIdRouteChildren =
+  {
+    ApiChipCompareRecordsIdExportRoute: ApiChipCompareRecordsIdExportRoute,
+    ApiChipCompareRecordsIdPublishRoute: ApiChipCompareRecordsIdPublishRoute,
+    ApiChipCompareRecordsIdTracesRoute: ApiChipCompareRecordsIdTracesRoute,
+  }
+
+const ApiChipCompareRecordsIdRouteWithChildren =
+  ApiChipCompareRecordsIdRoute._addFileChildren(
+    ApiChipCompareRecordsIdRouteChildren,
+  )
+
+interface ApiV1UsageReportRouteChildren {
+  ApiV1UsageReportBatchRoute: typeof ApiV1UsageReportBatchRoute
+}
+
+const ApiV1UsageReportRouteChildren: ApiV1UsageReportRouteChildren = {
+  ApiV1UsageReportBatchRoute: ApiV1UsageReportBatchRoute,
+}
+
+const ApiV1UsageReportRouteWithChildren =
+  ApiV1UsageReportRoute._addFileChildren(ApiV1UsageReportRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   pagesRouteRoute: pagesRouteRouteWithChildren,
@@ -2948,10 +4089,19 @@ const rootRouteChildren: RootRouteChildren = {
   authVerifyEmailRoute: authVerifyEmailRoute,
   ApiApikeysRoute: ApiApikeysRoute,
   ApiCreditsRoute: ApiCreditsRoute,
+  ApiEntitlementsRoute: ApiEntitlementsRoute,
   ApiTicketsRoute: ApiTicketsRouteWithChildren,
+  AuthDesktopRoute: AuthDesktopRoute,
   BlogSlugRoute: BlogSlugRoute,
+  ChipsIdRoute: ChipsIdRoute,
+  ProductsAiFaeRoute: ProductsAiFaeRoute,
+  ProductsChipP2pRoute: ProductsChipP2pRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ChipsIndexRoute: ChipsIndexRoute,
+  CompareIndexRoute: CompareIndexRoute,
+  DiagramIndexRoute: DiagramIndexRoute,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRoute,
+  ApiAdminChipSegmentsRoute: ApiAdminChipSegmentsRoute,
   ApiAdminConfigRoute: ApiAdminConfigRouteWithChildren,
   ApiAdminCreditsRoute: ApiAdminCreditsRoute,
   ApiAdminInviteCodesRoute: ApiAdminInviteCodesRoute,
@@ -2960,6 +4110,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminPostsRoute: ApiAdminPostsRoute,
   ApiAdminSubscriptionsRoute: ApiAdminSubscriptionsRoute,
   ApiAdminTicketsRoute: ApiAdminTicketsRouteWithChildren,
+  ApiAgentTokenRoute: ApiAgentTokenRoute,
   ApiAiSupportAgentRunsRoute: ApiAiSupportAgentRunsRoute,
   ApiAiSupportAgentTokensRoute: ApiAiSupportAgentTokensRoute,
   ApiAiSupportAuditLogsRoute: ApiAiSupportAuditLogsRoute,
@@ -2987,10 +4138,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthTokenRoute: ApiAuthTokenRoute,
+  ApiAuthVerifyRoute: ApiAuthVerifyRoute,
+  ApiChipCompareAnalyzeRoute: ApiChipCompareAnalyzeRoute,
+  ApiChipCompareChatRoute: ApiChipCompareChatRoute,
+  ApiChipCompareCostRoute: ApiChipCompareCostRoute,
+  ApiChipCompareDiagramRoute: ApiChipCompareDiagramRoute,
+  ApiChipCompareUploadRoute: ApiChipCompareUploadRoute,
+  ApiChipsIdRoute: ApiChipsIdRoute,
   ApiConfigPublicRoute: ApiConfigPublicRoute,
   ApiDocqaIngestRoute: ApiDocqaIngestRoute,
+  ApiInternalBalanceRoute: ApiInternalBalanceRoute,
   ApiInternalCreditsRoute: ApiInternalCreditsRoute,
   ApiInternalSessionRoute: ApiInternalSessionRoute,
+  ApiInternalUsageRoute: ApiInternalUsageRoute,
   ApiInviteCodesRedeemRoute: ApiInviteCodesRedeemRoute,
   ApiInviteCodesValidateRoute: ApiInviteCodesValidateRoute,
   ApiPaymentCallbackRoute: ApiPaymentCallbackRoute,
@@ -3002,24 +4162,49 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUserOrdersRoute: ApiUserOrdersRoute,
   ApiUserPermissionsRoute: ApiUserPermissionsRoute,
   ApiUserProfileRoute: ApiUserProfileRoute,
+  ApiV1EntitlementRoute: ApiV1EntitlementRoute,
+  ApiV1ProviderConfigRoute: ApiV1ProviderConfigRoute,
   ApiWikiAskRoute: ApiWikiAskRoute,
   ApiWikiAssetRoute: ApiWikiAssetRoute,
   ApiWikiContextRoute: ApiWikiContextRoute,
   ApiWikiContextsRoute: ApiWikiContextsRoute,
+  ApiChipsIndexRoute: ApiChipsIndexRoute,
+  ApiAdminChipComparePreheatRoute: ApiAdminChipComparePreheatRoute,
+  ApiAdminChipCompareRecordsRoute: ApiAdminChipCompareRecordsRoute,
+  ApiAdminChipsIdRoute: ApiAdminChipsIdRoute,
+  ApiAdminChipsImportRoute: ApiAdminChipsImportRoute,
   ApiAdminRolesAssignRoute: ApiAdminRolesAssignRoute,
   ApiAdminRolesPermissionsRoute: ApiAdminRolesPermissionsRoute,
   ApiAdminSettingsTestRoute: ApiAdminSettingsTestRoute,
   ApiAdminUsersCreditsRoute: ApiAdminUsersCreditsRoute,
+  ApiAgentDeviceApproveRoute: ApiAgentDeviceApproveRoute,
+  ApiAgentDeviceCodeRoute: ApiAgentDeviceCodeRoute,
+  ApiAgentDeviceTokenRoute: ApiAgentDeviceTokenRoute,
   ApiAgentV1KnowledgeSourcesRoute: ApiAgentV1KnowledgeSourcesRoute,
   ApiAgentV1OperationsRoute: ApiAgentV1OperationsRoute,
   ApiAiSupportWidgetPublicKeyRoute:
     ApiAiSupportWidgetPublicKeyRouteWithChildren,
+  ApiAuthDesktopAuthorizeRoute: ApiAuthDesktopAuthorizeRoute,
+  ApiAuthDesktopExchangeRoute: ApiAuthDesktopExchangeRoute,
+  ApiAuthDesktopLoginRoute: ApiAuthDesktopLoginRoute,
+  ApiAuthDesktopLogoutRoute: ApiAuthDesktopLogoutRoute,
+  ApiAuthDesktopRefreshRoute: ApiAuthDesktopRefreshRoute,
+  ApiChipCompareChatsIdRoute: ApiChipCompareChatsIdRoute,
+  ApiChipCompareRecordsIdRoute: ApiChipCompareRecordsIdRouteWithChildren,
+  ApiFilesGeneratedNameRoute: ApiFilesGeneratedNameRoute,
   ApiPaymentNotifyProviderRoute: ApiPaymentNotifyProviderRoute,
   ApiUserSubscriptionsCancelRoute: ApiUserSubscriptionsCancelRoute,
   ApiUserSubscriptionsCurrentRoute: ApiUserSubscriptionsCurrentRoute,
+  ApiV1DeviceHeartbeatRoute: ApiV1DeviceHeartbeatRoute,
+  ApiV1DeviceRegisterRoute: ApiV1DeviceRegisterRoute,
+  ApiV1UsageReportRoute: ApiV1UsageReportRouteWithChildren,
+  ApiAdminChipsIndexRoute: ApiAdminChipsIndexRoute,
   ApiAdminRolesIndexRoute: ApiAdminRolesIndexRoute,
   ApiAdminUsersIndexRoute: ApiAdminUsersIndexRoute,
+  ApiChipCompareChatsIndexRoute: ApiChipCompareChatsIndexRoute,
+  ApiChipCompareRecordsIndexRoute: ApiChipCompareRecordsIndexRoute,
   ApiUserSubscriptionsIndexRoute: ApiUserSubscriptionsIndexRoute,
+  ApiChipCompareTracesIdNoteRoute: ApiChipCompareTracesIdNoteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

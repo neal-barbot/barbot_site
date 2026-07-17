@@ -34,6 +34,9 @@ import { decryptSecret, isEncryptedSecret } from '@/lib/crypto';
 import { getNonceStr, getUuid, md5 } from '@/lib/hash';
 import { buildKnowledgeReply } from './reply-policy';
 import { generateAnswerWithAgent } from './answer-agent';
+import { questionMentionsCatalogPart } from '@/modules/chips/agent-tools';
+import { consume as consumeCredits, getBalance } from '@/modules/credits/service';
+import { getAllConfigs } from '@/modules/config/service';
 import { fetchWebsiteKnowledge } from './providers';
 
 export type AiSupportStatus = 'ready' | 'warning' | 'blocked';
@@ -1459,7 +1462,10 @@ async function draftKnowledgeReply(params: {
   const best = chunks[0];
   const fallbackSource = sources.find((source) => source.content?.trim()) ?? sources[0];
 
-  if (!best && !fallbackSource) {
+  // No knowledge hit at all: still let the tool-calling agent answer when
+  // the question names a part that exists in the chip catalog (FAE
+  // selection/substitution questions), otherwise return the canned reply.
+  if (!best && !fallbackSource && !(await questionMentionsCatalogPart(params.message))) {
     return {
       content: buildKnowledgeReply({
         title: '',
@@ -1473,18 +1479,57 @@ async function draftKnowledgeReply(params: {
 
   const contexts = chunks.length
     ? chunks.map(({ source, chunk }) => ({ title: source.title, sourceUrl: source.sourceUrl, excerpt: chunk.content }))
-    : [{
-      title: fallbackSource!.title,
-      sourceUrl: fallbackSource!.sourceUrl,
-      excerpt: fallbackSource!.content ?? fallbackSource!.sourceUrl ?? 'configured knowledge source.',
-    }];
+    : fallbackSource
+      ? [{
+        title: fallbackSource.title,
+        sourceUrl: fallbackSource.sourceUrl,
+        excerpt: fallbackSource.content ?? fallbackSource.sourceUrl ?? 'configured knowledge source.',
+      }]
+      : [];
+  // Unified platform billing: each AI-generated answer consumes the chatbot
+  // owner's credits (ai_fae_cost_credits, default 1). Static custom-response
+  // hits above stay free; billing failures never block the reply.
+  const faeCost = await getAiFaeCostCredits();
+  if (faeCost > 0 && (await getBalance(params.userId)) < faeCost) {
+    return {
+      content: buildKnowledgeReply({
+        title: '',
+        excerpt: '',
+        instructions: policy.instructions,
+        persona: policy.persona,
+      }),
+      citations: [],
+    };
+  }
+
   const content = await generateAnswerWithAgent({
     question: params.message,
     instructions: policy.instructions,
     persona: policy.persona,
     context: contexts,
   });
-  const citedSources = chunks.length ? chunks.map(({ source }) => source) : [fallbackSource!];
+
+  if (faeCost > 0) {
+    // Awaited on purpose: a fire-and-forget consume() opens a second write
+    // transaction concurrently with the caller's reply transaction, which
+    // deadlocks the synchronous local-sqlite driver (SQLITE_BUSY). Billing
+    // failures still never block the reply.
+    try {
+      await consumeCredits({
+        userId: params.userId,
+        credits: faeCost,
+        scene: 'ai_fae_answer',
+        description: 'AI FAE generated answer',
+      });
+    } catch (error) {
+      console.error('AI FAE credit consume failed:', error);
+    }
+  }
+  const citedSources = chunks.length
+    ? chunks.map(({ source }) => source)
+    : fallbackSource
+      ? [fallbackSource]
+      : [];
 
   return {
     content,
@@ -1492,6 +1537,12 @@ async function draftKnowledgeReply(params: {
       .filter((source, index, items) => items.findIndex((item) => item.id === source.id) === index)
       .map((source) => buildCitation(source)),
   };
+}
+
+async function getAiFaeCostCredits(): Promise<number> {
+  const configs = await getAllConfigs();
+  const raw = Number.parseInt((configs.ai_fae_cost_credits as string) || '', 10);
+  return Number.isFinite(raw) && raw >= 0 ? raw : 1;
 }
 
 async function getCount(table: any, where: any): Promise<number> {

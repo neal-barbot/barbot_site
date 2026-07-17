@@ -15,7 +15,7 @@ const publicEnv = (key: string) => metaEnv[key] ?? procEnv[key];
 export const envConfigs: Record<string, string> = {
   // App (public)
   app_url: publicEnv('VITE_APP_URL') ?? 'http://localhost:3000',
-  app_name: publicEnv('VITE_APP_NAME') ?? 'SiteGPT',
+  app_name: publicEnv('VITE_APP_NAME') ?? 'Barbot',
   app_description: publicEnv('VITE_APP_DESCRIPTION') ?? 'AI customer support dashboard',
   app_logo: publicEnv('VITE_APP_LOGO') ?? '/logo.svg',
 
@@ -83,6 +83,14 @@ export const envConfigs: Record<string, string> = {
   gateway_port: procEnv.GATEWAY_PORT ?? '8520',
   mineru_url: procEnv.MINERU_URL ?? 'http://127.0.0.1:8530',
   internal_api_token: procEnv.INTERNAL_API_TOKEN ?? '',
+  // Runtime-generated files (EE diagram renders) — served via
+  // /api/files/generated/$name; mount as a volume in production.
+  generated_dir: procEnv.GENERATED_DIR ?? './data/generated',
+  // Harvey agent workbench URL (public entry; empty = hide the entries)
+  harvey_url: publicEnv('VITE_HARVEY_URL') ?? '',
+  // Agent gateway: signs short-lived JWTs for external agent executors.
+  // Falls back to AUTH_SECRET when unset.
+  agent_jwt_secret: procEnv.AGENT_JWT_SECRET ?? '',
   credit_cost_per_prompt: procEnv.CREDIT_COST_PER_PROMPT ?? '1',
   doc_qa_bucket: procEnv.DOC_QA_BUCKET ?? 'doc-qa',
   llm_base_url: procEnv.LLM_BASE_URL ?? '',

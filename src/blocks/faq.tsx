@@ -7,12 +7,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const FAQ_KEYS = ["stack", "payment", "database", "customize", "license"] as const;
+const FAQ_KEYS = ["accuracy", "sources", "cost", "formats", "languages"] as const;
 
 export function FAQ() {
   
   return (
-    <section id="faq" className="px-4 py-24 sm:py-32">
+    <section id="faq" className="reveal px-4 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl">
         <div className="text-center mb-16">
           <h2 className="font-serif font-medium text-4xl sm:text-5xl tracking-tight">

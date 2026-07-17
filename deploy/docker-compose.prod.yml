@@ -1,0 +1,116 @@
+# Barbot production stack. See deploy/README.md for the full runbook.
+#
+#   cd <repo root>
+#   cp deploy/.env.prod.example deploy/.env.prod   # then fill it in
+#   docker compose -f deploy/docker-compose.prod.yml --env-file deploy/.env.prod up -d --build
+#
+# Only caddy is exposed to the internet (80/443). Everything else stays on
+# the internal compose network.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # One-shot: applies pending migrations, then exits. `up` waits on its
+  # healthy completion before starting the app (see depends_on below).
+  migrate:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: worker
+      args:
+        DATABASE_PROVIDER: postgresql
+    env_file: [.env.prod]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+    command: ['pnpm', 'db:migrate']
+
+  shipany:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        DATABASE_PROVIDER: postgresql
+        VITE_APP_URL: ${VITE_APP_URL}
+        VITE_APP_NAME: ${VITE_APP_NAME}
+        VITE_HARVEY_URL: ${VITE_HARVEY_URL}
+        VITE_DEFAULT_LOCALE: ${VITE_DEFAULT_LOCALE}
+    image: barbot/shipany:prod
+    restart: unless-stopped
+    env_file: [.env.prod]
+    environment:
+      PORT: '3000'
+      HOST: 0.0.0.0
+    volumes:
+      - generated-imgs:/data/generated
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: worker
+      args:
+        DATABASE_PROVIDER: postgresql
+    image: barbot/shipany-worker:prod
+    restart: unless-stopped
+    env_file: [.env.prod]
+    environment:
+      WORKER_LOOP: '1'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  harvey:
+    # Load the pre-built image first:  docker load -i harvey.tar
+    image: barbot/harvey-server:prod
+    restart: unless-stopped
+    command: ['--allow-insecure-bind'] # TLS terminated by caddy
+    environment:
+      CRAFT_SERVER_TOKEN: ${CRAFT_SERVER_TOKEN}
+      CRAFT_WEBUI_PASSWORD: ${CRAFT_WEBUI_PASSWORD:-}
+    volumes:
+      - harvey-data:/home/craftagents/.craft-agent
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      MAIN_DOMAIN: ${MAIN_DOMAIN}
+      AGENTS_DOMAIN: ${AGENTS_DOMAIN}
+    depends_on: [shipany, harvey]
+
+volumes:
+  pg-data:
+  generated-imgs:
+  harvey-data:
+  caddy-data:
+  caddy-config:

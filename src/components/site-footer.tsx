@@ -3,7 +3,6 @@ import type { ComponentType, SVGProps } from "react";
 import { envConfigs } from "@/config";
 import { cn } from "@/lib/utils";
 import { LocaleSelector } from "@/components/locale-selector";
-import { BuiltWithShipAny } from "@/components/built-with-shipany";
 
 export interface FooterColumn {
   title: string;
@@ -34,10 +33,15 @@ export function SiteFooter({
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-neutral-950 text-neutral-100">
+    <footer className="relative bg-[oklch(0.16_0.018_55)] text-[oklch(0.96_0.01_75)]">
+      {/* ember hairline — echoes the sunset hero */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,#fcfc51_25%,#ffa057_55%,#DF3F00_80%,transparent)] opacity-70"
+      />
       <div className="mx-auto max-w-7xl px-6 pt-14 pb-6 sm:px-10 sm:pt-16 lg:px-16">
         {tagline && (
-          <p className="font-serif italic text-3xl leading-[1.15] tracking-tight text-neutral-100 sm:text-4xl mb-12 max-w-2xl">
+          <p className="font-serif italic text-3xl leading-[1.15] tracking-tight text-[oklch(0.96_0.01_75)] sm:text-4xl mb-12 max-w-2xl">
             {tagline}
           </p>
         )}
@@ -55,7 +59,7 @@ export function SiteFooter({
           >
             {columns.map((col) => (
               <div key={col.title} className="space-y-5">
-                <p className="text-[13px] font-semibold tracking-wide text-neutral-100">
+                <p className="text-[13px] font-semibold tracking-wide text-[oklch(0.96_0.01_75)]">
                   {col.title}
                 </p>
                 <ul className="space-y-2">
@@ -66,7 +70,7 @@ export function SiteFooter({
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
+                          className="text-sm text-[oklch(0.68_0.02_60)] transition-colors hover:text-[oklch(0.96_0.01_75)]"
                         >
                           {link.label}
                         </a>
@@ -74,7 +78,7 @@ export function SiteFooter({
                         <Link
                           href={link.href}
                           target={link.external ? "_blank" : undefined}
-                          className="text-sm text-neutral-400 transition-colors hover:text-neutral-100"
+                          className="text-sm text-[oklch(0.68_0.02_60)] transition-colors hover:text-[oklch(0.96_0.01_75)]"
                         >
                           {link.label}
                         </Link>
@@ -98,7 +102,7 @@ export function SiteFooter({
                   aria-label={s.label}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-neutral-300 transition-colors hover:text-neutral-100"
+                  className="text-[oklch(0.78_0.02_60)] transition-colors hover:text-[oklch(0.96_0.01_75)]"
                 >
                   <s.icon className="size-[18px]" />
                 </a>
@@ -109,14 +113,13 @@ export function SiteFooter({
           )}
           <LocaleSelector
             variant="pill"
-            className="border-neutral-700 text-neutral-200 hover:bg-white/5 hover:text-neutral-50"
+            className="border-[oklch(0.34_0.02_55)] text-[oklch(0.85_0.02_65)] hover:bg-white/5 hover:text-[oklch(0.96_0.01_75)]"
           />
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-6 flex flex-col gap-3 border-t border-neutral-800 pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <BuiltWithShipAny />
-          <span className="text-sm text-neutral-400">
+        <div className="mt-6 flex flex-col gap-3 border-t border-[oklch(0.26_0.02_55)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-sm text-[oklch(0.68_0.02_60)]">
             {copyright || `© ${year} ${envConfigs.app_name}. All rights reserved.`}
           </span>
         </div>

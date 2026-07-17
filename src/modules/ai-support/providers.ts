@@ -112,7 +112,7 @@ async function fetchNative(url: URL): Promise<WebsiteFetchResult> {
   const response = await fetch(url, {
     redirect: 'error',
     signal: AbortSignal.timeout(12_000),
-    headers: { 'User-Agent': 'SiteGPT-KnowledgeBot/1.0' },
+    headers: { 'User-Agent': 'Barbot-KnowledgeBot/1.0' },
   });
   if (!response.ok) throw new Error(`Website fetch failed (${response.status})`);
   const contentType = response.headers.get('content-type') || '';

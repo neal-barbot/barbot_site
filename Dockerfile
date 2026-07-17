@@ -50,3 +50,18 @@ ENV PORT=3000
 ENV HOST=0.0.0.0
 
 CMD ["node", ".output/server/index.mjs"]
+
+# Worker image — the resident agent-task worker (widget answers, sync jobs).
+# Same source as the server, but needs tsx + drizzle + scripts, so it carries
+# node_modules and the migration tooling. Run with WORKER_LOOP=1.
+FROM base AS worker
+WORKDIR /app
+RUN npm install -g pnpm@10
+ENV NODE_ENV=production
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/scripts ./scripts
+CMD ["pnpm", "agent:worker"]

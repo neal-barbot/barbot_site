@@ -98,6 +98,18 @@ export function getSettings(): Setting[] {
     { name: 'initial_credits_amount', title: 'Credits amount', type: 'number', placeholder: '100', group: 'credit', tab: 'general' },
     { name: 'initial_credits_valid_days', title: 'Valid days', type: 'number', placeholder: '365', group: 'credit', tab: 'general' },
     { name: 'initial_credits_description', title: 'Description', type: 'text', placeholder: 'Welcome bonus', group: 'credit', tab: 'general' },
+    { name: 'chip_compare_cost_credits', title: 'Chip compare cost (credits)', type: 'number', placeholder: '10', group: 'credit', tab: 'general' },
+    { name: 'ai_fae_cost_credits', title: 'AI FAE answer cost (credits)', type: 'number', placeholder: '1', group: 'credit', tab: 'general' },
+    { name: 'agent_task_cost_credits', title: 'Agent task cost (credits per unit)', type: 'number', placeholder: '5', group: 'credit', tab: 'general' },
+    { name: 'ee_diagram_cost_credits', title: 'EE diagram cost (SVG, credits)', type: 'number', placeholder: '5', group: 'credit', tab: 'general' },
+    { name: 'ee_diagram_image_cost_credits', title: 'EE diagram cost (AI image, credits)', type: 'number', placeholder: '10', group: 'credit', tab: 'general' },
+    { name: 'chip_compare_model', title: 'Chip compare model', type: 'text', placeholder: 'deepseek-chat (falls back to OpenAI model)', group: 'openai', tab: 'ai' },
+    { name: 'agent_relay_base_url', title: 'Agent relay base URL', type: 'text', placeholder: 'https://api.deepseek.com/anthropic', group: 'openai', tab: 'ai' },
+    { name: 'agent_relay_api_key', title: 'Agent relay API key', type: 'password', placeholder: 'falls back to DEEPSEEK_API_KEY env', group: 'openai', tab: 'ai' },
+    { name: 'agent_relay_model', title: 'Agent relay model', type: 'text', placeholder: 'deepseek-v4-flash', group: 'openai', tab: 'ai' },
+    { name: 'image_api_base_url', title: 'Image API base URL', type: 'text', placeholder: 'https://host/gpt-image/v1 (falls back to IMAGE_API_BASE_URL env)', group: 'openai', tab: 'ai' },
+    { name: 'image_api_key', title: 'Image API key', type: 'password', placeholder: 'falls back to IMAGE_API_KEY env', group: 'openai', tab: 'ai' },
+    { name: 'image_api_model', title: 'Image API model', type: 'text', placeholder: 'gpt-image-2', group: 'openai', tab: 'ai' },
 
     // ─── Auth / Email ────────────────────────────────────────────────
     { name: 'email_auth_enabled', title: 'Enable email auth', type: 'switch', group: 'email_auth', tab: 'auth', defaultValue: 'true' },
