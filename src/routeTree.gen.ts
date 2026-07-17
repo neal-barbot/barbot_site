@@ -38,7 +38,9 @@ import { Route as ProductsChipP2pRouteImport } from './routes/products/chip-p2p'
 import { Route as ProductsAiFaeRouteImport } from './routes/products/ai-fae'
 import { Route as ChipsIdRouteImport } from './routes/chips/$id'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as AuthDesktopRouteImport } from './routes/auth/desktop'
 import { Route as ApiTicketsRouteImport } from './routes/api/tickets'
+import { Route as ApiEntitlementsRouteImport } from './routes/api/entitlements'
 import { Route as ApiCreditsRouteImport } from './routes/api/credits'
 import { Route as ApiApikeysRouteImport } from './routes/api/apikeys'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
@@ -68,6 +70,8 @@ import { Route as ApiWikiContextsRouteImport } from './routes/api/wiki/contexts'
 import { Route as ApiWikiContextRouteImport } from './routes/api/wiki/context'
 import { Route as ApiWikiAssetRouteImport } from './routes/api/wiki/asset'
 import { Route as ApiWikiAskRouteImport } from './routes/api/wiki/ask'
+import { Route as ApiV1ProviderConfigRouteImport } from './routes/api/v1/provider-config'
+import { Route as ApiV1EntitlementRouteImport } from './routes/api/v1/entitlement'
 import { Route as ApiUserProfileRouteImport } from './routes/api/user/profile'
 import { Route as ApiUserPermissionsRouteImport } from './routes/api/user/permissions'
 import { Route as ApiUserOrdersRouteImport } from './routes/api/user/orders'
@@ -91,6 +95,7 @@ import { Route as ApiChipCompareUploadRouteImport } from './routes/api/chip-comp
 import { Route as ApiChipCompareCostRouteImport } from './routes/api/chip-compare/cost'
 import { Route as ApiChipCompareChatRouteImport } from './routes/api/chip-compare/chat'
 import { Route as ApiChipCompareAnalyzeRouteImport } from './routes/api/chip-compare/analyze'
+import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth/verify'
 import { Route as ApiAuthTokenRouteImport } from './routes/api/auth/token'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAiSupportWidgetAppearanceRouteImport } from './routes/api/ai-support/widget-appearance'
@@ -141,11 +146,19 @@ import { Route as SettingsChatbotsChatbotIdSdkRouteImport } from './routes/setti
 import { Route as SettingsChatbotsChatbotIdLeadsRouteImport } from './routes/settings/chatbots/$chatbotId/leads'
 import { Route as SettingsChatbotsChatbotIdInstallationRouteImport } from './routes/settings/chatbots/$chatbotId/installation'
 import { Route as SettingsChatbotsChatbotIdHistoryRouteImport } from './routes/settings/chatbots/$chatbotId/history'
+import { Route as ApiV1UsageReportRouteImport } from './routes/api/v1/usage/report'
+import { Route as ApiV1DeviceRegisterRouteImport } from './routes/api/v1/device/register'
+import { Route as ApiV1DeviceHeartbeatRouteImport } from './routes/api/v1/device/heartbeat'
 import { Route as ApiUserSubscriptionsCurrentRouteImport } from './routes/api/user/subscriptions/current'
 import { Route as ApiUserSubscriptionsCancelRouteImport } from './routes/api/user/subscriptions/cancel'
 import { Route as ApiPaymentNotifyProviderRouteImport } from './routes/api/payment/notify/$provider'
 import { Route as ApiChipCompareRecordsIdRouteImport } from './routes/api/chip-compare/records/$id'
 import { Route as ApiChipCompareChatsIdRouteImport } from './routes/api/chip-compare/chats/$id'
+import { Route as ApiAuthDesktopRefreshRouteImport } from './routes/api/auth/desktop/refresh'
+import { Route as ApiAuthDesktopLogoutRouteImport } from './routes/api/auth/desktop/logout'
+import { Route as ApiAuthDesktopLoginRouteImport } from './routes/api/auth/desktop/login'
+import { Route as ApiAuthDesktopExchangeRouteImport } from './routes/api/auth/desktop/exchange'
+import { Route as ApiAuthDesktopAuthorizeRouteImport } from './routes/api/auth/desktop/authorize'
 import { Route as ApiAiSupportWidgetPublicKeyRouteImport } from './routes/api/ai-support/widget/$publicKey'
 import { Route as ApiAgentV1OperationsRouteImport } from './routes/api/agent/v1/operations'
 import { Route as ApiAgentV1KnowledgeSourcesRouteImport } from './routes/api/agent/v1/knowledge-sources'
@@ -174,6 +187,7 @@ import { Route as SettingsChatbotsChatbotIdCustomizationInstructionsRouteImport 
 import { Route as SettingsChatbotsChatbotIdCustomizationHumanSupportRouteImport } from './routes/settings/chatbots/$chatbotId/customization/human-support'
 import { Route as SettingsChatbotsChatbotIdCustomizationFollowupsRouteImport } from './routes/settings/chatbots/$chatbotId/customization/followups'
 import { Route as SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport } from './routes/settings/chatbots/$chatbotId/customization/appearance'
+import { Route as ApiV1UsageReportBatchRouteImport } from './routes/api/v1/usage/report.batch'
 import { Route as ApiChipCompareTracesIdNoteRouteImport } from './routes/api/chip-compare/traces/$id/note'
 import { Route as ApiChipCompareRecordsIdTracesRouteImport } from './routes/api/chip-compare/records/$id/traces'
 import { Route as ApiChipCompareRecordsIdPublishRouteImport } from './routes/api/chip-compare/records/$id/publish'
@@ -328,9 +342,19 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthDesktopRoute = AuthDesktopRouteImport.update({
+  id: '/auth/desktop',
+  path: '/auth/desktop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTicketsRoute = ApiTicketsRouteImport.update({
   id: '/api/tickets',
   path: '/api/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEntitlementsRoute = ApiEntitlementsRouteImport.update({
+  id: '/api/entitlements',
+  path: '/api/entitlements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCreditsRoute = ApiCreditsRouteImport.update({
@@ -479,6 +503,16 @@ const ApiWikiAskRoute = ApiWikiAskRouteImport.update({
   path: '/api/wiki/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1ProviderConfigRoute = ApiV1ProviderConfigRouteImport.update({
+  id: '/api/v1/provider-config',
+  path: '/api/v1/provider-config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1EntitlementRoute = ApiV1EntitlementRouteImport.update({
+  id: '/api/v1/entitlement',
+  path: '/api/v1/entitlement',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUserProfileRoute = ApiUserProfileRouteImport.update({
   id: '/api/user/profile',
   path: '/api/user/profile',
@@ -592,6 +626,11 @@ const ApiChipCompareChatRoute = ApiChipCompareChatRouteImport.update({
 const ApiChipCompareAnalyzeRoute = ApiChipCompareAnalyzeRouteImport.update({
   id: '/api/chip-compare/analyze',
   path: '/api/chip-compare/analyze',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
+  id: '/api/auth/verify',
+  path: '/api/auth/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthTokenRoute = ApiAuthTokenRouteImport.update({
@@ -868,6 +907,21 @@ const SettingsChatbotsChatbotIdHistoryRoute =
     path: '/chatbots/$chatbotId/history',
     getParentRoute: () => SettingsRouteRoute,
   } as any)
+const ApiV1UsageReportRoute = ApiV1UsageReportRouteImport.update({
+  id: '/api/v1/usage/report',
+  path: '/api/v1/usage/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1DeviceRegisterRoute = ApiV1DeviceRegisterRouteImport.update({
+  id: '/api/v1/device/register',
+  path: '/api/v1/device/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1DeviceHeartbeatRoute = ApiV1DeviceHeartbeatRouteImport.update({
+  id: '/api/v1/device/heartbeat',
+  path: '/api/v1/device/heartbeat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUserSubscriptionsCurrentRoute =
   ApiUserSubscriptionsCurrentRouteImport.update({
     id: '/api/user/subscriptions/current',
@@ -894,6 +948,31 @@ const ApiChipCompareRecordsIdRoute = ApiChipCompareRecordsIdRouteImport.update({
 const ApiChipCompareChatsIdRoute = ApiChipCompareChatsIdRouteImport.update({
   id: '/api/chip-compare/chats/$id',
   path: '/api/chip-compare/chats/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopRefreshRoute = ApiAuthDesktopRefreshRouteImport.update({
+  id: '/api/auth/desktop/refresh',
+  path: '/api/auth/desktop/refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopLogoutRoute = ApiAuthDesktopLogoutRouteImport.update({
+  id: '/api/auth/desktop/logout',
+  path: '/api/auth/desktop/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopLoginRoute = ApiAuthDesktopLoginRouteImport.update({
+  id: '/api/auth/desktop/login',
+  path: '/api/auth/desktop/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopExchangeRoute = ApiAuthDesktopExchangeRouteImport.update({
+  id: '/api/auth/desktop/exchange',
+  path: '/api/auth/desktop/exchange',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDesktopAuthorizeRoute = ApiAuthDesktopAuthorizeRouteImport.update({
+  id: '/api/auth/desktop/authorize',
+  path: '/api/auth/desktop/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAiSupportWidgetPublicKeyRoute =
@@ -1053,6 +1132,11 @@ const SettingsChatbotsChatbotIdCustomizationAppearanceRoute =
     path: '/chatbots/$chatbotId/customization/appearance',
     getParentRoute: () => SettingsRouteRoute,
   } as any)
+const ApiV1UsageReportBatchRoute = ApiV1UsageReportBatchRouteImport.update({
+  id: '/batch',
+  path: '/batch',
+  getParentRoute: () => ApiV1UsageReportRoute,
+} as any)
 const ApiChipCompareTracesIdNoteRoute =
   ApiChipCompareTracesIdNoteRouteImport.update({
     id: '/api/chip-compare/traces/$id/note',
@@ -1138,7 +1222,9 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/api/apikeys': typeof ApiApikeysRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/entitlements': typeof ApiEntitlementsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
+  '/auth/desktop': typeof AuthDesktopRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/chips/$id': typeof ChipsIdRoute
   '/products/ai-fae': typeof ProductsAiFaeRoute
@@ -1199,6 +1285,7 @@ export interface FileRoutesByFullPath {
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
   '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
@@ -1222,6 +1309,8 @@ export interface FileRoutesByFullPath {
   '/api/user/orders': typeof ApiUserOrdersRoute
   '/api/user/permissions': typeof ApiUserPermissionsRoute
   '/api/user/profile': typeof ApiUserProfileRoute
+  '/api/v1/entitlement': typeof ApiV1EntitlementRoute
+  '/api/v1/provider-config': typeof ApiV1ProviderConfigRoute
   '/api/wiki/ask': typeof ApiWikiAskRoute
   '/api/wiki/asset': typeof ApiWikiAssetRoute
   '/api/wiki/context': typeof ApiWikiContextRoute
@@ -1244,11 +1333,19 @@ export interface FileRoutesByFullPath {
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/auth/desktop/authorize': typeof ApiAuthDesktopAuthorizeRoute
+  '/api/auth/desktop/exchange': typeof ApiAuthDesktopExchangeRoute
+  '/api/auth/desktop/login': typeof ApiAuthDesktopLoginRoute
+  '/api/auth/desktop/logout': typeof ApiAuthDesktopLogoutRoute
+  '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
   '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/api/v1/device/heartbeat': typeof ApiV1DeviceHeartbeatRoute
+  '/api/v1/device/register': typeof ApiV1DeviceRegisterRoute
+  '/api/v1/usage/report': typeof ApiV1UsageReportRouteWithChildren
   '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
   '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
   '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
@@ -1269,6 +1366,7 @@ export interface FileRoutesByFullPath {
   '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
   '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
   '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
+  '/api/v1/usage/report/batch': typeof ApiV1UsageReportBatchRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1311,7 +1409,9 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/api/apikeys': typeof ApiApikeysRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/entitlements': typeof ApiEntitlementsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
+  '/auth/desktop': typeof AuthDesktopRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/chips/$id': typeof ChipsIdRoute
   '/products/ai-fae': typeof ProductsAiFaeRoute
@@ -1372,6 +1472,7 @@ export interface FileRoutesByTo {
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
   '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
@@ -1395,6 +1496,8 @@ export interface FileRoutesByTo {
   '/api/user/orders': typeof ApiUserOrdersRoute
   '/api/user/permissions': typeof ApiUserPermissionsRoute
   '/api/user/profile': typeof ApiUserProfileRoute
+  '/api/v1/entitlement': typeof ApiV1EntitlementRoute
+  '/api/v1/provider-config': typeof ApiV1ProviderConfigRoute
   '/api/wiki/ask': typeof ApiWikiAskRoute
   '/api/wiki/asset': typeof ApiWikiAssetRoute
   '/api/wiki/context': typeof ApiWikiContextRoute
@@ -1417,11 +1520,19 @@ export interface FileRoutesByTo {
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/auth/desktop/authorize': typeof ApiAuthDesktopAuthorizeRoute
+  '/api/auth/desktop/exchange': typeof ApiAuthDesktopExchangeRoute
+  '/api/auth/desktop/login': typeof ApiAuthDesktopLoginRoute
+  '/api/auth/desktop/logout': typeof ApiAuthDesktopLogoutRoute
+  '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
   '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/api/v1/device/heartbeat': typeof ApiV1DeviceHeartbeatRoute
+  '/api/v1/device/register': typeof ApiV1DeviceRegisterRoute
+  '/api/v1/usage/report': typeof ApiV1UsageReportRouteWithChildren
   '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
   '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
   '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
@@ -1442,6 +1553,7 @@ export interface FileRoutesByTo {
   '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
   '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
   '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
+  '/api/v1/usage/report/batch': typeof ApiV1UsageReportBatchRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1488,7 +1600,9 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/api/apikeys': typeof ApiApikeysRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/entitlements': typeof ApiEntitlementsRoute
   '/api/tickets': typeof ApiTicketsRouteWithChildren
+  '/auth/desktop': typeof AuthDesktopRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/chips/$id': typeof ChipsIdRoute
   '/products/ai-fae': typeof ProductsAiFaeRoute
@@ -1549,6 +1663,7 @@ export interface FileRoutesById {
   '/api/ai-support/widget-appearance': typeof ApiAiSupportWidgetAppearanceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/auth/token': typeof ApiAuthTokenRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
   '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
@@ -1572,6 +1687,8 @@ export interface FileRoutesById {
   '/api/user/orders': typeof ApiUserOrdersRoute
   '/api/user/permissions': typeof ApiUserPermissionsRoute
   '/api/user/profile': typeof ApiUserProfileRoute
+  '/api/v1/entitlement': typeof ApiV1EntitlementRoute
+  '/api/v1/provider-config': typeof ApiV1ProviderConfigRoute
   '/api/wiki/ask': typeof ApiWikiAskRoute
   '/api/wiki/asset': typeof ApiWikiAssetRoute
   '/api/wiki/context': typeof ApiWikiContextRoute
@@ -1594,11 +1711,19 @@ export interface FileRoutesById {
   '/api/agent/v1/knowledge-sources': typeof ApiAgentV1KnowledgeSourcesRoute
   '/api/agent/v1/operations': typeof ApiAgentV1OperationsRoute
   '/api/ai-support/widget/$publicKey': typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  '/api/auth/desktop/authorize': typeof ApiAuthDesktopAuthorizeRoute
+  '/api/auth/desktop/exchange': typeof ApiAuthDesktopExchangeRoute
+  '/api/auth/desktop/login': typeof ApiAuthDesktopLoginRoute
+  '/api/auth/desktop/logout': typeof ApiAuthDesktopLogoutRoute
+  '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
   '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
+  '/api/v1/device/heartbeat': typeof ApiV1DeviceHeartbeatRoute
+  '/api/v1/device/register': typeof ApiV1DeviceRegisterRoute
+  '/api/v1/usage/report': typeof ApiV1UsageReportRouteWithChildren
   '/settings/chatbots/$chatbotId/history': typeof SettingsChatbotsChatbotIdHistoryRoute
   '/settings/chatbots/$chatbotId/installation': typeof SettingsChatbotsChatbotIdInstallationRoute
   '/settings/chatbots/$chatbotId/leads': typeof SettingsChatbotsChatbotIdLeadsRoute
@@ -1619,6 +1744,7 @@ export interface FileRoutesById {
   '/api/chip-compare/records/$id/publish': typeof ApiChipCompareRecordsIdPublishRoute
   '/api/chip-compare/records/$id/traces': typeof ApiChipCompareRecordsIdTracesRoute
   '/api/chip-compare/traces/$id/note': typeof ApiChipCompareTracesIdNoteRoute
+  '/api/v1/usage/report/batch': typeof ApiV1UsageReportBatchRoute
   '/settings/chatbots/$chatbotId/customization/appearance': typeof SettingsChatbotsChatbotIdCustomizationAppearanceRoute
   '/settings/chatbots/$chatbotId/customization/followups': typeof SettingsChatbotsChatbotIdCustomizationFollowupsRoute
   '/settings/chatbots/$chatbotId/customization/human-support': typeof SettingsChatbotsChatbotIdCustomizationHumanSupportRoute
@@ -1665,7 +1791,9 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/apikeys'
     | '/api/credits'
+    | '/api/entitlements'
     | '/api/tickets'
+    | '/auth/desktop'
     | '/blog/$slug'
     | '/chips/$id'
     | '/products/ai-fae'
@@ -1726,6 +1854,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
+    | '/api/auth/verify'
     | '/api/chip-compare/analyze'
     | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
@@ -1749,6 +1878,8 @@ export interface FileRouteTypes {
     | '/api/user/orders'
     | '/api/user/permissions'
     | '/api/user/profile'
+    | '/api/v1/entitlement'
+    | '/api/v1/provider-config'
     | '/api/wiki/ask'
     | '/api/wiki/asset'
     | '/api/wiki/context'
@@ -1771,11 +1902,19 @@ export interface FileRouteTypes {
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/auth/desktop/authorize'
+    | '/api/auth/desktop/exchange'
+    | '/api/auth/desktop/login'
+    | '/api/auth/desktop/logout'
+    | '/api/auth/desktop/refresh'
     | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/api/v1/device/heartbeat'
+    | '/api/v1/device/register'
+    | '/api/v1/usage/report'
     | '/settings/chatbots/$chatbotId/history'
     | '/settings/chatbots/$chatbotId/installation'
     | '/settings/chatbots/$chatbotId/leads'
@@ -1796,6 +1935,7 @@ export interface FileRouteTypes {
     | '/api/chip-compare/records/$id/publish'
     | '/api/chip-compare/records/$id/traces'
     | '/api/chip-compare/traces/$id/note'
+    | '/api/v1/usage/report/batch'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -1838,7 +1978,9 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/apikeys'
     | '/api/credits'
+    | '/api/entitlements'
     | '/api/tickets'
+    | '/auth/desktop'
     | '/blog/$slug'
     | '/chips/$id'
     | '/products/ai-fae'
@@ -1899,6 +2041,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
+    | '/api/auth/verify'
     | '/api/chip-compare/analyze'
     | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
@@ -1922,6 +2065,8 @@ export interface FileRouteTypes {
     | '/api/user/orders'
     | '/api/user/permissions'
     | '/api/user/profile'
+    | '/api/v1/entitlement'
+    | '/api/v1/provider-config'
     | '/api/wiki/ask'
     | '/api/wiki/asset'
     | '/api/wiki/context'
@@ -1944,11 +2089,19 @@ export interface FileRouteTypes {
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/auth/desktop/authorize'
+    | '/api/auth/desktop/exchange'
+    | '/api/auth/desktop/login'
+    | '/api/auth/desktop/logout'
+    | '/api/auth/desktop/refresh'
     | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/api/v1/device/heartbeat'
+    | '/api/v1/device/register'
+    | '/api/v1/usage/report'
     | '/settings/chatbots/$chatbotId/history'
     | '/settings/chatbots/$chatbotId/installation'
     | '/settings/chatbots/$chatbotId/leads'
@@ -1969,6 +2122,7 @@ export interface FileRouteTypes {
     | '/api/chip-compare/records/$id/publish'
     | '/api/chip-compare/records/$id/traces'
     | '/api/chip-compare/traces/$id/note'
+    | '/api/v1/usage/report/batch'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -2014,7 +2168,9 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/api/apikeys'
     | '/api/credits'
+    | '/api/entitlements'
     | '/api/tickets'
+    | '/auth/desktop'
     | '/blog/$slug'
     | '/chips/$id'
     | '/products/ai-fae'
@@ -2075,6 +2231,7 @@ export interface FileRouteTypes {
     | '/api/ai-support/widget-appearance'
     | '/api/auth/$'
     | '/api/auth/token'
+    | '/api/auth/verify'
     | '/api/chip-compare/analyze'
     | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
@@ -2098,6 +2255,8 @@ export interface FileRouteTypes {
     | '/api/user/orders'
     | '/api/user/permissions'
     | '/api/user/profile'
+    | '/api/v1/entitlement'
+    | '/api/v1/provider-config'
     | '/api/wiki/ask'
     | '/api/wiki/asset'
     | '/api/wiki/context'
@@ -2120,11 +2279,19 @@ export interface FileRouteTypes {
     | '/api/agent/v1/knowledge-sources'
     | '/api/agent/v1/operations'
     | '/api/ai-support/widget/$publicKey'
+    | '/api/auth/desktop/authorize'
+    | '/api/auth/desktop/exchange'
+    | '/api/auth/desktop/login'
+    | '/api/auth/desktop/logout'
+    | '/api/auth/desktop/refresh'
     | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
+    | '/api/v1/device/heartbeat'
+    | '/api/v1/device/register'
+    | '/api/v1/usage/report'
     | '/settings/chatbots/$chatbotId/history'
     | '/settings/chatbots/$chatbotId/installation'
     | '/settings/chatbots/$chatbotId/leads'
@@ -2145,6 +2312,7 @@ export interface FileRouteTypes {
     | '/api/chip-compare/records/$id/publish'
     | '/api/chip-compare/records/$id/traces'
     | '/api/chip-compare/traces/$id/note'
+    | '/api/v1/usage/report/batch'
     | '/settings/chatbots/$chatbotId/customization/appearance'
     | '/settings/chatbots/$chatbotId/customization/followups'
     | '/settings/chatbots/$chatbotId/customization/human-support'
@@ -2175,7 +2343,9 @@ export interface RootRouteChildren {
   authVerifyEmailRoute: typeof authVerifyEmailRoute
   ApiApikeysRoute: typeof ApiApikeysRoute
   ApiCreditsRoute: typeof ApiCreditsRoute
+  ApiEntitlementsRoute: typeof ApiEntitlementsRoute
   ApiTicketsRoute: typeof ApiTicketsRouteWithChildren
+  AuthDesktopRoute: typeof AuthDesktopRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ChipsIdRoute: typeof ChipsIdRoute
   ProductsAiFaeRoute: typeof ProductsAiFaeRoute
@@ -2221,6 +2391,7 @@ export interface RootRouteChildren {
   ApiAiSupportWidgetAppearanceRoute: typeof ApiAiSupportWidgetAppearanceRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAuthTokenRoute: typeof ApiAuthTokenRoute
+  ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
   ApiChipCompareAnalyzeRoute: typeof ApiChipCompareAnalyzeRoute
   ApiChipCompareChatRoute: typeof ApiChipCompareChatRoute
   ApiChipCompareCostRoute: typeof ApiChipCompareCostRoute
@@ -2243,6 +2414,8 @@ export interface RootRouteChildren {
   ApiUserOrdersRoute: typeof ApiUserOrdersRoute
   ApiUserPermissionsRoute: typeof ApiUserPermissionsRoute
   ApiUserProfileRoute: typeof ApiUserProfileRoute
+  ApiV1EntitlementRoute: typeof ApiV1EntitlementRoute
+  ApiV1ProviderConfigRoute: typeof ApiV1ProviderConfigRoute
   ApiWikiAskRoute: typeof ApiWikiAskRoute
   ApiWikiAssetRoute: typeof ApiWikiAssetRoute
   ApiWikiContextRoute: typeof ApiWikiContextRoute
@@ -2262,11 +2435,19 @@ export interface RootRouteChildren {
   ApiAgentV1KnowledgeSourcesRoute: typeof ApiAgentV1KnowledgeSourcesRoute
   ApiAgentV1OperationsRoute: typeof ApiAgentV1OperationsRoute
   ApiAiSupportWidgetPublicKeyRoute: typeof ApiAiSupportWidgetPublicKeyRouteWithChildren
+  ApiAuthDesktopAuthorizeRoute: typeof ApiAuthDesktopAuthorizeRoute
+  ApiAuthDesktopExchangeRoute: typeof ApiAuthDesktopExchangeRoute
+  ApiAuthDesktopLoginRoute: typeof ApiAuthDesktopLoginRoute
+  ApiAuthDesktopLogoutRoute: typeof ApiAuthDesktopLogoutRoute
+  ApiAuthDesktopRefreshRoute: typeof ApiAuthDesktopRefreshRoute
   ApiChipCompareChatsIdRoute: typeof ApiChipCompareChatsIdRoute
   ApiChipCompareRecordsIdRoute: typeof ApiChipCompareRecordsIdRouteWithChildren
   ApiPaymentNotifyProviderRoute: typeof ApiPaymentNotifyProviderRoute
   ApiUserSubscriptionsCancelRoute: typeof ApiUserSubscriptionsCancelRoute
   ApiUserSubscriptionsCurrentRoute: typeof ApiUserSubscriptionsCurrentRoute
+  ApiV1DeviceHeartbeatRoute: typeof ApiV1DeviceHeartbeatRoute
+  ApiV1DeviceRegisterRoute: typeof ApiV1DeviceRegisterRoute
+  ApiV1UsageReportRoute: typeof ApiV1UsageReportRouteWithChildren
   ApiAdminChipsIndexRoute: typeof ApiAdminChipsIndexRoute
   ApiAdminRolesIndexRoute: typeof ApiAdminRolesIndexRoute
   ApiAdminUsersIndexRoute: typeof ApiAdminUsersIndexRoute
@@ -2481,11 +2662,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/desktop': {
+      id: '/auth/desktop'
+      path: '/auth/desktop'
+      fullPath: '/auth/desktop'
+      preLoaderRoute: typeof AuthDesktopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tickets': {
       id: '/api/tickets'
       path: '/api/tickets'
       fullPath: '/api/tickets'
       preLoaderRoute: typeof ApiTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/entitlements': {
+      id: '/api/entitlements'
+      path: '/api/entitlements'
+      fullPath: '/api/entitlements'
+      preLoaderRoute: typeof ApiEntitlementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/credits': {
@@ -2691,6 +2886,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWikiAskRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/provider-config': {
+      id: '/api/v1/provider-config'
+      path: '/api/v1/provider-config'
+      fullPath: '/api/v1/provider-config'
+      preLoaderRoute: typeof ApiV1ProviderConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/entitlement': {
+      id: '/api/v1/entitlement'
+      path: '/api/v1/entitlement'
+      fullPath: '/api/v1/entitlement'
+      preLoaderRoute: typeof ApiV1EntitlementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/user/profile': {
       id: '/api/user/profile'
       path: '/api/user/profile'
@@ -2850,6 +3059,13 @@ declare module '@tanstack/react-router' {
       path: '/api/chip-compare/analyze'
       fullPath: '/api/chip-compare/analyze'
       preLoaderRoute: typeof ApiChipCompareAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/verify': {
+      id: '/api/auth/verify'
+      path: '/api/auth/verify'
+      fullPath: '/api/auth/verify'
+      preLoaderRoute: typeof ApiAuthVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/token': {
@@ -3202,6 +3418,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsChatbotsChatbotIdHistoryRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/api/v1/usage/report': {
+      id: '/api/v1/usage/report'
+      path: '/api/v1/usage/report'
+      fullPath: '/api/v1/usage/report'
+      preLoaderRoute: typeof ApiV1UsageReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/device/register': {
+      id: '/api/v1/device/register'
+      path: '/api/v1/device/register'
+      fullPath: '/api/v1/device/register'
+      preLoaderRoute: typeof ApiV1DeviceRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/device/heartbeat': {
+      id: '/api/v1/device/heartbeat'
+      path: '/api/v1/device/heartbeat'
+      fullPath: '/api/v1/device/heartbeat'
+      preLoaderRoute: typeof ApiV1DeviceHeartbeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/user/subscriptions/current': {
       id: '/api/user/subscriptions/current'
       path: '/api/user/subscriptions/current'
@@ -3235,6 +3472,41 @@ declare module '@tanstack/react-router' {
       path: '/api/chip-compare/chats/$id'
       fullPath: '/api/chip-compare/chats/$id'
       preLoaderRoute: typeof ApiChipCompareChatsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/refresh': {
+      id: '/api/auth/desktop/refresh'
+      path: '/api/auth/desktop/refresh'
+      fullPath: '/api/auth/desktop/refresh'
+      preLoaderRoute: typeof ApiAuthDesktopRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/logout': {
+      id: '/api/auth/desktop/logout'
+      path: '/api/auth/desktop/logout'
+      fullPath: '/api/auth/desktop/logout'
+      preLoaderRoute: typeof ApiAuthDesktopLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/login': {
+      id: '/api/auth/desktop/login'
+      path: '/api/auth/desktop/login'
+      fullPath: '/api/auth/desktop/login'
+      preLoaderRoute: typeof ApiAuthDesktopLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/exchange': {
+      id: '/api/auth/desktop/exchange'
+      path: '/api/auth/desktop/exchange'
+      fullPath: '/api/auth/desktop/exchange'
+      preLoaderRoute: typeof ApiAuthDesktopExchangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/desktop/authorize': {
+      id: '/api/auth/desktop/authorize'
+      path: '/api/auth/desktop/authorize'
+      fullPath: '/api/auth/desktop/authorize'
+      preLoaderRoute: typeof ApiAuthDesktopAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-support/widget/$publicKey': {
@@ -3432,6 +3704,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/chatbots/$chatbotId/customization/appearance'
       preLoaderRoute: typeof SettingsChatbotsChatbotIdCustomizationAppearanceRouteImport
       parentRoute: typeof SettingsRouteRoute
+    }
+    '/api/v1/usage/report/batch': {
+      id: '/api/v1/usage/report/batch'
+      path: '/batch'
+      fullPath: '/api/v1/usage/report/batch'
+      preLoaderRoute: typeof ApiV1UsageReportBatchRouteImport
+      parentRoute: typeof ApiV1UsageReportRoute
     }
     '/api/chip-compare/traces/$id/note': {
       id: '/api/chip-compare/traces/$id/note'
@@ -3724,6 +4003,17 @@ const ApiChipCompareRecordsIdRouteWithChildren =
     ApiChipCompareRecordsIdRouteChildren,
   )
 
+interface ApiV1UsageReportRouteChildren {
+  ApiV1UsageReportBatchRoute: typeof ApiV1UsageReportBatchRoute
+}
+
+const ApiV1UsageReportRouteChildren: ApiV1UsageReportRouteChildren = {
+  ApiV1UsageReportBatchRoute: ApiV1UsageReportBatchRoute,
+}
+
+const ApiV1UsageReportRouteWithChildren =
+  ApiV1UsageReportRoute._addFileChildren(ApiV1UsageReportRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   pagesRouteRoute: pagesRouteRouteWithChildren,
@@ -3739,7 +4029,9 @@ const rootRouteChildren: RootRouteChildren = {
   authVerifyEmailRoute: authVerifyEmailRoute,
   ApiApikeysRoute: ApiApikeysRoute,
   ApiCreditsRoute: ApiCreditsRoute,
+  ApiEntitlementsRoute: ApiEntitlementsRoute,
   ApiTicketsRoute: ApiTicketsRouteWithChildren,
+  AuthDesktopRoute: AuthDesktopRoute,
   BlogSlugRoute: BlogSlugRoute,
   ChipsIdRoute: ChipsIdRoute,
   ProductsAiFaeRoute: ProductsAiFaeRoute,
@@ -3785,6 +4077,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiSupportWidgetAppearanceRoute: ApiAiSupportWidgetAppearanceRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAuthTokenRoute: ApiAuthTokenRoute,
+  ApiAuthVerifyRoute: ApiAuthVerifyRoute,
   ApiChipCompareAnalyzeRoute: ApiChipCompareAnalyzeRoute,
   ApiChipCompareChatRoute: ApiChipCompareChatRoute,
   ApiChipCompareCostRoute: ApiChipCompareCostRoute,
@@ -3807,6 +4100,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUserOrdersRoute: ApiUserOrdersRoute,
   ApiUserPermissionsRoute: ApiUserPermissionsRoute,
   ApiUserProfileRoute: ApiUserProfileRoute,
+  ApiV1EntitlementRoute: ApiV1EntitlementRoute,
+  ApiV1ProviderConfigRoute: ApiV1ProviderConfigRoute,
   ApiWikiAskRoute: ApiWikiAskRoute,
   ApiWikiAssetRoute: ApiWikiAssetRoute,
   ApiWikiContextRoute: ApiWikiContextRoute,
@@ -3827,11 +4122,19 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAgentV1OperationsRoute: ApiAgentV1OperationsRoute,
   ApiAiSupportWidgetPublicKeyRoute:
     ApiAiSupportWidgetPublicKeyRouteWithChildren,
+  ApiAuthDesktopAuthorizeRoute: ApiAuthDesktopAuthorizeRoute,
+  ApiAuthDesktopExchangeRoute: ApiAuthDesktopExchangeRoute,
+  ApiAuthDesktopLoginRoute: ApiAuthDesktopLoginRoute,
+  ApiAuthDesktopLogoutRoute: ApiAuthDesktopLogoutRoute,
+  ApiAuthDesktopRefreshRoute: ApiAuthDesktopRefreshRoute,
   ApiChipCompareChatsIdRoute: ApiChipCompareChatsIdRoute,
   ApiChipCompareRecordsIdRoute: ApiChipCompareRecordsIdRouteWithChildren,
   ApiPaymentNotifyProviderRoute: ApiPaymentNotifyProviderRoute,
   ApiUserSubscriptionsCancelRoute: ApiUserSubscriptionsCancelRoute,
   ApiUserSubscriptionsCurrentRoute: ApiUserSubscriptionsCurrentRoute,
+  ApiV1DeviceHeartbeatRoute: ApiV1DeviceHeartbeatRoute,
+  ApiV1DeviceRegisterRoute: ApiV1DeviceRegisterRoute,
+  ApiV1UsageReportRoute: ApiV1UsageReportRouteWithChildren,
   ApiAdminChipsIndexRoute: ApiAdminChipsIndexRoute,
   ApiAdminRolesIndexRoute: ApiAdminRolesIndexRoute,
   ApiAdminUsersIndexRoute: ApiAdminUsersIndexRoute,

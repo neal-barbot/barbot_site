@@ -1342,5 +1342,12 @@
   "settings.device.denied": "已拒绝该请求。",
   "settings.device.invalid": "配对码不存在或已过期。",
   "settings.device.signin_required": "请先登录后再授权此设备。",
-  "settings.device.warning": "仅当这是你本人发起的请求时才授权。设备将获得一个可消耗你积分的 API key。"
+  "settings.device.warning": "仅当这是你本人发起的请求时才授权。设备将获得一个可消耗你积分的 API key。",
+  "console.desktop_auth.title": "授权 Harvey",
+  "console.desktop_auth.description": "Harvey agent 工作台正在请求访问你的 Barbot 账号。",
+  "console.desktop_auth.approve": "授权并返回应用",
+  "console.desktop_auth.approved": "已授权——正在返回应用…",
+  "console.desktop_auth.signin_required": "请先登录你的 Barbot 账号。",
+  "console.desktop_auth.invalid_callback": "回调地址不合法——请回到应用重新发起登录。",
+  "console.desktop_auth.warning": "该应用将以你的身份对话和执行任务，用量会消耗你的积分。仅当这是你本人发起的登录时才授权。"
 }

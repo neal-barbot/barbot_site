@@ -38,12 +38,17 @@ function getJwtSecret(): string {
 
 const b64url = (value: string) => Buffer.from(value).toString('base64url');
 
-export function signAgentToken(userId: string): { token: string; expiresAt: number } {
+/** Sign a platform JWT with an explicit scope + TTL (HS256). */
+export function signPlatformToken(
+  userId: string,
+  scope: string,
+  ttlSeconds: number
+): { token: string; expiresAt: number } {
   const now = Math.floor(Date.now() / 1000);
-  const expiresAt = now + TOKEN_TTL_SECONDS;
+  const expiresAt = now + ttlSeconds;
   const header = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const payload = b64url(
-    JSON.stringify({ iss: 'barbot', sub: userId, scope: 'agent', iat: now, exp: expiresAt })
+    JSON.stringify({ iss: 'barbot', sub: userId, scope, iat: now, exp: expiresAt })
   );
   const signature = createHmac('sha256', getJwtSecret())
     .update(`${header}.${payload}`)
@@ -51,7 +56,8 @@ export function signAgentToken(userId: string): { token: string; expiresAt: numb
   return { token: `${header}.${payload}.${signature}`, expiresAt };
 }
 
-export function verifyAgentToken(token: string): { userId: string } | null {
+/** Verify a platform JWT and require the given scope. */
+export function verifyPlatformToken(token: string, scope: string): { userId: string } | null {
   const parts = token.split('.');
   if (parts.length !== 3) return null;
   const [header, payload, signature] = parts;
@@ -67,12 +73,20 @@ export function verifyAgentToken(token: string): { userId: string } | null {
       scope?: string;
       exp?: number;
     };
-    if (claims.iss !== 'barbot' || claims.scope !== 'agent' || !claims.sub) return null;
+    if (claims.iss !== 'barbot' || claims.scope !== scope || !claims.sub) return null;
     if (!claims.exp || claims.exp < Math.floor(Date.now() / 1000)) return null;
     return { userId: claims.sub };
   } catch {
     return null;
   }
+}
+
+export function signAgentToken(userId: string): { token: string; expiresAt: number } {
+  return signPlatformToken(userId, 'agent', TOKEN_TTL_SECONDS);
+}
+
+export function verifyAgentToken(token: string): { userId: string } | null {
+  return verifyPlatformToken(token, 'agent');
 }
 
 // --- Scene pricing (config table with env-style fallbacks) ---

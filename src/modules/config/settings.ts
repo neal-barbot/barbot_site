@@ -102,6 +102,9 @@ export function getSettings(): Setting[] {
     { name: 'ai_fae_cost_credits', title: 'AI FAE answer cost (credits)', type: 'number', placeholder: '1', group: 'credit', tab: 'general' },
     { name: 'agent_task_cost_credits', title: 'Agent task cost (credits per unit)', type: 'number', placeholder: '5', group: 'credit', tab: 'general' },
     { name: 'chip_compare_model', title: 'Chip compare model', type: 'text', placeholder: 'deepseek-chat (falls back to OpenAI model)', group: 'openai', tab: 'ai' },
+    { name: 'agent_relay_base_url', title: 'Agent relay base URL', type: 'text', placeholder: 'https://api.deepseek.com/anthropic', group: 'openai', tab: 'ai' },
+    { name: 'agent_relay_api_key', title: 'Agent relay API key', type: 'password', placeholder: 'falls back to DEEPSEEK_API_KEY env', group: 'openai', tab: 'ai' },
+    { name: 'agent_relay_model', title: 'Agent relay model', type: 'text', placeholder: 'deepseek-v4-flash', group: 'openai', tab: 'ai' },
 
     // ─── Auth / Email ────────────────────────────────────────────────
     { name: 'email_auth_enabled', title: 'Enable email auth', type: 'switch', group: 'email_auth', tab: 'auth', defaultValue: 'true' },
