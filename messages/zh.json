@@ -1349,5 +1349,19 @@
   "console.desktop_auth.approved": "已授权——正在返回应用…",
   "console.desktop_auth.signin_required": "请先登录你的 Barbot 账号。",
   "console.desktop_auth.invalid_callback": "回调地址不合法——请回到应用重新发起登录。",
-  "console.desktop_auth.warning": "该应用将以你的身份对话和执行任务，用量会消耗你的积分。仅当这是你本人发起的登录时才授权。"
+  "console.desktop_auth.warning": "该应用将以你的身份对话和执行任务，用量会消耗你的积分。仅当这是你本人发起的登录时才授权。",
+  "compare.tabs.report": "分析报告",
+  "compare.tabs.edit": "Markdown 编辑",
+  "compare.tabs.qa": "问答助手",
+  "compare.tabs.history": "历史记录",
+  "compare.form.datasource": "数据源",
+  "compare.edit.empty_hint": "先运行一次分析，完成后即可在此编辑报告。",
+  "compare.form.output_settings": "输出设置",
+  "compare.empty.title": "三步得到一份可直接交付的对比报告",
+  "compare.empty.step1_title": "选择芯片",
+  "compare.empty.step1_desc": "按料号搜索目录，或上传 datasheet PDF——支持 2 到 10 颗。",
+  "compare.empty.step2_title": "开始分析",
+  "compare.empty.step2_desc": "AI 逐参数对比并标注 datasheet 页码溯源，缓存命中免积分。",
+  "compare.empty.step3_title": "编辑与交付",
+  "compare.empty.step3_desc": "报告可编辑、导出 MD/CSV、一键发布为博客，也可以在问答里继续追问。"
 }

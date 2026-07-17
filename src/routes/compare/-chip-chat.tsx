@@ -13,11 +13,17 @@ interface ChatMessage {
 }
 
 /**
- * Floating sidebar chatbot: tool-calling QA agent grounded in the catalog
- * and (when recordId is set) the comparison the user is viewing.
+ * Inline chat panel: tool-calling QA agent grounded in the catalog and
+ * (when recordId is set) the comparison the user is viewing. Embeddable —
+ * the floating widget below wraps it.
  */
-export function ChipChat({ recordId }: { recordId?: string | null }) {
-  const [open, setOpen] = useState(false);
+export function ChipChatPanel({
+  recordId,
+  className,
+}: {
+  recordId?: string | null;
+  className?: string;
+}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [pending, setPending] = useState(false);
@@ -25,7 +31,7 @@ export function ChipChat({ recordId }: { recordId?: string | null }) {
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, pending, open]);
+  }, [messages, pending]);
 
   async function send() {
     const question = input.trim();
@@ -53,35 +59,8 @@ export function ChipChat({ recordId }: { recordId?: string | null }) {
     }
   }
 
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex size-13 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
-        aria-label={m['compare.chat.title']()}
-      >
-        <MessageCircle className="size-6" />
-      </button>
-    );
-  }
-
   return (
-    <div className="fixed bottom-6 right-6 z-40 flex h-[560px] w-[380px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="grid size-7 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Bot className="size-4" />
-          </span>
-          <span className="text-sm font-semibold">{m['compare.chat.title']()}</span>
-        </div>
-        <button
-          onClick={() => setOpen(false)}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <X className="size-4" />
-        </button>
-      </div>
-
+    <div className={cn('flex flex-col overflow-hidden', className)}>
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
@@ -130,6 +109,43 @@ export function ChipChat({ recordId }: { recordId?: string | null }) {
           <Send className="size-4" />
         </Button>
       </div>
+    </div>
+  );
+}
+
+/** Floating bubble variant (used on the record detail page). */
+export function ChipChat({ recordId }: { recordId?: string | null }) {
+  const [open, setOpen] = useState(false);
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex size-13 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
+        aria-label={m['compare.chat.title']()}
+      >
+        <MessageCircle className="size-6" />
+      </button>
+    );
+  }
+
+  return (
+    <div className="fixed bottom-6 right-6 z-40 flex h-[560px] w-[380px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="grid size-7 place-items-center rounded-lg bg-primary text-primary-foreground">
+            <Bot className="size-4" />
+          </span>
+          <span className="text-sm font-semibold">{m['compare.chat.title']()}</span>
+        </div>
+        <button
+          onClick={() => setOpen(false)}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+      <ChipChatPanel recordId={recordId} className="flex-1" />
     </div>
   );
 }

@@ -1349,5 +1349,19 @@
   "console.desktop_auth.approved": "Authorized — returning to the app…",
   "console.desktop_auth.signin_required": "Please sign in to your Barbot account first.",
   "console.desktop_auth.invalid_callback": "Invalid callback address — start the login from the app again.",
-  "console.desktop_auth.warning": "The app will chat and run tasks as you, and usage will consume your credits. Only authorize if you started this login yourself."
+  "console.desktop_auth.warning": "The app will chat and run tasks as you, and usage will consume your credits. Only authorize if you started this login yourself.",
+  "compare.tabs.report": "Analysis Report",
+  "compare.tabs.edit": "Markdown Editor",
+  "compare.tabs.qa": "Q&A Assistant",
+  "compare.tabs.history": "History",
+  "compare.form.datasource": "Data Sources",
+  "compare.edit.empty_hint": "Run an analysis first — the finished report becomes editable here.",
+  "compare.form.output_settings": "Output",
+  "compare.empty.title": "Three steps to a client-ready comparison",
+  "compare.empty.step1_title": "Pick the chips",
+  "compare.empty.step1_desc": "Search the catalog by part number, or upload datasheet PDFs — 2 to 10 chips.",
+  "compare.empty.step2_title": "Start the analysis",
+  "compare.empty.step2_desc": "AI compares parameter by parameter with datasheet page provenance. Cache hits are free.",
+  "compare.empty.step3_title": "Edit and deliver",
+  "compare.empty.step3_desc": "Edit the report, export MD/CSV, publish to the blog, or keep asking in Q&A."
 }

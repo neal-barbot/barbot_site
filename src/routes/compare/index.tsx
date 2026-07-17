@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { FileUp, Loader2, Play, Plus, Square, X } from 'lucide-react';
 import { m } from '@/paraglide/messages.js';
@@ -10,9 +10,7 @@ import { Header } from '@/blocks/header';
 import { Footer } from '@/blocks/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -21,12 +19,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MarkdownContent } from '@/components/markdown-content';
+import { RichTextEditor } from '@/components/rich-text-editor';
 import { cn } from '@/lib/utils';
-import { apiFormData, apiGet, type PageResult } from '@/lib/api-client';
+import { apiFormData, apiGet, apiPatch, type PageResult } from '@/lib/api-client';
 import { useCompareStream } from './-use-compare-stream';
 import { TraceTable, type TraceRow } from './-trace-table';
 import { ParamMatrix } from './-param-matrix';
-import { ChipChat } from './-chip-chat';
+import { ChipChatPanel } from './-chip-chat';
 
 const LANGUAGES = [
   ['en', 'English'],
@@ -58,6 +57,20 @@ interface CompareSearch {
   part?: string;
 }
 
+type MainTab = 'report' | 'edit' | 'qa';
+
+/** Small-caps instrument section label — the page's typographic signature. */
+function RailLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {children}
+      </span>
+      {right}
+    </div>
+  );
+}
+
 function ComparePage() {
   const { part: initialPart } = Route.useSearch();
   const { data: session } = useSession();
@@ -69,7 +82,10 @@ function ComparePage() {
   const [catalogSearch, setCatalogSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [mainTab, setMainTab] = useState<MainTab>('report');
   const [resultTab, setResultTab] = useState<'report' | 'matrix' | 'traces'>('report');
+  const [draft, setDraft] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { state, run, cancel } = useCompareStream();
@@ -78,6 +94,11 @@ function ComparePage() {
     const timer = setTimeout(() => setDebouncedSearch(catalogSearch), 300);
     return () => clearTimeout(timer);
   }, [catalogSearch]);
+
+  // Seed the markdown editor once a run completes.
+  useEffect(() => {
+    if (state.status === 'done' && state.report) setDraft(state.report);
+  }, [state.status, state.report]);
 
   const costQuery = useQuery({
     queryKey: ['compare-cost'],
@@ -97,6 +118,12 @@ function ComparePage() {
     queryKey: ['compare-traces', state.recordId],
     queryFn: () => apiGet<TraceRow[]>(`/api/chip-compare/records/${state.recordId}/traces`),
     enabled: state.status === 'done' && !!state.recordId,
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: () => apiPatch(`/api/chip-compare/records/${state.recordId}`, { result: draft }),
+    onSuccess: () => toast.success(m['compare.edit.saved']()),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const totalSelected = parts.length + files.length;
@@ -148,6 +175,7 @@ function ComparePage() {
       toast.error(m['compare.form.sign_in_required']());
       return;
     }
+    setMainTab('report');
     setResultTab('report');
     run({
       parts,
@@ -174,258 +202,374 @@ function ComparePage() {
     [searchQuery.data, parts]
   );
 
+  const topTabs: Array<{ key: MainTab; label: string }> = [
+    { key: 'report', label: m['compare.tabs.report']() },
+    { key: 'edit', label: m['compare.tabs.edit']() },
+    { key: 'qa', label: m['compare.tabs.qa']() },
+  ];
+
+  const emptySteps = [
+    [m['compare.empty.step1_title'](), m['compare.empty.step1_desc']()],
+    [m['compare.empty.step2_title'](), m['compare.empty.step2_desc']()],
+    [m['compare.empty.step3_title'](), m['compare.empty.step3_desc']()],
+  ] as const;
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-6xl px-4 py-10">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight">{m['compare.form.title']()}</h1>
-            <p className="mt-1 max-w-3xl text-muted-foreground">{m['compare.form.subtitle']()}</p>
+        <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-8">
+          {/* ── Workbench toolbar ── */}
+          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3 border-b border-border">
+            <div className="flex items-end gap-10">
+              <h1 className="pb-3 text-xl font-semibold tracking-tight">
+                {m['compare.form.title']()}
+              </h1>
+              <nav className="flex items-center gap-6 overflow-x-auto">
+                {topTabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setMainTab(tab.key)}
+                    className={cn(
+                      'whitespace-nowrap border-b-2 pb-3 text-sm transition-colors',
+                      mainTab === tab.key
+                        ? 'border-primary font-medium text-foreground'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+                <Link
+                  href="/settings/compare-history"
+                  className="whitespace-nowrap border-b-2 border-transparent pb-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {m['compare.tabs.history']()}
+                </Link>
+              </nav>
+            </div>
+            <div className="flex items-center gap-3 pb-3 text-sm text-muted-foreground">
+              {state.status === 'running' && (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="size-3.5 animate-spin" />
+                  {state.stage || m['compare.stream.waiting']()}
+                </span>
+              )}
+              {state.status === 'done' && state.cacheHit && (
+                <Badge variant="secondary">{m['compare.report.cache_hit']()}</Badge>
+              )}
+              {state.status === 'done' && state.recordId && (
+                <Link
+                  href={`/settings/compare-history/${state.recordId}`}
+                  className="text-primary hover:underline"
+                >
+                  {m['compare.report.view_record']()}
+                </Link>
+              )}
+            </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-            {/* ── Form panel ── */}
-            <div className="space-y-5">
-              <Card>
-                <CardContent className="space-y-5 pt-6">
-                  <div className="space-y-2">
-                    <Label>{m['compare.form.catalog_label']()}</Label>
-                    <div className="relative">
-                      <Input
-                        value={catalogSearch}
-                        onChange={(e) => setCatalogSearch(e.target.value)}
-                        placeholder={m['compare.form.catalog_placeholder']()}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            addPart(catalogSearch);
-                          }
-                        }}
-                      />
-                      {debouncedSearch.trim() && (
-                        <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-popover shadow-md">
-                          {searchQuery.isFetching ? (
-                            <div className="p-3 text-sm text-muted-foreground">…</div>
-                          ) : searchResults.length === 0 ? (
-                            <button
-                              className="flex w-full items-center gap-2 p-3 text-left text-sm hover:bg-accent"
-                              onClick={() => addPart(catalogSearch)}
-                            >
-                              <Plus className="size-3.5" />
-                              {m['compare.form.add']()} “{catalogSearch.trim()}”
-                            </button>
-                          ) : (
-                            searchResults.map((c) => (
-                              <button
-                                key={c.id}
-                                className="flex w-full items-center justify-between p-2.5 text-left text-sm hover:bg-accent"
-                                onClick={() => addPart(c.partNumber)}
-                              >
-                                <span className="font-mono">{c.partNumber}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {c.manufacturer || ''}
-                                </span>
-                              </button>
-                            ))
-                          )}
-                        </div>
+          <div className="grid gap-10 pt-8 lg:grid-cols-[300px_1fr]">
+            {/* ── Data source rail ── */}
+            <aside className="space-y-7">
+              <div className="space-y-4">
+                <RailLabel>{m['compare.form.datasource']()}</RailLabel>
+
+                <div className="relative">
+                  <Input
+                    value={catalogSearch}
+                    onChange={(e) => setCatalogSearch(e.target.value)}
+                    placeholder={m['compare.form.catalog_placeholder']()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addPart(catalogSearch);
+                      }
+                    }}
+                  />
+                  {debouncedSearch.trim() && (
+                    <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border bg-popover shadow-md">
+                      {searchQuery.isFetching ? (
+                        <div className="p-3 text-sm text-muted-foreground">…</div>
+                      ) : searchResults.length === 0 ? (
+                        <button
+                          className="flex w-full items-center gap-2 p-3 text-left text-sm hover:bg-accent"
+                          onClick={() => addPart(catalogSearch)}
+                        >
+                          <Plus className="size-3.5" />
+                          {m['compare.form.add']()} “{catalogSearch.trim()}”
+                        </button>
+                      ) : (
+                        searchResults.map((c) => (
+                          <button
+                            key={c.id}
+                            className="flex w-full items-center justify-between p-2.5 text-left text-sm hover:bg-accent"
+                            onClick={() => addPart(c.partNumber)}
+                          >
+                            <span className="font-mono">{c.partNumber}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {c.manufacturer || ''}
+                            </span>
+                          </button>
+                        ))
                       )}
                     </div>
-                  </div>
+                  )}
+                </div>
 
-                  <div className="space-y-2">
-                    <Label>{m['compare.form.upload_label']()}</Label>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf,application/pdf"
-                      multiple
-                      className="hidden"
-                      onChange={(e) => handleFiles(e.target.files)}
-                    />
-                    <button
-                      className={cn(
-                        'flex w-full flex-col items-center gap-1 rounded-lg border border-dashed border-border py-5 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground',
-                        uploading && 'pointer-events-none opacity-60'
-                      )}
-                      onClick={() => fileInputRef.current?.click()}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        handleFiles(e.dataTransfer.files);
-                      }}
-                    >
-                      {uploading ? (
-                        <Loader2 className="size-5 animate-spin" />
-                      ) : (
-                        <FileUp className="size-5" />
-                      )}
-                      <span>{uploading ? m['compare.form.uploading']() : m['compare.form.upload_hint']()}</span>
-                    </button>
-                  </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleFiles(e.target.files)}
+                />
+                <button
+                  className={cn(
+                    'flex w-full flex-col items-center gap-1.5 rounded-lg border border-dashed py-6 text-sm transition-colors',
+                    dragOver
+                      ? 'border-primary bg-primary/5 text-foreground'
+                      : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground',
+                    uploading && 'pointer-events-none opacity-60'
+                  )}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    handleFiles(e.dataTransfer.files);
+                  }}
+                >
+                  {uploading ? (
+                    <Loader2 className="size-5 animate-spin" />
+                  ) : (
+                    <FileUp className="size-5" />
+                  )}
+                  <span className="px-4 leading-snug">
+                    {uploading ? m['compare.form.uploading']() : m['compare.form.upload_hint']()}
+                  </span>
+                </button>
 
-                  {(parts.length > 0 || files.length > 0) && (
-                    <div className="space-y-2">
-                      <Label>
-                        {m['compare.form.selected_chips']()} ({totalSelected}/{MAX_CHIPS})
-                      </Label>
-                      <div className="flex flex-wrap gap-1.5">
-                        {parts.map((p) => (
-                          <Badge key={p} variant="secondary" className="gap-1 font-mono">
-                            {p}
-                            <button onClick={() => setParts((prev) => prev.filter((x) => x !== p))}>
-                              <X className="size-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                        {files.map((f) => (
-                          <Badge key={`${f.fileMd5}-${f.fileName}`} variant="outline" className="gap-1 font-mono">
-                            {f.partNumber}
-                            <span className="text-[10px] text-muted-foreground">
-                              {m['compare.form.file_pages']({ pages: f.pageCount })}
-                            </span>
-                            <button
-                              onClick={() =>
-                                setFiles((prev) =>
-                                  prev.filter(
-                                    (x) => !(x.fileMd5 === f.fileMd5 && x.fileName === f.fileName)
-                                  )
-                                )
-                              }
-                            >
-                              <X className="size-3" />
-                            </button>
-                          </Badge>
+                {/* Confirm action lives with the data sources, not at the rail's tail */}
+                {state.status === 'running' ? (
+                  <Button className="w-full" variant="outline" onClick={cancel}>
+                    <Square className="size-4" />
+                    {m['compare.stream.cancel']()}
+                  </Button>
+                ) : (
+                  <Button className="w-full" disabled={!canRun} onClick={startRun}>
+                    <Play className="size-4" />
+                    {m['compare.form.run']()}
+                  </Button>
+                )}
+                <p className="text-center text-xs text-muted-foreground">
+                  {totalSelected < 2
+                    ? m['compare.form.min_chips']()
+                    : m['compare.form.cost_hint']({
+                        credits: costQuery.data?.costCredits ?? '…',
+                      })}
+                </p>
+              </div>
+
+              {(parts.length > 0 || files.length > 0) && (
+                <div className="space-y-3 border-t border-border pt-6">
+                  <RailLabel
+                    right={
+                      <span className="text-xs tabular-nums text-muted-foreground">
+                        {totalSelected}/{MAX_CHIPS}
+                      </span>
+                    }
+                  >
+                    {m['compare.form.selected_chips']()}
+                  </RailLabel>
+                  <div className="flex flex-wrap gap-1.5">
+                    {parts.map((p) => (
+                      <Badge key={p} variant="secondary" className="gap-1 font-mono">
+                        {p}
+                        <button onClick={() => setParts((prev) => prev.filter((x) => x !== p))}>
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    {files.map((f) => (
+                      <Badge
+                        key={`${f.fileMd5}-${f.fileName}`}
+                        variant="outline"
+                        className="gap-1 font-mono"
+                      >
+                        {f.partNumber}
+                        <span className="text-[10px] text-muted-foreground">
+                          {m['compare.form.file_pages']({ pages: f.pageCount })}
+                        </span>
+                        <button
+                          onClick={() =>
+                            setFiles((prev) =>
+                              prev.filter(
+                                (x) => !(x.fileMd5 === f.fileMd5 && x.fileName === f.fileName)
+                              )
+                            )
+                          }
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-4 border-t border-border pt-6">
+                <RailLabel>{m['compare.form.output_settings']()}</RailLabel>
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground">
+                    {m['compare.form.language_label']()}
+                  </span>
+                  <Select value={language} onValueChange={(v) => setLanguage(v ?? 'en')}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGES.map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground">
+                    {m['compare.form.prompt_label']()}
+                  </span>
+                  <Input
+                    value={userPrompt}
+                    onChange={(e) => setUserPrompt(e.target.value)}
+                    placeholder={m['compare.form.prompt_placeholder']()}
+                    maxLength={2000}
+                  />
+                </div>
+              </div>
+            </aside>
+
+            {/* ── Main panel ── */}
+            <section
+              key={mainTab}
+              className="min-h-[520px] duration-200 animate-in fade-in slide-in-from-bottom-1 lg:border-l lg:border-border lg:pl-10"
+            >
+              {mainTab === 'report' ? (
+                <div>
+                  {(state.report || state.status !== 'idle') && (
+                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-5">
+                        {(['report', 'matrix', 'traces'] as const).map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setResultTab(tab)}
+                            className={cn(
+                              'text-sm transition-colors',
+                              resultTab === tab
+                                ? 'font-medium text-foreground underline decoration-primary decoration-2 underline-offset-8'
+                                : 'text-muted-foreground hover:text-foreground'
+                            )}
+                          >
+                            {tab === 'report'
+                              ? m['compare.report.tab_report']()
+                              : tab === 'matrix'
+                                ? m['compare.matrix.tab']()
+                                : m['compare.report.tab_traces']()}
+                          </button>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <Label>{m['compare.form.language_label']()}</Label>
-                    <Select value={language} onValueChange={(v) => setLanguage(v ?? 'en')}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LANGUAGES.map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>{m['compare.form.prompt_label']()}</Label>
-                    <Input
-                      value={userPrompt}
-                      onChange={(e) => setUserPrompt(e.target.value)}
-                      placeholder={m['compare.form.prompt_placeholder']()}
-                      maxLength={2000}
-                    />
-                  </div>
-
-                  {state.status === 'running' ? (
-                    <Button className="w-full" variant="outline" onClick={cancel}>
-                      <Square className="size-4" />
-                      {m['compare.stream.cancel']()}
-                    </Button>
-                  ) : (
-                    <Button className="w-full" disabled={!canRun} onClick={startRun}>
-                      <Play className="size-4" />
-                      {m['compare.form.run']()}
-                    </Button>
-                  )}
-
-                  <p className="text-center text-xs text-muted-foreground">
-                    {totalSelected < 2
-                      ? m['compare.form.min_chips']()
-                      : m['compare.form.cost_hint']({
-                          credits: costQuery.data?.costCredits ?? '…',
-                        })}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* ── Result panel ── */}
-            <Card className="min-h-[480px]">
-              <CardHeader className="flex-row items-center justify-between space-y-0">
-                <div className="flex gap-1 rounded-lg border border-border p-0.5">
-                  {(['report', 'matrix', 'traces'] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setResultTab(tab)}
-                      className={cn(
-                        'rounded-md px-3 py-1 text-sm transition-colors',
-                        resultTab === tab
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      {tab === 'report'
-                        ? m['compare.report.tab_report']()
-                        : tab === 'matrix'
-                          ? m['compare.matrix.tab']()
-                          : m['compare.report.tab_traces']()}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   {state.status === 'running' && (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      <span>{state.stage || m['compare.stream.waiting']()}</span>
-                    </>
+                    <div className="mb-5 h-0.5 w-full overflow-hidden rounded bg-primary/15">
+                      <div className="h-full w-1/3 animate-pulse rounded bg-primary" />
+                    </div>
                   )}
-                  {state.status === 'done' && state.cacheHit && (
-                    <Badge variant="secondary">{m['compare.report.cache_hit']()}</Badge>
+
+                  {state.status === 'error' && (
+                    <div className="mb-5 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                      {state.error}
+                    </div>
                   )}
-                  {state.status === 'done' && state.recordId && (
-                    <Link
-                      href={`/settings/compare-history/${state.recordId}`}
-                      className="text-primary hover:underline"
-                    >
-                      {m['compare.report.view_record']()}
-                    </Link>
+
+                  {resultTab === 'report' ? (
+                    <div ref={streamAreaRef} className="max-h-[72vh] overflow-y-auto pr-1">
+                      {state.report ? (
+                        <MarkdownContent content={state.report} />
+                      ) : state.status === 'running' ? (
+                        <p className="py-16 text-sm text-muted-foreground">
+                          {state.stage || m['compare.stream.waiting']()}
+                        </p>
+                      ) : state.status !== 'error' ? (
+                        <div className="max-w-lg pt-10">
+                          <p className="text-lg font-medium">{m['compare.empty.title']()}</p>
+                          <ol className="mt-8 space-y-7">
+                            {emptySteps.map(([title, desc], i) => (
+                              <li key={title} className="flex gap-5">
+                                <span className="mt-0.5 font-mono text-sm tabular-nums text-muted-foreground/60">
+                                  0{i + 1}
+                                </span>
+                                <div>
+                                  <p className="font-medium">{title}</p>
+                                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                    {desc}
+                                  </p>
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : resultTab === 'matrix' ? (
+                    <ParamMatrix traces={tracesQuery.data ?? []} />
+                  ) : (
+                    <TraceTable traces={tracesQuery.data ?? []} editable={false} />
                   )}
                 </div>
-              </CardHeader>
-              <CardContent>
-                {state.status === 'error' && (
-                  <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-                    {state.error}
+              ) : mainTab === 'edit' ? (
+                <div>
+                  <div className="mb-5 flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {state.recordId && state.status === 'done'
+                        ? m['compare.tabs.edit']()
+                        : ''}
+                    </span>
+                    <Button
+                      size="sm"
+                      disabled={!state.recordId || state.status !== 'done' || saveMutation.isPending}
+                      onClick={() => saveMutation.mutate()}
+                    >
+                      {saveMutation.isPending && <Loader2 className="size-3.5 animate-spin" />}
+                      {m['compare.edit.save']()}
+                    </Button>
                   </div>
-                )}
-                {resultTab === 'report' ? (
-                  <div ref={streamAreaRef} className="max-h-[70vh] overflow-y-auto">
-                    {state.report ? (
-                      <MarkdownContent content={state.report} />
-                    ) : state.status === 'running' ? (
-                      <p className="py-16 text-center text-sm text-muted-foreground">
-                        {state.stage || m['compare.stream.waiting']()}
-                      </p>
-                    ) : state.status !== 'error' ? (
-                      <p className="py-16 text-center text-sm text-muted-foreground">
-                        {m['compare.form.subtitle']()}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : resultTab === 'matrix' ? (
-                  <ParamMatrix traces={tracesQuery.data ?? []} />
-                ) : (
-                  <TraceTable traces={tracesQuery.data ?? []} editable={false} />
-                )}
-              </CardContent>
-            </Card>
+                  {state.recordId && state.status === 'done' ? (
+                    <RichTextEditor value={draft} onChange={setDraft} />
+                  ) : (
+                    <p className="pt-10 text-sm text-muted-foreground">
+                      {m['compare.edit.empty_hint']()}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="flex h-[72vh] min-h-[440px] flex-col overflow-hidden rounded-lg border border-border">
+                  <ChipChatPanel recordId={state.recordId} className="flex-1" />
+                </div>
+              )}
+            </section>
           </div>
         </div>
       </main>
       <Footer />
-      <ChipChat recordId={state.recordId} />
     </div>
   );
 }
