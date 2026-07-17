@@ -48,6 +48,7 @@ services:
         DATABASE_PROVIDER: postgresql
         VITE_APP_URL: ${VITE_APP_URL}
         VITE_APP_NAME: ${VITE_APP_NAME}
+        VITE_APP_LOGO: ${VITE_APP_LOGO:-/logo.svg}
         VITE_HARVEY_URL: ${VITE_HARVEY_URL}
         VITE_DEFAULT_LOCALE: ${VITE_DEFAULT_LOCALE}
     image: barbot/shipany:prod

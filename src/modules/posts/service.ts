@@ -109,6 +109,22 @@ export async function findPublishedBySlug(
   return result;
 }
 
+export async function listByAuthor(userId: string, limit = 100) {
+  return db()
+    .select({
+      id: post.id,
+      slug: post.slug,
+      title: post.title,
+      status: post.status,
+      image: post.image,
+      updatedAt: post.updatedAt,
+    })
+    .from(post)
+    .where(and(eq(post.userId, userId), eq(post.type, PostType.ARTICLE)))
+    .orderBy(desc(post.updatedAt))
+    .limit(limit);
+}
+
 export async function getById(id: string) {
   const [result] = await db().select().from(post).where(eq(post.id, id)).limit(1);
   return result;

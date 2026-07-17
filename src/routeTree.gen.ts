@@ -126,6 +126,7 @@ import { Route as ApiAiSupportAuditLogsRouteImport } from './routes/api/ai-suppo
 import { Route as ApiAiSupportAgentTokensRouteImport } from './routes/api/ai-support/agent-tokens'
 import { Route as ApiAiSupportAgentRunsRouteImport } from './routes/api/ai-support/agent-runs'
 import { Route as ApiAgentTokenRouteImport } from './routes/api/agent/token'
+import { Route as ApiAgentBlogRouteImport } from './routes/api/agent/blog'
 import { Route as ApiAdminTicketsRouteImport } from './routes/api/admin/tickets'
 import { Route as ApiAdminSubscriptionsRouteImport } from './routes/api/admin/subscriptions'
 import { Route as ApiAdminPostsRouteImport } from './routes/api/admin/posts'
@@ -801,6 +802,11 @@ const ApiAgentTokenRoute = ApiAgentTokenRouteImport.update({
   path: '/api/agent/token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentBlogRoute = ApiAgentBlogRouteImport.update({
+  id: '/api/agent/blog',
+  path: '/api/agent/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminTicketsRoute = ApiAdminTicketsRouteImport.update({
   id: '/api/admin/tickets',
   path: '/api/admin/tickets',
@@ -1276,6 +1282,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/blog': typeof ApiAgentBlogRoute
   '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
@@ -1466,6 +1473,7 @@ export interface FileRoutesByTo {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/blog': typeof ApiAgentBlogRoute
   '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
@@ -1660,6 +1668,7 @@ export interface FileRoutesById {
   '/api/admin/posts': typeof ApiAdminPostsRoute
   '/api/admin/subscriptions': typeof ApiAdminSubscriptionsRoute
   '/api/admin/tickets': typeof ApiAdminTicketsRouteWithChildren
+  '/api/agent/blog': typeof ApiAgentBlogRoute
   '/api/agent/token': typeof ApiAgentTokenRoute
   '/api/ai-support/agent-runs': typeof ApiAiSupportAgentRunsRoute
   '/api/ai-support/agent-tokens': typeof ApiAiSupportAgentTokensRoute
@@ -1854,6 +1863,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/blog'
     | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
@@ -2044,6 +2054,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/blog'
     | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
@@ -2237,6 +2248,7 @@ export interface FileRouteTypes {
     | '/api/admin/posts'
     | '/api/admin/subscriptions'
     | '/api/admin/tickets'
+    | '/api/agent/blog'
     | '/api/agent/token'
     | '/api/ai-support/agent-runs'
     | '/api/ai-support/agent-tokens'
@@ -2400,6 +2412,7 @@ export interface RootRouteChildren {
   ApiAdminPostsRoute: typeof ApiAdminPostsRoute
   ApiAdminSubscriptionsRoute: typeof ApiAdminSubscriptionsRoute
   ApiAdminTicketsRoute: typeof ApiAdminTicketsRouteWithChildren
+  ApiAgentBlogRoute: typeof ApiAgentBlogRoute
   ApiAgentTokenRoute: typeof ApiAgentTokenRoute
   ApiAiSupportAgentRunsRoute: typeof ApiAiSupportAgentRunsRoute
   ApiAiSupportAgentTokensRoute: typeof ApiAiSupportAgentTokensRoute
@@ -3317,6 +3330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent/blog': {
+      id: '/api/agent/blog'
+      path: '/api/agent/blog'
+      fullPath: '/api/agent/blog'
+      preLoaderRoute: typeof ApiAgentBlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/tickets': {
       id: '/api/admin/tickets'
       path: '/api/admin/tickets'
@@ -4110,6 +4130,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminPostsRoute: ApiAdminPostsRoute,
   ApiAdminSubscriptionsRoute: ApiAdminSubscriptionsRoute,
   ApiAdminTicketsRoute: ApiAdminTicketsRouteWithChildren,
+  ApiAgentBlogRoute: ApiAgentBlogRoute,
   ApiAgentTokenRoute: ApiAgentTokenRoute,
   ApiAiSupportAgentRunsRoute: ApiAiSupportAgentRunsRoute,
   ApiAiSupportAgentTokensRoute: ApiAiSupportAgentTokensRoute,
