@@ -83,9 +83,12 @@ async function getCompareConfig(): Promise<{ llm: LlmConfig; costCredits: number
   return { llm: { baseUrl, apiKey, model }, costCredits };
 }
 
+/** Bump when the report prompt/format changes so stale cached reports regenerate. */
+const PROMPT_VERSION = 'v3';
+
 export function buildCacheKey(parts: string[], model: string, language: string): string {
   const normalized = parts.map((p) => normalizePartNumber(p)).sort();
-  return md5(`${normalized.join(',')}|${model}|${language}`);
+  return md5(`${normalized.join(',')}|${model}|${language}|${PROMPT_VERSION}`);
 }
 
 export async function getCompareCost(): Promise<number> {
