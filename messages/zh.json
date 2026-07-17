@@ -1396,5 +1396,7 @@
   "compare.diagram.example_bio_label": "细胞呼吸过程",
   "compare.diagram.example_bio_text": "面向学生的细胞呼吸一图看懂：葡萄糖在细胞内如何转化为能量——糖酵解、三羧酸循环（Krebs 循环）、电子传递链，箭头上标注关键分子：葡萄糖、丙酮酸、ATP、NADH、FADH2、CO2、O2、H2O。",
   "compare.diagram.sample_coffee_caption": "AI 绘制——全自动咖啡机功能流程（cookbook 信息图用例）",
-  "compare.diagram.sample_bio_caption": "AI 绘制——细胞呼吸过程教学图（cookbook 科学图谱用例）"
+  "compare.diagram.sample_bio_caption": "AI 绘制——细胞呼吸过程教学图（cookbook 科学图谱用例）",
+  "landing.products.harvey.name": "Harvey 工作台",
+  "landing.products.harvey.tagline": "重型 Agent 工作台——接入数据源和 MCP 工具，跑批量长任务（datasheet 抓取、BOM 匹配），会话全程可管理。"
 }

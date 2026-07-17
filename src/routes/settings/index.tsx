@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, Bot, Coins, Cpu, CreditCard, KeyRound, LifeBuoy, User } from 'lucide-react';
+import { ArrowRight, Bot, Coins, Cpu, CreditCard, KeyRound, LifeBuoy, User, Workflow } from 'lucide-react';
 import { m } from '@/paraglide/messages.js';
+import { envConfigs } from '@/config';
 import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -43,6 +44,16 @@ function BarbotHub() {
       href: '/settings/ai-support',
       kpi: `${chatbots.data ?? '—'} ${m['console.hub.fae_kpi']()}`,
     },
+    ...(envConfigs.harvey_url
+      ? [{
+          icon: Workflow,
+          name: m['landing.products.harvey.name'](),
+          tagline: m['landing.products.harvey.tagline'](),
+          href: envConfigs.harvey_url,
+          external: true,
+          kpi: '',
+        }]
+      : []),
   ];
 
   const accountLinks = [
@@ -78,7 +89,7 @@ function BarbotHub() {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        {products.map(({ icon: Icon, name, tagline, href, kpi }) => (
+        {products.map(({ icon: Icon, name, tagline, href, kpi, external }: any) => (
           <Card key={name} className="transition-all hover:border-foreground/20 hover:shadow-md">
             <CardContent className="flex h-full flex-col gap-4 p-6">
               <div className="flex items-center justify-between">
@@ -91,12 +102,21 @@ function BarbotHub() {
                 <span className="text-sm text-muted-foreground">{kpi}</span>
               </div>
               <p className="flex-1 text-sm leading-relaxed text-muted-foreground">{tagline}</p>
-              <Link href={href}>
-                <Button className="gap-1.5">
-                  {m['console.hub.open']()}
-                  <ArrowRight className="size-4" />
-                </Button>
-              </Link>
+              {external ? (
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                  <Button className="gap-1.5">
+                    {m['console.hub.open']()}
+                    <ArrowRight className="size-4" />
+                  </Button>
+                </a>
+              ) : (
+                <Link href={href}>
+                  <Button className="gap-1.5">
+                    {m['console.hub.open']()}
+                    <ArrowRight className="size-4" />
+                  </Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
         ))}

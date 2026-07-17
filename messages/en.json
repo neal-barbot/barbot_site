@@ -1396,5 +1396,7 @@
   "compare.diagram.example_bio_label": "Cellular respiration",
   "compare.diagram.example_bio_text": "Cellular respiration at a glance for students: how glucose turns into energy inside a cell — glycolysis, the Krebs cycle, and the electron transport chain, with the main molecules labeled on the arrows: glucose, pyruvate, ATP, NADH, FADH2, CO2, O2, H2O.",
   "compare.diagram.sample_coffee_caption": "AI Rendered — coffee machine functional flow (cookbook infographic use case)",
-  "compare.diagram.sample_bio_caption": "AI Rendered — cellular respiration explainer (cookbook scientific-diagram use case)"
+  "compare.diagram.sample_bio_caption": "AI Rendered — cellular respiration explainer (cookbook scientific-diagram use case)",
+  "landing.products.harvey.name": "Harvey Agents",
+  "landing.products.harvey.tagline": "The heavy-duty agent workbench — connect data sources and MCP tools, run long batch tasks (datasheet crawling, BOM matching), and keep every session organized."
 }
