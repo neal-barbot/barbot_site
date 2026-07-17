@@ -1369,5 +1369,12 @@
   "compare.editor.mode_preview": "预览",
   "compare.verdict.pin2pin": "Pin2Pin 可替代",
   "compare.verdict.functional": "功能替代",
-  "compare.verdict.non_pin2pin": "不可替代"
+  "compare.verdict.non_pin2pin": "不可替代",
+  "compare.tabs.diagram": "EE 框图",
+  "compare.diagram.desc_placeholder": "描述系统，例如：基于 STM32F103 + ADBMS6816 AFE 的 16 串 BMS 主控，isoSPI 菊花链，CAN 上整车总线…",
+  "compare.diagram.engine_svg": "结构图 SVG",
+  "compare.diagram.engine_image": "AI 绘制",
+  "compare.diagram.generate": "生成框图",
+  "compare.diagram.generating": "生成中…",
+  "compare.diagram.empty_hint": "在上方描述系统——结构图 SVG 标签精准、可下载矢量文件；AI 绘制生成 datasheet 风格的示意图。"
 }

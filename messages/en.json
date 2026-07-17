@@ -1369,5 +1369,12 @@
   "compare.editor.mode_preview": "Preview",
   "compare.verdict.pin2pin": "Pin-to-Pin",
   "compare.verdict.functional": "Functional sub",
-  "compare.verdict.non_pin2pin": "Not substitutable"
+  "compare.verdict.non_pin2pin": "Not substitutable",
+  "compare.tabs.diagram": "Block Diagram",
+  "compare.diagram.desc_placeholder": "Describe the system, e.g. a 16-cell BMS master based on STM32F103 with an ADBMS6816 AFE, isoSPI daisy chain, CAN to the vehicle bus…",
+  "compare.diagram.engine_svg": "Structured SVG",
+  "compare.diagram.engine_image": "AI Rendered",
+  "compare.diagram.generate": "Generate diagram",
+  "compare.diagram.generating": "Generating…",
+  "compare.diagram.empty_hint": "Describe the system above — Structured SVG gives exact labels and a downloadable vector; AI Rendered produces a datasheet-style illustration."
 }

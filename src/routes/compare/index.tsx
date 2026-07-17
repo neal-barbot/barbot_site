@@ -22,11 +22,12 @@ import { MarkdownContent } from '@/components/markdown-content';
 import { MarkdownEditor } from '@/components/markdown-editor';
 import { SubstitutionBadge } from '@/components/substitution-badge';
 import { cn } from '@/lib/utils';
-import { apiFormData, apiGet, apiPatch, type PageResult } from '@/lib/api-client';
+import { apiFormData, apiGet, apiPatch, apiPost, type PageResult } from '@/lib/api-client';
 import { useCompareStream } from './-use-compare-stream';
 import { TraceTable, type TraceRow } from './-trace-table';
 import { ParamMatrix } from './-param-matrix';
 import { ChipChatPanel } from './-chip-chat';
+import { BlockDiagram, type DiagramData } from '@/components/block-diagram';
 
 const LANGUAGES = [
   ['en', 'English'],
@@ -58,7 +59,11 @@ interface CompareSearch {
   part?: string;
 }
 
-type MainTab = 'report' | 'edit' | 'qa';
+type MainTab = 'report' | 'edit' | 'qa' | 'diagram';
+
+type DiagramResult =
+  | { engine: 'svg'; diagram: DiagramData }
+  | { engine: 'image'; url: string };
 
 /** Small-caps instrument section label — the page's typographic signature. */
 function RailLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
@@ -87,6 +92,9 @@ function ComparePage() {
   const [mainTab, setMainTab] = useState<MainTab>('report');
   const [resultTab, setResultTab] = useState<'report' | 'matrix' | 'traces'>('report');
   const [draft, setDraft] = useState('');
+  const [diagramDesc, setDiagramDesc] = useState('');
+  const [diagramEngine, setDiagramEngine] = useState<'svg' | 'image'>('svg');
+  const [diagramResult, setDiagramResult] = useState<DiagramResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { state, run, cancel } = useCompareStream();
@@ -131,6 +139,17 @@ function ComparePage() {
   const saveMutation = useMutation({
     mutationFn: () => apiPatch(`/api/chip-compare/records/${state.recordId}`, { result: draft }),
     onSuccess: () => toast.success(m['compare.edit.saved']()),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const diagramMutation = useMutation({
+    mutationFn: () =>
+      apiPost<DiagramResult>('/api/chip-compare/diagram', {
+        description: diagramDesc.trim(),
+        language,
+        engine: diagramEngine,
+      }),
+    onSuccess: (data) => setDiagramResult(data),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -214,6 +233,7 @@ function ComparePage() {
     { key: 'report', label: m['compare.tabs.report']() },
     { key: 'edit', label: m['compare.tabs.edit']() },
     { key: 'qa', label: m['compare.tabs.qa']() },
+    { key: 'diagram', label: m['compare.tabs.diagram']() },
   ];
 
   const emptySteps = [
@@ -571,9 +591,77 @@ function ComparePage() {
                     </p>
                   )}
                 </div>
-              ) : (
+              ) : mainTab === 'qa' ? (
                 <div className="flex h-[72vh] min-h-[440px] flex-col overflow-hidden rounded-lg border border-border">
                   <ChipChatPanel recordId={state.recordId} className="flex-1" />
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <textarea
+                    value={diagramDesc}
+                    onChange={(e) => setDiagramDesc(e.target.value)}
+                    placeholder={m['compare.diagram.desc_placeholder']()}
+                    maxLength={2000}
+                    className="h-24 w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary/50"
+                  />
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-1 rounded-lg border border-border p-0.5">
+                      {(['svg', 'image'] as const).map((eng) => (
+                        <button
+                          key={eng}
+                          onClick={() => setDiagramEngine(eng)}
+                          className={cn(
+                            'rounded-md px-3 py-1 text-sm transition-colors',
+                            diagramEngine === eng
+                              ? 'bg-primary text-primary-foreground'
+                              : 'text-muted-foreground hover:text-foreground'
+                          )}
+                        >
+                          {eng === 'svg'
+                            ? m['compare.diagram.engine_svg']()
+                            : m['compare.diagram.engine_image']()}
+                        </button>
+                      ))}
+                    </div>
+                    <Button
+                      disabled={diagramDesc.trim().length < 4 || diagramMutation.isPending}
+                      onClick={() => diagramMutation.mutate()}
+                    >
+                      {diagramMutation.isPending ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Play className="size-4" />
+                      )}
+                      {diagramMutation.isPending
+                        ? m['compare.diagram.generating']()
+                        : m['compare.diagram.generate']()}
+                    </Button>
+                  </div>
+
+                  {diagramResult?.engine === 'svg' ? (
+                    <BlockDiagram data={diagramResult.diagram} />
+                  ) : diagramResult?.engine === 'image' ? (
+                    <div>
+                      <div className="mb-3 flex justify-end">
+                        <a
+                          href={diagramResult.url}
+                          download
+                          className="text-sm text-primary hover:underline"
+                        >
+                          PNG ↓
+                        </a>
+                      </div>
+                      <img
+                        src={diagramResult.url}
+                        alt=""
+                        className="w-full rounded-lg border border-border"
+                      />
+                    </div>
+                  ) : !diagramMutation.isPending ? (
+                    <p className="pt-6 text-sm text-muted-foreground">
+                      {m['compare.diagram.empty_hint']()}
+                    </p>
+                  ) : null}
                 </div>
               )}
             </section>

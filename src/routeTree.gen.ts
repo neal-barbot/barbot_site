@@ -92,6 +92,7 @@ import { Route as ApiDocqaIngestRouteImport } from './routes/api/docqa/ingest'
 import { Route as ApiConfigPublicRouteImport } from './routes/api/config/public'
 import { Route as ApiChipsIdRouteImport } from './routes/api/chips/$id'
 import { Route as ApiChipCompareUploadRouteImport } from './routes/api/chip-compare/upload'
+import { Route as ApiChipCompareDiagramRouteImport } from './routes/api/chip-compare/diagram'
 import { Route as ApiChipCompareCostRouteImport } from './routes/api/chip-compare/cost'
 import { Route as ApiChipCompareChatRouteImport } from './routes/api/chip-compare/chat'
 import { Route as ApiChipCompareAnalyzeRouteImport } from './routes/api/chip-compare/analyze'
@@ -611,6 +612,11 @@ const ApiChipsIdRoute = ApiChipsIdRouteImport.update({
 const ApiChipCompareUploadRoute = ApiChipCompareUploadRouteImport.update({
   id: '/api/chip-compare/upload',
   path: '/api/chip-compare/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChipCompareDiagramRoute = ApiChipCompareDiagramRouteImport.update({
+  id: '/api/chip-compare/diagram',
+  path: '/api/chip-compare/diagram',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChipCompareCostRoute = ApiChipCompareCostRouteImport.update({
@@ -1289,6 +1295,7 @@ export interface FileRoutesByFullPath {
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
   '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
+  '/api/chip-compare/diagram': typeof ApiChipCompareDiagramRoute
   '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
   '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -1476,6 +1483,7 @@ export interface FileRoutesByTo {
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
   '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
+  '/api/chip-compare/diagram': typeof ApiChipCompareDiagramRoute
   '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
   '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -1667,6 +1675,7 @@ export interface FileRoutesById {
   '/api/chip-compare/analyze': typeof ApiChipCompareAnalyzeRoute
   '/api/chip-compare/chat': typeof ApiChipCompareChatRoute
   '/api/chip-compare/cost': typeof ApiChipCompareCostRoute
+  '/api/chip-compare/diagram': typeof ApiChipCompareDiagramRoute
   '/api/chip-compare/upload': typeof ApiChipCompareUploadRoute
   '/api/chips/$id': typeof ApiChipsIdRoute
   '/api/config/public': typeof ApiConfigPublicRoute
@@ -1858,6 +1867,7 @@ export interface FileRouteTypes {
     | '/api/chip-compare/analyze'
     | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
+    | '/api/chip-compare/diagram'
     | '/api/chip-compare/upload'
     | '/api/chips/$id'
     | '/api/config/public'
@@ -2045,6 +2055,7 @@ export interface FileRouteTypes {
     | '/api/chip-compare/analyze'
     | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
+    | '/api/chip-compare/diagram'
     | '/api/chip-compare/upload'
     | '/api/chips/$id'
     | '/api/config/public'
@@ -2235,6 +2246,7 @@ export interface FileRouteTypes {
     | '/api/chip-compare/analyze'
     | '/api/chip-compare/chat'
     | '/api/chip-compare/cost'
+    | '/api/chip-compare/diagram'
     | '/api/chip-compare/upload'
     | '/api/chips/$id'
     | '/api/config/public'
@@ -2395,6 +2407,7 @@ export interface RootRouteChildren {
   ApiChipCompareAnalyzeRoute: typeof ApiChipCompareAnalyzeRoute
   ApiChipCompareChatRoute: typeof ApiChipCompareChatRoute
   ApiChipCompareCostRoute: typeof ApiChipCompareCostRoute
+  ApiChipCompareDiagramRoute: typeof ApiChipCompareDiagramRoute
   ApiChipCompareUploadRoute: typeof ApiChipCompareUploadRoute
   ApiChipsIdRoute: typeof ApiChipsIdRoute
   ApiConfigPublicRoute: typeof ApiConfigPublicRoute
@@ -3038,6 +3051,13 @@ declare module '@tanstack/react-router' {
       path: '/api/chip-compare/upload'
       fullPath: '/api/chip-compare/upload'
       preLoaderRoute: typeof ApiChipCompareUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chip-compare/diagram': {
+      id: '/api/chip-compare/diagram'
+      path: '/api/chip-compare/diagram'
+      fullPath: '/api/chip-compare/diagram'
+      preLoaderRoute: typeof ApiChipCompareDiagramRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chip-compare/cost': {
@@ -4081,6 +4101,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChipCompareAnalyzeRoute: ApiChipCompareAnalyzeRoute,
   ApiChipCompareChatRoute: ApiChipCompareChatRoute,
   ApiChipCompareCostRoute: ApiChipCompareCostRoute,
+  ApiChipCompareDiagramRoute: ApiChipCompareDiagramRoute,
   ApiChipCompareUploadRoute: ApiChipCompareUploadRoute,
   ApiChipsIdRoute: ApiChipsIdRoute,
   ApiConfigPublicRoute: ApiConfigPublicRoute,
