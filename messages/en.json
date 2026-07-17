@@ -1378,5 +1378,17 @@
   "compare.diagram.generating": "Generating…",
   "compare.diagram.empty_hint": "Describe the system above — Structured SVG gives exact labels and a downloadable vector; AI Rendered produces a datasheet-style illustration.",
   "compare.diagram.page_title": "EE Block Diagram Generator",
-  "compare.diagram.page_subtitle": "Describe an electronic system and get a functional block diagram — exact-label structured SVG, or a datasheet-style AI rendering."
+  "compare.diagram.page_subtitle": "Describe an electronic system and get a functional block diagram — exact-label structured SVG, or a datasheet-style AI rendering.",
+  "compare.diagram.examples_label": "Try an example",
+  "compare.diagram.example_bms_label": "16-cell BMS master",
+  "compare.diagram.example_bms_text": "A 16-cell battery management system master board based on an STM32F103C8T6 MCU and an ADBMS6816 analog front-end, isoSPI daisy chain to the AFE, CAN bus to the vehicle, 12V input regulated to 3.3V by an LDO.",
+  "compare.diagram.example_mcu_label": "STM32 minimal system",
+  "compare.diagram.example_mcu_text": "An STM32F103C8T6 minimal system board: 8 MHz crystal, SWD debug header, USB device port, reset circuit, boot mode jumpers, powered from USB 5V through an AMS1117-3.3 LDO.",
+  "compare.diagram.example_motor_label": "BLDC motor controller",
+  "compare.diagram.example_motor_text": "A BLDC motor controller: STM32 MCU generating 6-channel PWM into a three-phase gate driver and MOSFET half-bridges, hall sensor feedback, DC bus current sensing via shunt + op-amp, CAN communication, 24V input with buck converter to 5V and LDO to 3.3V.",
+  "compare.diagram.example_iot_label": "LoRa sensor node",
+  "compare.diagram.example_iot_text": "A battery-powered wireless sensor node: ESP32 MCU, SHT40 temperature/humidity sensor on I2C, SX1278 LoRa radio on SPI, lithium battery with TP4056 charger and battery gauge, solar input.",
+  "compare.diagram.samples_label": "Sample outputs",
+  "compare.diagram.sample_svg_caption": "Structured SVG — exact labels, downloadable vector",
+  "compare.diagram.sample_image_caption": "AI Rendered — datasheet-style illustration (gpt-image)"
 }

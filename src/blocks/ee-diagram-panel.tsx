@@ -88,7 +88,32 @@ export function EeDiagramPanel({ className }: { className?: string }) {
           <img src={result.url} alt="" className="w-full rounded-lg border border-border" />
         </div>
       ) : !mutation.isPending ? (
-        <p className="pt-6 text-sm text-muted-foreground">{m['compare.diagram.empty_hint']()}</p>
+        <div className="space-y-4 pt-4">
+          <p className="text-sm text-muted-foreground">{m['compare.diagram.empty_hint']()}</p>
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {m['compare.diagram.examples_label']()}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  ['compare.diagram.example_bms_label', 'compare.diagram.example_bms_text'],
+                  ['compare.diagram.example_mcu_label', 'compare.diagram.example_mcu_text'],
+                  ['compare.diagram.example_motor_label', 'compare.diagram.example_motor_text'],
+                  ['compare.diagram.example_iot_label', 'compare.diagram.example_iot_text'],
+                ] as const
+              ).map(([labelKey, textKey]) => (
+                <button
+                  key={labelKey}
+                  onClick={() => setDescription(m[textKey]())}
+                  className="rounded-full border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                >
+                  {m[labelKey]()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );

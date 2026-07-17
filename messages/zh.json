@@ -1378,5 +1378,17 @@
   "compare.diagram.generating": "生成中…",
   "compare.diagram.empty_hint": "在上方描述系统——结构图 SVG 标签精准、可下载矢量文件；AI 绘制生成 datasheet 风格的示意图。",
   "compare.diagram.page_title": "EE 功能框图生成",
-  "compare.diagram.page_subtitle": "描述一个电子系统，自动生成功能框图——结构化 SVG 标签精准可下载，AI 绘制输出 datasheet 风格示意图。"
+  "compare.diagram.page_subtitle": "描述一个电子系统，自动生成功能框图——结构化 SVG 标签精准可下载，AI 绘制输出 datasheet 风格示意图。",
+  "compare.diagram.examples_label": "试试示例",
+  "compare.diagram.example_bms_label": "16 串 BMS 主控",
+  "compare.diagram.example_bms_text": "基于 STM32F103C8T6 主控和 ADBMS6816 模拟前端的 16 串电池 BMS 主控板，isoSPI 菊花链连接 AFE，CAN 总线对外通信，12V 输入经 LDO 产生 3.3V。",
+  "compare.diagram.example_mcu_label": "STM32 最小系统",
+  "compare.diagram.example_mcu_text": "STM32F103C8T6 最小系统板：8MHz 晶振、SWD 调试接口、USB 设备口、复位电路、BOOT 跳线，USB 5V 经 AMS1117-3.3 LDO 供电。",
+  "compare.diagram.example_motor_label": "BLDC 电机控制器",
+  "compare.diagram.example_motor_text": "BLDC 电机控制器：STM32 输出 6 路 PWM 到三相栅极驱动和 MOSFET 半桥，霍尔传感反馈，采样电阻+运放做母线电流检测，CAN 通信，24V 输入经 Buck 降到 5V 再 LDO 到 3.3V。",
+  "compare.diagram.example_iot_label": "LoRa 传感节点",
+  "compare.diagram.example_iot_text": "电池供电的无线传感节点：ESP32 主控，SHT40 温湿度传感器走 I2C，SX1278 LoRa 射频走 SPI，锂电池配 TP4056 充电管理和电量计，支持太阳能输入。",
+  "compare.diagram.samples_label": "示例输出",
+  "compare.diagram.sample_svg_caption": "结构图 SVG——标签精准、可下载矢量",
+  "compare.diagram.sample_image_caption": "AI 绘制——datasheet 风格示意图（gpt-image）"
 }
