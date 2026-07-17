@@ -3,6 +3,7 @@ import { m } from "@/paraglide/messages.js";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { DotPattern } from "@/components/ui/dot-pattern";
+import { SunsetShader } from "@/components/hero-shader";
 import { cn } from "@/lib/utils";
 import { envConfigs } from "@/config";
 
@@ -10,6 +11,7 @@ export function Hero() {
   
   return (
     <section className="relative isolate flex flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-20 sm:pt-40 sm:pb-32">
+      <SunsetShader />
       <DotPattern
         className={cn(
           "[mask-image:radial-gradient(ellipse_at_center,white,transparent_75%)]",
