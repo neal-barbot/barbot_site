@@ -101,6 +101,8 @@ export function EeDiagramPanel({ className }: { className?: string }) {
                   ['compare.diagram.example_mcu_label', 'compare.diagram.example_mcu_text'],
                   ['compare.diagram.example_motor_label', 'compare.diagram.example_motor_text'],
                   ['compare.diagram.example_iot_label', 'compare.diagram.example_iot_text'],
+                  ['compare.diagram.example_coffee_label', 'compare.diagram.example_coffee_text'],
+                  ['compare.diagram.example_bio_label', 'compare.diagram.example_bio_text'],
                 ] as const
               ).map(([labelKey, textKey]) => (
                 <button

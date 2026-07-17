@@ -1390,5 +1390,9 @@
   "compare.diagram.example_iot_text": "电池供电的无线传感节点：ESP32 主控，SHT40 温湿度传感器走 I2C，SX1278 LoRa 射频走 SPI，锂电池配 TP4056 充电管理和电量计，支持太阳能输入。",
   "compare.diagram.samples_label": "示例输出",
   "compare.diagram.sample_svg_caption": "结构图 SVG——标签精准、可下载矢量",
-  "compare.diagram.sample_image_caption": "AI 绘制——datasheet 风格示意图（gpt-image）"
+  "compare.diagram.sample_image_caption": "AI 绘制——datasheet 风格示意图（gpt-image）",
+  "compare.diagram.example_coffee_label": "咖啡机工作流程",
+  "compare.diagram.example_coffee_text": "全自动咖啡机（如 Jura）的功能流程：豆仓、磨豆器、定量称、水箱、水泵、加热锅炉/加热块、萃取单元、奶路系统、渣盒——分别画清水路和咖啡路的逐级流向。",
+  "compare.diagram.example_bio_label": "细胞呼吸过程",
+  "compare.diagram.example_bio_text": "面向学生的细胞呼吸一图看懂：葡萄糖在细胞内如何转化为能量——糖酵解、三羧酸循环（Krebs 循环）、电子传递链，箭头上标注关键分子：葡萄糖、丙酮酸、ATP、NADH、FADH2、CO2、O2、H2O。"
 }

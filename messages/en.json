@@ -1390,5 +1390,9 @@
   "compare.diagram.example_iot_text": "A battery-powered wireless sensor node: ESP32 MCU, SHT40 temperature/humidity sensor on I2C, SX1278 LoRa radio on SPI, lithium battery with TP4056 charger and battery gauge, solar input.",
   "compare.diagram.samples_label": "Sample outputs",
   "compare.diagram.sample_svg_caption": "Structured SVG — exact labels, downloadable vector",
-  "compare.diagram.sample_image_caption": "AI Rendered — datasheet-style illustration (gpt-image)"
+  "compare.diagram.sample_image_caption": "AI Rendered — datasheet-style illustration (gpt-image)",
+  "compare.diagram.example_coffee_label": "Coffee machine flow",
+  "compare.diagram.example_coffee_text": "The functional flow of an automatic coffee machine (like a Jura): bean hopper, grinder, dosing scale, water tank, pump, boiler/thermoblock, brew unit, milk system, waste bin — show the water path and the coffee path with clear stage-by-stage flow.",
+  "compare.diagram.example_bio_label": "Cellular respiration",
+  "compare.diagram.example_bio_text": "Cellular respiration at a glance for students: how glucose turns into energy inside a cell — glycolysis, the Krebs cycle, and the electron transport chain, with the main molecules labeled on the arrows: glucose, pyruvate, ATP, NADH, FADH2, CO2, O2, H2O."
 }
