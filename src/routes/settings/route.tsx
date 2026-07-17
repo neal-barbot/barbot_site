@@ -119,7 +119,10 @@ function SettingsLayout() {
       <span>Chip P2P</span>
     </span>
   ) : (
-    <span className="font-serif text-lg font-semibold tracking-tight">Barbot</span>
+    <span className="inline-flex items-center gap-2">
+      <img src="/logo.svg" alt="" className="size-6" />
+      <span className="font-serif text-lg font-semibold tracking-tight">Barbot</span>
+    </span>
   );
 
   return (
