@@ -29,6 +29,21 @@ FROM deps AS builder
 
 WORKDIR /app
 
+# Public client vars are STATICALLY injected into the bundle at build time —
+# they MUST be the production values, passed via `--build-arg` (compose does
+# this). Without these ARGs, docker silently drops the build args and the
+# bundle ships with dev defaults (localhost URL, hidden Harvey entry, etc.).
+ARG VITE_APP_URL
+ARG VITE_APP_NAME=Barbot
+ARG VITE_APP_LOGO=/logo.svg
+ARG VITE_HARVEY_URL
+ARG VITE_DEFAULT_LOCALE=en
+ENV VITE_APP_URL=${VITE_APP_URL} \
+    VITE_APP_NAME=${VITE_APP_NAME} \
+    VITE_APP_LOGO=${VITE_APP_LOGO} \
+    VITE_HARVEY_URL=${VITE_HARVEY_URL} \
+    VITE_DEFAULT_LOCALE=${VITE_DEFAULT_LOCALE}
+
 COPY . .
 RUN pnpm build
 
