@@ -69,3 +69,4 @@ apikey.md
 .agent-home
 .claude/launch.json
 public/imgs/generated/
+data/generated/

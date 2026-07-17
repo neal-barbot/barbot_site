@@ -674,6 +674,137 @@ export const aiConversationMessage = table(
   ]
 );
 
+export const aiKnowledgeChunk = table(
+  'ai_knowledge_chunk',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    sourceId: varchar191('source_id')
+      .notNull()
+      .references(() => aiKnowledgeSource.id, { onDelete: 'cascade' }),
+    ordinal: int('ordinal').notNull(),
+    content: longtext('content').notNull(),
+    checksum: varchar('checksum', { length: 191 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('idx_ai_knowledge_chunk_source').on(t.sourceId, t.ordinal),
+    index('idx_ai_knowledge_chunk_chatbot').on(t.chatbotId),
+  ]
+);
+
+export const aiKnowledgeSyncJob = table(
+  'ai_knowledge_sync_job',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    sourceId: varchar191('source_id')
+      .notNull()
+      .references(() => aiKnowledgeSource.id, { onDelete: 'cascade' }),
+    enabled: boolean('enabled').notNull().default(true),
+    intervalMinutes: int('interval_minutes').notNull().default(1440),
+    status: varchar('status', { length: 50 }).notNull().default('pending'),
+    attempts: int('attempts').notNull().default(0),
+    lastError: longtext('last_error'),
+    lastRunAt: timestamp('last_run_at'),
+    nextRunAt: timestamp('next_run_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index('idx_ai_knowledge_sync_source').on(t.sourceId),
+    index('idx_ai_knowledge_sync_due').on(t.enabled, t.nextRunAt),
+  ]
+);
+
+export const aiConversationTag = table(
+  'ai_conversation_tag',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    conversationId: varchar191('conversation_id')
+      .notNull()
+      .references(() => aiConversation.id, { onDelete: 'cascade' }),
+    label: varchar('label', { length: 191 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [index('idx_ai_conversation_tag_conversation').on(t.conversationId)]
+);
+
+export const aiKnowledgeGap = table(
+  'ai_knowledge_gap',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    chatbotId: varchar191('chatbot_id')
+      .notNull()
+      .references(() => aiChatbot.id, { onDelete: 'cascade' }),
+    conversationId: varchar191('conversation_id').references(() => aiConversation.id),
+    question: longtext('question').notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('open'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    resolvedAt: timestamp('resolved_at'),
+  },
+  (t) => [index('idx_ai_knowledge_gap_chatbot_status').on(t.chatbotId, t.status)]
+);
+
+export const inviteCode = table(
+  'invite_code',
+  {
+    id: varchar191('id').primaryKey(),
+    code: varchar('code', { length: 191 }).notNull().unique(),
+    maxUses: int('max_uses').notNull().default(1),
+    usedCount: int('used_count').notNull().default(0),
+    trialDays: int('trial_days').notNull().default(15),
+    note: varchar('note', { length: 500 }).default(''),
+    createdBy: varchar191('created_by').references(() => user.id),
+    expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [index('idx_invite_code_code').on(t.code)]
+);
+
+export const userInvite = table(
+  'user_invite',
+  {
+    id: varchar191('id').primaryKey(),
+    userId: varchar191('user_id')
+      .notNull()
+      .references(() => user.id),
+    inviteCodeId: varchar191('invite_code_id')
+      .notNull()
+      .references(() => inviteCode.id),
+    activatedAt: timestamp('activated_at')
+      .notNull()
+      .$defaultFn(() => new Date()),
+    trialEndsAt: timestamp('trial_ends_at').notNull(),
+  },
+  (t) => [
+    index('idx_user_invite_user').on(t.userId),
+    index('idx_user_invite_code').on(t.inviteCodeId),
+  ]
+);
+
+
 export const aiLead = table(
   'ai_lead',
   {
@@ -905,6 +1036,18 @@ export type AiKnowledgeSource = typeof aiKnowledgeSource.$inferSelect;
 export type NewAiKnowledgeSource = typeof aiKnowledgeSource.$inferInsert;
 export type AiConversation = typeof aiConversation.$inferSelect;
 export type NewAiConversation = typeof aiConversation.$inferInsert;
+export type AiKnowledgeChunk = typeof aiKnowledgeChunk.$inferSelect;
+export type NewAiKnowledgeChunk = typeof aiKnowledgeChunk.$inferInsert;
+export type AiKnowledgeSyncJob = typeof aiKnowledgeSyncJob.$inferSelect;
+export type NewAiKnowledgeSyncJob = typeof aiKnowledgeSyncJob.$inferInsert;
+export type AiConversationTag = typeof aiConversationTag.$inferSelect;
+export type NewAiConversationTag = typeof aiConversationTag.$inferInsert;
+export type AiKnowledgeGap = typeof aiKnowledgeGap.$inferSelect;
+export type NewAiKnowledgeGap = typeof aiKnowledgeGap.$inferInsert;
+export type InviteCode = typeof inviteCode.$inferSelect;
+export type NewInviteCode = typeof inviteCode.$inferInsert;
+export type UserInvite = typeof userInvite.$inferSelect;
+export type NewUserInvite = typeof userInvite.$inferInsert;
 export type AiConversationMessage = typeof aiConversationMessage.$inferSelect;
 export type NewAiConversationMessage = typeof aiConversationMessage.$inferInsert;
 export type AiLead = typeof aiLead.$inferSelect;

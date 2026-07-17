@@ -154,6 +154,7 @@ import { Route as ApiV1DeviceHeartbeatRouteImport } from './routes/api/v1/device
 import { Route as ApiUserSubscriptionsCurrentRouteImport } from './routes/api/user/subscriptions/current'
 import { Route as ApiUserSubscriptionsCancelRouteImport } from './routes/api/user/subscriptions/cancel'
 import { Route as ApiPaymentNotifyProviderRouteImport } from './routes/api/payment/notify/$provider'
+import { Route as ApiFilesGeneratedNameRouteImport } from './routes/api/files/generated/$name'
 import { Route as ApiChipCompareRecordsIdRouteImport } from './routes/api/chip-compare/records/$id'
 import { Route as ApiChipCompareChatsIdRouteImport } from './routes/api/chip-compare/chats/$id'
 import { Route as ApiAuthDesktopRefreshRouteImport } from './routes/api/auth/desktop/refresh'
@@ -952,6 +953,11 @@ const ApiPaymentNotifyProviderRoute =
     path: '/api/payment/notify/$provider',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiFilesGeneratedNameRoute = ApiFilesGeneratedNameRouteImport.update({
+  id: '/api/files/generated/$name',
+  path: '/api/files/generated/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChipCompareRecordsIdRoute = ApiChipCompareRecordsIdRouteImport.update({
   id: '/api/chip-compare/records/$id',
   path: '/api/chip-compare/records/$id',
@@ -1354,6 +1360,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
   '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
+  '/api/files/generated/$name': typeof ApiFilesGeneratedNameRoute
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
@@ -1543,6 +1550,7 @@ export interface FileRoutesByTo {
   '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
   '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
+  '/api/files/generated/$name': typeof ApiFilesGeneratedNameRoute
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
@@ -1736,6 +1744,7 @@ export interface FileRoutesById {
   '/api/auth/desktop/refresh': typeof ApiAuthDesktopRefreshRoute
   '/api/chip-compare/chats/$id': typeof ApiChipCompareChatsIdRoute
   '/api/chip-compare/records/$id': typeof ApiChipCompareRecordsIdRouteWithChildren
+  '/api/files/generated/$name': typeof ApiFilesGeneratedNameRoute
   '/api/payment/notify/$provider': typeof ApiPaymentNotifyProviderRoute
   '/api/user/subscriptions/cancel': typeof ApiUserSubscriptionsCancelRoute
   '/api/user/subscriptions/current': typeof ApiUserSubscriptionsCurrentRoute
@@ -1929,6 +1938,7 @@ export interface FileRouteTypes {
     | '/api/auth/desktop/refresh'
     | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
+    | '/api/files/generated/$name'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
@@ -2118,6 +2128,7 @@ export interface FileRouteTypes {
     | '/api/auth/desktop/refresh'
     | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
+    | '/api/files/generated/$name'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
@@ -2310,6 +2321,7 @@ export interface FileRouteTypes {
     | '/api/auth/desktop/refresh'
     | '/api/chip-compare/chats/$id'
     | '/api/chip-compare/records/$id'
+    | '/api/files/generated/$name'
     | '/api/payment/notify/$provider'
     | '/api/user/subscriptions/cancel'
     | '/api/user/subscriptions/current'
@@ -2468,6 +2480,7 @@ export interface RootRouteChildren {
   ApiAuthDesktopRefreshRoute: typeof ApiAuthDesktopRefreshRoute
   ApiChipCompareChatsIdRoute: typeof ApiChipCompareChatsIdRoute
   ApiChipCompareRecordsIdRoute: typeof ApiChipCompareRecordsIdRouteWithChildren
+  ApiFilesGeneratedNameRoute: typeof ApiFilesGeneratedNameRoute
   ApiPaymentNotifyProviderRoute: typeof ApiPaymentNotifyProviderRoute
   ApiUserSubscriptionsCancelRoute: typeof ApiUserSubscriptionsCancelRoute
   ApiUserSubscriptionsCurrentRoute: typeof ApiUserSubscriptionsCurrentRoute
@@ -3500,6 +3513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPaymentNotifyProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/files/generated/$name': {
+      id: '/api/files/generated/$name'
+      path: '/api/files/generated/$name'
+      fullPath: '/api/files/generated/$name'
+      preLoaderRoute: typeof ApiFilesGeneratedNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chip-compare/records/$id': {
       id: '/api/chip-compare/records/$id'
       path: '/api/chip-compare/records/$id'
@@ -4171,6 +4191,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthDesktopRefreshRoute: ApiAuthDesktopRefreshRoute,
   ApiChipCompareChatsIdRoute: ApiChipCompareChatsIdRoute,
   ApiChipCompareRecordsIdRoute: ApiChipCompareRecordsIdRouteWithChildren,
+  ApiFilesGeneratedNameRoute: ApiFilesGeneratedNameRoute,
   ApiPaymentNotifyProviderRoute: ApiPaymentNotifyProviderRoute,
   ApiUserSubscriptionsCancelRoute: ApiUserSubscriptionsCancelRoute,
   ApiUserSubscriptionsCurrentRoute: ApiUserSubscriptionsCurrentRoute,

@@ -1,0 +1,14 @@
+# Caddy auto-HTTPS reverse proxy.
+# Domains come from the compose environment (MAIN_DOMAIN / AGENTS_DOMAIN).
+
+{$MAIN_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy shipany:3000
+}
+
+# Harvey agent workbench — reverse proxy incl. WebSocket (RPC) upgrade,
+# which Caddy handles transparently.
+{$AGENTS_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy harvey:9100
+}

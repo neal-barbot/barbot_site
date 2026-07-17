@@ -8,9 +8,6 @@ function metadata(value: string): Record<string, unknown> {
 const workerId = process.env.AGENT_TASK_WORKER_ID || `widget-worker-${process.pid}`;
 const limit = Math.min(Math.max(Number(process.env.AGENT_TASK_WORKER_LIMIT ?? '10') || 10, 1), 100);
 
-await recoverExpiredAgentTaskLeases({ workerId, limit });
-await expireDueTaskCheckpoints({ workerId, limit });
-
 const retryDelaysMinutes = [1, 5, 15, 60, 240];
 
 async function scheduleRetry(task: { userId: string; id: string; attempt: number; maxAttempts: number }) {
@@ -47,7 +44,17 @@ async function processKnowledgeSyncTask() {
   return true;
 }
 
-for (let count = 0; count < limit; count += 1) {
+const loopMode = process.env.WORKER_LOOP === '1';
+const idleSleepMs = Math.max(1000, Number(process.env.WORKER_IDLE_SLEEP_MS ?? '5000') || 5000);
+let running = true;
+process.on('SIGTERM', () => { running = false; });
+process.on('SIGINT', () => { running = false; });
+
+do {
+  await recoverExpiredAgentTaskLeases({ workerId, limit });
+  await expireDueTaskCheckpoints({ workerId, limit });
+
+  for (let count = 0; count < limit; count += 1) {
   const widgetTask = await claimNextAgentTask({ workerId, type: 'widget.answer' });
   if (widgetTask) {
     const task = widgetTask;
@@ -66,4 +73,9 @@ for (let count = 0; count < limit; count += 1) {
     continue;
   }
   if (!await processKnowledgeSyncTask()) break;
-}
+  }
+
+  if (loopMode && running) {
+    await new Promise((resolve) => setTimeout(resolve, idleSleepMs));
+  }
+} while (loopMode && running);

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { getUuid } from '@/lib/hash';
+import { envConfigs } from '@/config';
 import { getAllConfigs } from '@/modules/config/service';
 import { consume, getBalance } from '@/modules/credits/service';
 
@@ -11,8 +12,8 @@ import { consume, getBalance } from '@/modules/credits/service';
  *     → { data: [{ task_id, status: 'submitted' }] }
  *   GET  {base}/tasks/{task_id}
  *     → { data: { progress: 0-100, result: { images: [{ url: [..] }] } } }
- * Result URLs expire (~24h), so the image is downloaded and persisted to
- * public/imgs/generated/ and served from our own origin.
+ * Result URLs expire (~24h), so the image is downloaded into GENERATED_DIR
+ * and served from our own origin via /api/files/generated/$name.
  */
 
 const DEFAULT_IMAGE_COST = 10;
@@ -46,11 +47,6 @@ export async function getDiagramImageCost(): Promise<number> {
   return Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_IMAGE_COST;
 }
 
-/**
- * Cookbook-style prompt (gpt-image infographic / scientific-diagram pattern):
- * name the artifact, define layout conventions, demand clean labeled blocks
- * and readable arrows, forbid decorative noise.
- */
 /**
  * Cookbook-style prompting: the user's description IS the artifact spec and
  * is passed through nearly verbatim (gpt-image responds best to a direct
@@ -112,16 +108,21 @@ async function pollTask(cfg: ImageApiConfig, taskId: string, signal?: AbortSigna
   throw new Error('Image generation timed out');
 }
 
-/** Download the (expiring) remote image and persist it under our origin. */
+/**
+ * Download the (expiring) remote image and persist it under GENERATED_DIR,
+ * served through /api/files/generated/$name (nitro's static handler only
+ * serves the build-time public/ snapshot, so runtime files need a route).
+ */
 async function persistImage(remoteUrl: string): Promise<string> {
   const response = await fetch(remoteUrl);
   if (!response.ok) throw new Error(`Image download failed (${response.status})`);
   const buffer = Buffer.from(await response.arrayBuffer());
-  const dir = path.join(process.cwd(), 'public', 'imgs', 'generated');
+  const dir = envConfigs.generated_dir;
   await fs.mkdir(dir, { recursive: true });
-  const filename = `ee-diagram-${getUuid()}.png`;
-  await fs.writeFile(path.join(dir, filename), buffer);
-  return `/imgs/generated/${filename}`;
+  const basename = `ee-diagram-${getUuid()}`;
+  await fs.writeFile(path.join(dir, `${basename}.png`), buffer);
+  // Extensionless URL — see the /api/files/generated/$name route.
+  return `/api/files/generated/${basename}`;
 }
 
 export async function generateEeDiagramImage(params: {

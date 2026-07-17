@@ -83,6 +83,9 @@ export const envConfigs: Record<string, string> = {
   gateway_port: procEnv.GATEWAY_PORT ?? '8520',
   mineru_url: procEnv.MINERU_URL ?? 'http://127.0.0.1:8530',
   internal_api_token: procEnv.INTERNAL_API_TOKEN ?? '',
+  // Runtime-generated files (EE diagram renders) — served via
+  // /api/files/generated/$name; mount as a volume in production.
+  generated_dir: procEnv.GENERATED_DIR ?? './data/generated',
   // Harvey agent workbench URL (public entry; empty = hide the entries)
   harvey_url: publicEnv('VITE_HARVEY_URL') ?? '',
   // Agent gateway: signs short-lived JWTs for external agent executors.
