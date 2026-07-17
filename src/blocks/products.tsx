@@ -38,10 +38,11 @@ export function Products() {
           </p>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          {PRODUCTS.map(({ key, icon: Icon, href, ctaHref, name, tagline, cta }) => (
+          {PRODUCTS.map(({ key, icon: Icon, href, ctaHref, name, tagline, cta }, i) => (
             <div
               key={key}
-              className="group flex flex-col gap-5 rounded-2xl border border-border bg-card p-8 transition-all hover:border-foreground/20 hover:shadow-md"
+              style={{ ['--i' as string]: i }}
+              className="group anim-tile hover-lift sheen-host flex flex-col gap-5 rounded-2xl border border-border bg-card p-8 hover:border-foreground/20 hover:shadow-md"
             >
               <div className="flex items-center gap-3">
                 <span className="grid size-11 place-items-center rounded-xl bg-foreground text-background">

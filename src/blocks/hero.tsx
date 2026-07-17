@@ -17,17 +17,17 @@ export function Hero() {
         )}
       />
       <div className="relative max-w-3xl text-center space-y-8">
-        <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
+        <p className="anim-settle text-xs tracking-[0.25em] uppercase text-muted-foreground">
           {envConfigs.app_name}
         </p>
-        <h1 className="font-serif font-normal text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-foreground">
+        <h1 style={{ ['--stagger' as string]: 1 }} className="anim-settle font-serif font-normal text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-foreground">
           {m["landing.hero.headline"]()}
         </h1>
-        <p className="text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto leading-relaxed">
+        <p style={{ ['--stagger' as string]: 2 }} className="anim-settle text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto leading-relaxed">
           {m["landing.hero.subheadline"]()}
         </p>
 
-        <div className="flex items-center justify-center gap-3 pt-4">
+        <div style={{ ['--stagger' as string]: 3 }} className="anim-settle flex items-center justify-center gap-3 pt-4">
           <Link
             href="/settings"
             className={cn(

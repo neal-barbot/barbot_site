@@ -89,8 +89,12 @@ function BarbotHub() {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2">
-        {products.map(({ icon: Icon, name, tagline, href, kpi, external }: any) => (
-          <Card key={name} className="transition-all hover:border-foreground/20 hover:shadow-md">
+        {products.map(({ icon: Icon, name, tagline, href, kpi, external }: any, i: number) => (
+          <Card
+            key={name}
+            style={{ ['--i' as string]: i }}
+            className="anim-tile hover-lift sheen-host hover:border-foreground/20 hover:shadow-md"
+          >
             <CardContent className="flex h-full flex-col gap-4 p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
