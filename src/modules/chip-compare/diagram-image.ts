@@ -51,29 +51,22 @@ export async function getDiagramImageCost(): Promise<number> {
  * name the artifact, define layout conventions, demand clean labeled blocks
  * and readable arrows, forbid decorative noise.
  */
+/**
+ * Cookbook-style prompting: the user's description IS the artifact spec and
+ * is passed through nearly verbatim (gpt-image responds best to a direct
+ * brief). We append only a thin layer of invariants: label language, clean
+ * flat diagram style, and one conditional hint for electronics subjects.
+ */
 function buildImagePrompt(description: string, language: string): string {
   const lang = language === 'zh' ? 'Chinese (part numbers stay in English)' : 'English';
   return [
-    'Create a clean functional block diagram / flow diagram for:',
     description.slice(0, 1500),
     '',
-    'Match the diagram conventions to the subject domain:',
-    '- Electronics system → EE block diagram: signal flow left to right, power input and',
-    '  connectors on the left, main controller in the center, outputs/communication on the',
-    '  right; arrows labeled with rails and interfaces (e.g. "5V", "3.3V", "SPI", "CAN");',
-    '  dashed arrows for feedback/enable/alert lines.',
-    '- Machine or industrial process → stage-by-stage process flow with the real material',
-    '  paths (e.g. water path, product path) labeled on the arrows.',
-    '- Scientific or biological concept → the domain\'s standard教学 explainer layout:',
-    '  stages as blocks in their natural order, molecules/quantities labeled on the arrows.',
-    '  Do NOT invent electronic components (MCU, LDO, sensors) unless the subject is electronics.',
-    '',
-    'Each block is a rounded rectangle with an exact name; related blocks visually clustered',
-    'with subtle background tints; clear orthogonal labeled arrows.',
-    `All label text in ${lang}. Crisp, legible typography.`,
-    'Style: clean technical-documentation diagram on a white background, flat design,',
-    'thin lines, restrained color palette.',
-    'No decorative illustrations, no 3D effects, no watermark, no extra text.',
+    'Requirements:',
+    `- Render it as a clean diagram; all label text in ${lang}, crisp and legible.`,
+    '- Clean flat technical-diagram style: white background, thin lines, restrained color palette.',
+    '- If (and only if) the subject is an electronics system, follow standard EE block-diagram conventions: power/inputs left, controller center, outputs/communication right, arrows labeled with rails and interfaces, dashed lines for feedback/alert.',
+    '- No watermark, no decoration, no text beyond the diagram\'s own labels.',
   ].join('\n');
 }
 
