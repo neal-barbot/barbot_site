@@ -1376,5 +1376,7 @@
   "compare.diagram.engine_image": "AI 绘制",
   "compare.diagram.generate": "生成框图",
   "compare.diagram.generating": "生成中…",
-  "compare.diagram.empty_hint": "在上方描述系统——结构图 SVG 标签精准、可下载矢量文件；AI 绘制生成 datasheet 风格的示意图。"
+  "compare.diagram.empty_hint": "在上方描述系统——结构图 SVG 标签精准、可下载矢量文件；AI 绘制生成 datasheet 风格的示意图。",
+  "compare.diagram.page_title": "EE 功能框图生成",
+  "compare.diagram.page_subtitle": "描述一个电子系统，自动生成功能框图——结构化 SVG 标签精准可下载，AI 绘制输出 datasheet 风格示意图。"
 }

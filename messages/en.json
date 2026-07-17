@@ -1376,5 +1376,7 @@
   "compare.diagram.engine_image": "AI Rendered",
   "compare.diagram.generate": "Generate diagram",
   "compare.diagram.generating": "Generating…",
-  "compare.diagram.empty_hint": "Describe the system above — Structured SVG gives exact labels and a downloadable vector; AI Rendered produces a datasheet-style illustration."
+  "compare.diagram.empty_hint": "Describe the system above — Structured SVG gives exact labels and a downloadable vector; AI Rendered produces a datasheet-style illustration.",
+  "compare.diagram.page_title": "EE Block Diagram Generator",
+  "compare.diagram.page_subtitle": "Describe an electronic system and get a functional block diagram — exact-label structured SVG, or a datasheet-style AI rendering."
 }

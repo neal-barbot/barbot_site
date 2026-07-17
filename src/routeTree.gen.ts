@@ -17,6 +17,7 @@ import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as pagesRouteRouteImport } from './routes/(pages)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as DiagramIndexRouteImport } from './routes/diagram/index'
 import { Route as CompareIndexRouteImport } from './routes/compare/index'
 import { Route as ChipsIndexRouteImport } from './routes/chips/index'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
@@ -237,6 +238,11 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => SettingsRouteRoute,
+} as any)
+const DiagramIndexRoute = DiagramIndexRouteImport.update({
+  id: '/diagram/',
+  path: '/diagram/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CompareIndexRoute = CompareIndexRouteImport.update({
   id: '/compare/',
@@ -1252,6 +1258,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/chips/': typeof ChipsIndexRoute
   '/compare/': typeof CompareIndexRoute
+  '/diagram/': typeof DiagramIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/admin/categories': typeof ApiAdminCategoriesRoute
   '/api/admin/chip-segments': typeof ApiAdminChipSegmentsRoute
@@ -1440,6 +1447,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/chips': typeof ChipsIndexRoute
   '/compare': typeof CompareIndexRoute
+  '/diagram': typeof DiagramIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/admin/categories': typeof ApiAdminCategoriesRoute
   '/api/admin/chip-segments': typeof ApiAdminChipSegmentsRoute
@@ -1632,6 +1640,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/chips/': typeof ChipsIndexRoute
   '/compare/': typeof CompareIndexRoute
+  '/diagram/': typeof DiagramIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/admin/categories': typeof ApiAdminCategoriesRoute
   '/api/admin/chip-segments': typeof ApiAdminChipSegmentsRoute
@@ -1824,6 +1833,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/chips/'
     | '/compare/'
+    | '/diagram/'
     | '/settings/'
     | '/api/admin/categories'
     | '/api/admin/chip-segments'
@@ -2012,6 +2022,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/chips'
     | '/compare'
+    | '/diagram'
     | '/settings'
     | '/api/admin/categories'
     | '/api/admin/chip-segments'
@@ -2203,6 +2214,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/chips/'
     | '/compare/'
+    | '/diagram/'
     | '/settings/'
     | '/api/admin/categories'
     | '/api/admin/chip-segments'
@@ -2365,6 +2377,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   ChipsIndexRoute: typeof ChipsIndexRoute
   CompareIndexRoute: typeof CompareIndexRoute
+  DiagramIndexRoute: typeof DiagramIndexRoute
   ApiAdminCategoriesRoute: typeof ApiAdminCategoriesRoute
   ApiAdminChipSegmentsRoute: typeof ApiAdminChipSegmentsRoute
   ApiAdminConfigRoute: typeof ApiAdminConfigRouteWithChildren
@@ -2527,6 +2540,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof SettingsRouteRoute
+    }
+    '/diagram/': {
+      id: '/diagram/'
+      path: '/diagram'
+      fullPath: '/diagram/'
+      preLoaderRoute: typeof DiagramIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/compare/': {
       id: '/compare/'
@@ -4059,6 +4079,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   ChipsIndexRoute: ChipsIndexRoute,
   CompareIndexRoute: CompareIndexRoute,
+  DiagramIndexRoute: DiagramIndexRoute,
   ApiAdminCategoriesRoute: ApiAdminCategoriesRoute,
   ApiAdminChipSegmentsRoute: ApiAdminChipSegmentsRoute,
   ApiAdminConfigRoute: ApiAdminConfigRouteWithChildren,

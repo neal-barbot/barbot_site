@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useRouterState } from '@tanstack/react-router'
 import { m } from "@/paraglide/messages.js";
 import {
   BarChart3,
+  Workflow,
   Cpu,
   CreditCard as CreditCardIcon,
   Bot,
@@ -79,6 +80,7 @@ function SettingsLayout() {
     { href: "/settings/compare-history", label: m["settings.nav.compare_history"](), icon: History, group: m["console.nav.chip_group"]() },
     { href: "/settings/chip-chat", label: m["chat.nav"](), icon: MessageSquare, group: m["console.nav.chip_group"]() },
     { href: "/compare", label: m["console.nav.new_compare"](), icon: BarChart3, group: m["console.nav.chip_group"]() },
+    { href: "/diagram", label: m["compare.tabs.diagram"](), icon: Workflow, group: m["console.nav.chip_group"]() },
     { href: "/chips", label: m["console.nav.chip_catalog"](), icon: Database, group: m["console.nav.chip_group"]() },
   ];
 
