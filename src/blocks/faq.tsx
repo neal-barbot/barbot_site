@@ -12,7 +12,7 @@ const FAQ_KEYS = ["accuracy", "sources", "cost", "formats", "languages"] as cons
 export function FAQ() {
   
   return (
-    <section id="faq" className="px-4 py-24 sm:py-32">
+    <section id="faq" className="reveal px-4 py-24 sm:py-32">
       <div className="mx-auto max-w-3xl">
         <div className="text-center mb-16">
           <h2 className="font-serif font-medium text-4xl sm:text-5xl tracking-tight">

@@ -285,7 +285,7 @@ export function Pricing({ title }: { title?: string } = {}) {
   }
 
   return (
-    <section id="pricing" className="px-4 py-24 sm:py-32 border-t border-border">
+    <section id="pricing" className="reveal px-4 py-24 sm:py-32 border-t border-border">
       <div className="mx-auto max-w-5xl">
         <div className="text-center mb-20">
           <h2 className="font-serif font-normal text-4xl sm:text-5xl tracking-tight">

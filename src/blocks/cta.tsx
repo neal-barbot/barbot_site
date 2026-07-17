@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export function CTA() {
   
   return (
-    <section className="px-4 pb-24 sm:pb-24">
+    <section className="reveal px-4 pb-24 sm:pb-24">
       <div className="mx-auto max-w-5xl">
         <div className="rounded-3xl border border-dashed px-6 py-12 sm:px-10 sm:py-16 text-center">
           <h2 className="font-serif font-medium text-4xl sm:text-5xl lg:text-5xl tracking-tight leading-[1.1] max-w-3xl mx-auto">

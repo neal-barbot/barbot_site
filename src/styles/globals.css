@@ -216,3 +216,30 @@
   .hover-lift, .hover-lift:hover { transition: none; transform: none; }
   .sheen-host:hover::after { animation: none; }
 }
+
+
+/* ── Marquee (fumadocs pattern) ── */
+@keyframes bb-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% - var(--gap))); }
+}
+@keyframes bb-marquee-vertical {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(-100% - var(--gap))); }
+}
+.marquee-track { animation: bb-marquee var(--duration, 40s) linear infinite; }
+.marquee-track-vertical { animation: bb-marquee-vertical var(--duration, 40s) linear infinite; }
+
+/* ── Scroll reveal (progressive enhancement; static without support) ── */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: bb-settle both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 40%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .marquee-track-vertical { animation-play-state: paused; }
+  .reveal { animation: none; }
+}

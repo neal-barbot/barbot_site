@@ -27,7 +27,7 @@ const PRODUCTS = [
 
 export function Products() {
   return (
-    <section id="products" className="px-4 py-24 sm:py-32">
+    <section id="products" className="reveal px-4 py-24 sm:py-32">
       <div className="mx-auto max-w-5xl">
         <div className="mb-16 text-center">
           <h2 className="font-serif text-4xl font-normal tracking-tight sm:text-5xl">
