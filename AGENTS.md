@@ -140,6 +140,8 @@ API routes are thin server-route wrappers — they check auth, parse params, cal
 - Modules depend on `core/`, `config/`, `lib/`, and `drizzle-orm` — never on other modules' internals
 - Exception: `payment/service.ts` calls `credits/` and `subscriptions/` because payment success triggers credit granting and subscription creation. This is the ONE allowed cross-module dependency.
 - `ai-tasks/service.ts` calls `credits/` for consumption/revocation. This is the second.
+- `ai-support/` and `agent-gateway/` call `credits/` for answer/usage billing (same pattern).
+- `chips/agent-tools.ts` is a shared **read-only** catalog tool surface — `chip-compare/qa-agent.ts` and `ai-support/answer-agent.ts` may import it (queries only, no writes, no billing).
 - All other modules are fully independent.
 
 ## Key Patterns
