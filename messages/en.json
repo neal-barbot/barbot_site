@@ -1363,5 +1363,11 @@
   "compare.empty.step2_title": "Start the analysis",
   "compare.empty.step2_desc": "AI compares parameter by parameter with datasheet page provenance. Cache hits are free.",
   "compare.empty.step3_title": "Edit and deliver",
-  "compare.empty.step3_desc": "Edit the report, export MD/CSV, publish to the blog, or keep asking in Q&A."
+  "compare.empty.step3_desc": "Edit the report, export MD/CSV, publish to the blog, or keep asking in Q&A.",
+  "compare.editor.mode_edit": "Source",
+  "compare.editor.mode_split": "Split",
+  "compare.editor.mode_preview": "Preview",
+  "compare.verdict.pin2pin": "Pin-to-Pin",
+  "compare.verdict.functional": "Functional sub",
+  "compare.verdict.non_pin2pin": "Not substitutable"
 }

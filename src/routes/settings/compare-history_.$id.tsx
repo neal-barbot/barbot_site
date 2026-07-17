@@ -26,7 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MarkdownContent } from '@/components/markdown-content';
-import { RichTextEditor } from '@/components/rich-text-editor';
+import { MarkdownEditor } from '@/components/markdown-editor';
+import { SubstitutionBadge } from '@/components/substitution-badge';
 import { cn } from '@/lib/utils';
 import { apiGet, apiPatch, apiPost } from '@/lib/api-client';
 import { TraceTable, type TraceRow } from '../compare/-trace-table';
@@ -144,6 +145,7 @@ function CompareRecordPage() {
               <h1 className="font-mono text-2xl font-bold">{partsLabel(record.chipPartNumbers)}</h1>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 {statusBadge(record.status)}
+            <SubstitutionBadge level={(record as { substitutionLevel?: string }).substitutionLevel} />
                 {record.cacheHit && (
                   <Badge variant="outline">{m['settings.compare_history.cache_hit']()}</Badge>
                 )}
@@ -213,7 +215,7 @@ function CompareRecordPage() {
               </CardHeader>
               <CardContent>
                 {editing ? (
-                  <RichTextEditor value={draft} onChange={setDraft} />
+                  <MarkdownEditor value={draft} onChange={setDraft} />
                 ) : (
                   <MarkdownContent content={record.result ?? ''} />
                 )}

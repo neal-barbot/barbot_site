@@ -11,6 +11,7 @@ import { Download, Eye, Trash2 } from 'lucide-react';
 import { m } from '@/paraglide/messages.js';
 import { Link } from '@/core/i18n/navigation';
 import { Badge } from '@/components/ui/badge';
+import { SubstitutionBadge } from '@/components/substitution-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -89,6 +90,7 @@ function CompareHistoryPage() {
           className="font-mono text-sm font-medium text-primary hover:underline"
         >
           {partsLabel(r.chipPartNumbers)}
+          <SubstitutionBadge level={(r as { substitutionLevel?: string }).substitutionLevel} className="ml-2" />
         </Link>
       ),
     },

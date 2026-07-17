@@ -98,14 +98,19 @@ export function buildComparePrompt(params: {
     '- 只输出 Pin2Pin 替代分析报告本体，禁止输出客套开场白（如"好的，作为…"）',
     '- 报告正文中禁止出现 JSON、trace、"Part 2" 等字样——报告要能直接转发给客户',
     '',
-    '# 🔧 机器可读参数轨迹（报告结束后必须输出）：',
-    '报告结束后，紧接着输出一个 ```json 围栏代码块（前面不要加任何标题文字），内容为参数轨迹数组：',
+    '# 🔧 机器可读结构块（报告结束后必须输出）：',
+    '报告结束后，紧接着输出一个 ```json 围栏代码块（前面不要加任何标题文字），内容为一个对象：',
     '```json',
-    '[{"paramName": "Supply Voltage", "paramCategory": "electrical",',
+    '{"verdict": {"substitution": "pin2pin|functional|non_pin2pin", "note": "<一句话总结替代结论>"},',
+    ' "traces": [{"paramName": "Supply Voltage", "paramCategory": "electrical",',
     '  "chips": [{"chip": "<partNumber>", "value": "<value>", "page": <取自 [Page N] 锚点的页码>, "rawText": "<短引文>", "confidence": <0-1>}],',
-    '  "diffLevel": "none|minor|significant|critical", "diffNote": "<差异是什么 + 偏差使用判定（可/有条件:条件/不可）>"}]',
+    '  "diffLevel": "none|minor|significant|critical", "diffNote": "<差异是什么 + 偏差使用判定（可/有条件:条件/不可）>"}]}',
     '```',
-    '覆盖第 3 章表格的每一行参数；diffLevel 为 critical 仅用于阻断替代的差异。',
+    'verdict.substitution 取值规则：',
+    '- "pin2pin"：引脚兼容，可直接替代或有条件直接替代（不改 PCB）',
+    '- "functional"：引脚不兼容但功能同类，可作功能替代（需改板/改外围设计）',
+    '- "non_pin2pin"：不同类器件或参数差异阻断，不可替代',
+    'traces 覆盖第 3 章表格的每一行参数；diffLevel 为 critical 仅用于阻断替代的差异。',
     userPrompt ? `\n# 附加要求\n${userPrompt.slice(0, 2000)}` : '',
     '',
     '# Datasheets',
@@ -135,6 +140,19 @@ const traceSchema = z.object({
 
 export type ParsedTrace = z.infer<typeof traceSchema>;
 
+export const SUBSTITUTION_LEVELS = ['pin2pin', 'functional', 'non_pin2pin'] as const;
+export type SubstitutionLevel = (typeof SUBSTITUTION_LEVELS)[number];
+
+const verdictSchema = z.object({
+  substitution: z.enum(SUBSTITUTION_LEVELS).nullish(),
+  note: z.string().nullish(),
+});
+
+export interface ParsedVerdict {
+  substitution: SubstitutionLevel | '';
+  note: string;
+}
+
 /**
  * Extract the trailing ```json trace block from the report. Tolerant: returns
  * { traces: [], report } when absent or malformed — the report is never lost.
@@ -146,22 +164,40 @@ function stripTraceResidue(report: string): string {
     .trim();
 }
 
-export function parseTraceBlock(fullText: string): { report: string; traces: ParsedTrace[] } {
+export function parseTraceBlock(fullText: string): {
+  report: string;
+  traces: ParsedTrace[];
+  verdict: ParsedVerdict;
+} {
   const closedBlocks = [...fullText.matchAll(/```json\s*([\s\S]*?)```/g)];
   const last = closedBlocks.at(-1);
   // Models sometimes end the stream right after the JSON without the closing
   // fence — accept a trailing unterminated ```json block too.
   const open = last ? null : /```json\s*([\s\S]*)$/.exec(fullText);
   const match = last ?? open;
-  if (!match) return { report: stripTraceResidue(fullText.trim()), traces: [] };
+  const emptyVerdict: ParsedVerdict = { substitution: '', note: '' };
+  if (!match) {
+    return { report: stripTraceResidue(fullText.trim()), traces: [], verdict: emptyVerdict };
+  }
 
   let traces: ParsedTrace[] = [];
+  let verdict = emptyVerdict;
   try {
-    traces = z.array(traceSchema).parse(JSON.parse(match[1]));
+    const parsed = JSON.parse(match[1]);
+    if (Array.isArray(parsed)) {
+      // Legacy shape: bare trace array.
+      traces = z.array(traceSchema).parse(parsed);
+    } else {
+      traces = z.array(traceSchema).parse(parsed?.traces ?? []);
+      const v = verdictSchema.safeParse(parsed?.verdict);
+      if (v.success) {
+        verdict = { substitution: v.data.substitution ?? '', note: v.data.note ?? '' };
+      }
+    }
   } catch {
     // fall through — the block is stripped regardless; raw JSON must never
     // reach the customer-facing report.
   }
   const report = stripTraceResidue(fullText.replace(match[0], '').trim());
-  return { report, traces };
+  return { report, traces, verdict };
 }

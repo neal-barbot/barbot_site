@@ -1363,5 +1363,11 @@
   "compare.empty.step2_title": "开始分析",
   "compare.empty.step2_desc": "AI 逐参数对比并标注 datasheet 页码溯源，缓存命中免积分。",
   "compare.empty.step3_title": "编辑与交付",
-  "compare.empty.step3_desc": "报告可编辑、导出 MD/CSV、一键发布为博客，也可以在问答里继续追问。"
+  "compare.empty.step3_desc": "报告可编辑、导出 MD/CSV、一键发布为博客，也可以在问答里继续追问。",
+  "compare.editor.mode_edit": "编辑",
+  "compare.editor.mode_split": "分屏",
+  "compare.editor.mode_preview": "预览",
+  "compare.verdict.pin2pin": "Pin2Pin 可替代",
+  "compare.verdict.functional": "功能替代",
+  "compare.verdict.non_pin2pin": "不可替代"
 }

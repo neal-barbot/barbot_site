@@ -84,7 +84,7 @@ async function getCompareConfig(): Promise<{ llm: LlmConfig; costCredits: number
 }
 
 /** Bump when the report prompt/format changes so stale cached reports regenerate. */
-const PROMPT_VERSION = 'v3';
+const PROMPT_VERSION = 'v4';
 
 export function buildCacheKey(parts: string[], model: string, language: string): string {
   const normalized = parts.map((p) => normalizePartNumber(p)).sort();
@@ -204,6 +204,7 @@ export async function runComparePipeline(input: CompareInput): Promise<CompareRe
           fileList: '[]',
           status: 'success',
           stage: 'cache hit',
+          substitutionLevel: cached.substitutionLevel ?? '',
           model: llm.model,
           language,
           result: cached.result,
@@ -293,7 +294,7 @@ export async function runComparePipeline(input: CompareInput): Promise<CompareRe
       signal,
     });
 
-    const { report, traces } = parseTraceBlock(llmResult.text);
+    const { report, traces, verdict } = parseTraceBlock(llmResult.text);
 
     await db().transaction(async (tx: any) => {
       let creditId: string | null = null;
@@ -318,6 +319,7 @@ export async function runComparePipeline(input: CompareInput): Promise<CompareRe
           status: 'success',
           stage: 'done',
           result: report,
+          substitutionLevel: verdict.substitution,
           inputTokens: llmResult.inputTokens,
           outputTokens: llmResult.outputTokens,
           durationMs: Date.now() - startedAt,

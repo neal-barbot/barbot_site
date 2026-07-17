@@ -1140,6 +1140,8 @@ export const chipCompareRecord = table(
     creditId: text('credit_id'),
     cacheKey: text('cache_key').notNull().default(''),
     cacheHit: boolean('cache_hit').notNull().default(false),
+    // Substitution verdict tag: pin2pin | non_pin2pin | functional | '' (unknown)
+    substitutionLevel: text('substitution_level').notNull().default(''),
     source: text('source').notNull().default('user'),
     error: text('error'),
     createdAt: timestamp('created_at').defaultNow().notNull(),

@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MarkdownContent } from '@/components/markdown-content';
-import { RichTextEditor } from '@/components/rich-text-editor';
+import { MarkdownEditor } from '@/components/markdown-editor';
+import { SubstitutionBadge } from '@/components/substitution-badge';
 import { cn } from '@/lib/utils';
 import { apiFormData, apiGet, apiPatch, type PageResult } from '@/lib/api-client';
 import { useCompareStream } from './-use-compare-stream';
@@ -117,6 +118,13 @@ function ComparePage() {
   const tracesQuery = useQuery({
     queryKey: ['compare-traces', state.recordId],
     queryFn: () => apiGet<TraceRow[]>(`/api/chip-compare/records/${state.recordId}/traces`),
+    enabled: state.status === 'done' && !!state.recordId,
+  });
+
+  const recordMetaQuery = useQuery({
+    queryKey: ['compare-record-meta', state.recordId],
+    queryFn: () =>
+      apiGet<{ substitutionLevel?: string }>(`/api/chip-compare/records/${state.recordId}`),
     enabled: state.status === 'done' && !!state.recordId,
   });
 
@@ -254,6 +262,9 @@ function ComparePage() {
                   <Loader2 className="size-3.5 animate-spin" />
                   {state.stage || m['compare.stream.waiting']()}
                 </span>
+              )}
+              {state.status === 'done' && (
+                <SubstitutionBadge level={recordMetaQuery.data?.substitutionLevel} />
               )}
               {state.status === 'done' && state.cacheHit && (
                 <Badge variant="secondary">{m['compare.report.cache_hit']()}</Badge>
@@ -553,7 +564,7 @@ function ComparePage() {
                     </Button>
                   </div>
                   {state.recordId && state.status === 'done' ? (
-                    <RichTextEditor value={draft} onChange={setDraft} />
+                    <MarkdownEditor value={draft} onChange={setDraft} />
                   ) : (
                     <p className="pt-10 text-sm text-muted-foreground">
                       {m['compare.edit.empty_hint']()}
