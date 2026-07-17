@@ -1394,5 +1394,7 @@
   "compare.diagram.example_coffee_label": "咖啡机工作流程",
   "compare.diagram.example_coffee_text": "全自动咖啡机（如 Jura）的功能流程：豆仓、磨豆器、定量称、水箱、水泵、加热锅炉/加热块、萃取单元、奶路系统、渣盒——分别画清水路和咖啡路的逐级流向。",
   "compare.diagram.example_bio_label": "细胞呼吸过程",
-  "compare.diagram.example_bio_text": "面向学生的细胞呼吸一图看懂：葡萄糖在细胞内如何转化为能量——糖酵解、三羧酸循环（Krebs 循环）、电子传递链，箭头上标注关键分子：葡萄糖、丙酮酸、ATP、NADH、FADH2、CO2、O2、H2O。"
+  "compare.diagram.example_bio_text": "面向学生的细胞呼吸一图看懂：葡萄糖在细胞内如何转化为能量——糖酵解、三羧酸循环（Krebs 循环）、电子传递链，箭头上标注关键分子：葡萄糖、丙酮酸、ATP、NADH、FADH2、CO2、O2、H2O。",
+  "compare.diagram.sample_coffee_caption": "AI 绘制——全自动咖啡机功能流程（cookbook 信息图用例）",
+  "compare.diagram.sample_bio_caption": "AI 绘制——细胞呼吸过程教学图（cookbook 科学图谱用例）"
 }

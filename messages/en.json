@@ -1394,5 +1394,7 @@
   "compare.diagram.example_coffee_label": "Coffee machine flow",
   "compare.diagram.example_coffee_text": "The functional flow of an automatic coffee machine (like a Jura): bean hopper, grinder, dosing scale, water tank, pump, boiler/thermoblock, brew unit, milk system, waste bin — show the water path and the coffee path with clear stage-by-stage flow.",
   "compare.diagram.example_bio_label": "Cellular respiration",
-  "compare.diagram.example_bio_text": "Cellular respiration at a glance for students: how glucose turns into energy inside a cell — glycolysis, the Krebs cycle, and the electron transport chain, with the main molecules labeled on the arrows: glucose, pyruvate, ATP, NADH, FADH2, CO2, O2, H2O."
+  "compare.diagram.example_bio_text": "Cellular respiration at a glance for students: how glucose turns into energy inside a cell — glycolysis, the Krebs cycle, and the electron transport chain, with the main molecules labeled on the arrows: glucose, pyruvate, ATP, NADH, FADH2, CO2, O2, H2O.",
+  "compare.diagram.sample_coffee_caption": "AI Rendered — coffee machine functional flow (cookbook infographic use case)",
+  "compare.diagram.sample_bio_caption": "AI Rendered — cellular respiration explainer (cookbook scientific-diagram use case)"
 }

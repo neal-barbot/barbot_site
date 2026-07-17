@@ -66,6 +66,28 @@ function DiagramPage() {
                 className="w-full rounded-lg border border-border"
               />
             </div>
+            <div>
+              <p className="mb-3 text-sm font-medium">
+                {m['compare.diagram.sample_coffee_caption']()}
+              </p>
+              <img
+                src="/imgs/ee-diagram-sample-coffee.jpg"
+                alt=""
+                loading="lazy"
+                className="w-full rounded-lg border border-border"
+              />
+            </div>
+            <div>
+              <p className="mb-3 text-sm font-medium">
+                {m['compare.diagram.sample_bio_caption']()}
+              </p>
+              <img
+                src="/imgs/ee-diagram-sample-bio.jpg"
+                alt=""
+                loading="lazy"
+                className="w-full rounded-lg border border-border"
+              />
+            </div>
           </div>
         </div>
       </main>
