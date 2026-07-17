@@ -1004,7 +1004,7 @@ async function readEmailProviderConfigs(): Promise<{ apiKey: string; from: strin
   return {
     apiKey: merged.resend_api_key || '',
     from: merged.resend_sender_email || '',
-    appName: merged.app_name || envConfigs.app_name || 'ShipAny',
+    appName: merged.app_name || envConfigs.app_name || 'Barbot',
   };
 }
 
