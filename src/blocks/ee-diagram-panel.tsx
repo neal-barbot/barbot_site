@@ -77,9 +77,9 @@ export function EeDiagramPanel({ className }: { className?: string }) {
       </div>
 
       {result?.engine === 'svg' ? (
-        <BlockDiagram data={result.diagram} />
+        <BlockDiagram data={result.diagram} className="anim-settle" />
       ) : result?.engine === 'image' ? (
-        <div>
+        <div className="anim-settle">
           <div className="mb-3 flex justify-end">
             <a href={result.url} download className="text-sm text-primary hover:underline">
               PNG ↓
@@ -104,11 +104,12 @@ export function EeDiagramPanel({ className }: { className?: string }) {
                   ['compare.diagram.example_coffee_label', 'compare.diagram.example_coffee_text'],
                   ['compare.diagram.example_bio_label', 'compare.diagram.example_bio_text'],
                 ] as const
-              ).map(([labelKey, textKey]) => (
+              ).map(([labelKey, textKey], i) => (
                 <button
                   key={labelKey}
+                  style={{ ['--i' as string]: i }}
                   onClick={() => setDescription(m[textKey]())}
-                  className="rounded-full border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+                  className="anim-tile rounded-full border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
                 >
                   {m[labelKey]()}
                 </button>

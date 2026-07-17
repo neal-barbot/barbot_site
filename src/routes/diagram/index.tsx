@@ -36,7 +36,7 @@ function DiagramPage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-10">
-          <div className="mb-8">
+          <div className="anim-settle mb-8">
             <h1 className="text-2xl font-bold tracking-tight">
               {m['compare.diagram.page_title']()}
             </h1>
@@ -47,7 +47,7 @@ function DiagramPage() {
           <EeDiagramPanel />
 
           {/* ── Sample outputs ── */}
-          <div className="mt-16 space-y-8 border-t border-border pt-10">
+          <div className="reveal mt-16 space-y-8 border-t border-border pt-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               {m['compare.diagram.samples_label']()}
             </p>
@@ -63,7 +63,7 @@ function DiagramPage() {
                 src="/imgs/ee-diagram-sample.jpg"
                 alt=""
                 loading="lazy"
-                className="w-full rounded-lg border border-border"
+                className="hover-lift w-full rounded-lg border border-border"
               />
             </div>
             <div>
@@ -74,7 +74,7 @@ function DiagramPage() {
                 src="/imgs/ee-diagram-sample-coffee.jpg"
                 alt=""
                 loading="lazy"
-                className="w-full rounded-lg border border-border"
+                className="hover-lift w-full rounded-lg border border-border"
               />
             </div>
             <div>
@@ -85,7 +85,7 @@ function DiagramPage() {
                 src="/imgs/ee-diagram-sample-bio.jpg"
                 alt=""
                 loading="lazy"
-                className="w-full rounded-lg border border-border"
+                className="hover-lift w-full rounded-lg border border-border"
               />
             </div>
           </div>

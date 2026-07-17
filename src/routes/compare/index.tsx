@@ -286,7 +286,7 @@ function ComparePage() {
           <div className="grid gap-10 pt-8 lg:grid-cols-[300px_1fr]">
             {/* ── Data source rail ── */}
             <aside className="space-y-7">
-              <div className="space-y-4">
+              <div className="anim-settle space-y-4">
                 <RailLabel>{m['compare.form.datasource']()}</RailLabel>
 
                 <div className="relative">
@@ -437,7 +437,7 @@ function ComparePage() {
                 </div>
               )}
 
-              <div className="space-y-4 border-t border-border pt-6">
+              <div style={{ ['--stagger' as string]: 2 }} className="anim-settle space-y-4 border-t border-border pt-6">
                 <RailLabel>{m['compare.form.output_settings']()}</RailLabel>
                 <div className="space-y-2">
                   <span className="text-sm text-muted-foreground">
@@ -514,6 +514,7 @@ function ComparePage() {
                     </div>
                   )}
 
+                  <div key={resultTab} className="duration-200 animate-in fade-in">
                   {resultTab === 'report' ? (
                     <div ref={streamAreaRef} className="max-h-[72vh] overflow-y-auto pr-1">
                       {state.report ? (
@@ -548,6 +549,7 @@ function ComparePage() {
                   ) : (
                     <TraceTable traces={tracesQuery.data ?? []} editable={false} />
                   )}
+                  </div>
                 </div>
               ) : mainTab === 'edit' ? (
                 <div>
