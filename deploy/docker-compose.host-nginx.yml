@@ -1,0 +1,10 @@
+# Overlay for this VPS: nginx already owns :80/:443 with Let's Encrypt.
+# Harvey image barbot/harvey-server:prod is not present — skip for now.
+services:
+  caddy:
+    profiles: ["full-caddy"]
+  harvey:
+    profiles: ["with-harvey"]
+  shipany:
+    ports:
+      - "3000:3000"

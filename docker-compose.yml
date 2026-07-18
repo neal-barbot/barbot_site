@@ -27,6 +27,8 @@ services:
       args:
         # Baked-in default for the webui's membership Server URL field.
         VITE_BARBOT_SERVER_URL: ${BARBOT_SERVER_URL:-http://host.docker.internal:3100}
+        # Slim onboarding: membership + BYOK (DeepSeek/GLM/compatible). Hide brand OAuth.
+        VITE_ONBOARDING_PROVIDERS: ${VITE_ONBOARDING_PROVIDERS:-barbot,api_key}
     image: barbot/harvey-server:dev
     # TLS is terminated by the reverse proxy (caddy/nginx) in front; inside
     # the compose network the server binds plain ws/http on 0.0.0.0.
@@ -37,6 +39,15 @@ services:
       CRAFT_SERVER_TOKEN: ${CRAFT_SERVER_TOKEN:-dev-token-1234567890}
       # Optional shorter web-login password (falls back to the token).
       CRAFT_WEBUI_PASSWORD: ${CRAFT_WEBUI_PASSWORD:-}
+      # Browser-facing WS URL when TLS is terminated by nginx/caddy in front.
+      # Without this, /api/config returns ws://host:9100 and HTTPS pages refuse to connect.
+      CRAFT_WEBUI_WS_URL: ${CRAFT_WEBUI_WS_URL:-wss://agent.harveycode.com}
+      CRAFT_WEBUI_SECURE_COOKIE: ${CRAFT_WEBUI_SECURE_COOKIE:-true}
+      CRAFT_WEBUI_PUBLIC_ORIGIN: ${CRAFT_WEBUI_PUBLIC_ORIGIN:-https://agent.harveycode.com}
+      # Shared-process multi-tenant: per membership userId directory under ~/.craft-agent/tenants/
+      CRAFT_MULTI_TENANT: ${CRAFT_MULTI_TENANT:-1}
+      CRAFT_TENANT_QUOTA_BYTES: ${CRAFT_TENANT_QUOTA_BYTES:-1073741824}
+      CRAFT_TENANT_IDLE_TTL_HOURS: ${CRAFT_TENANT_IDLE_TTL_HOURS:-24}
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:

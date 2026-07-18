@@ -3,6 +3,8 @@ import { z } from 'zod';
 import {
   buildDesktopSession,
   consumeExchangeCode,
+  ensureDesktopLlmQuota,
+  getDesktopUser,
 } from '@/modules/agent-gateway/desktop';
 
 const bodySchema = z.object({ code: z.string().min(1).max(200), deviceInfo: z.string().optional() });
@@ -17,6 +19,13 @@ async function POST({ request }: { request: Request }) {
   const userId = consumeExchangeCode(parsed.data.code);
   if (!userId) {
     return Response.json({ error: { message: 'Invalid or expired code' } }, { status: 401 });
+  }
+
+  try {
+    const desktopUser = await getDesktopUser(userId);
+    await ensureDesktopLlmQuota(userId, desktopUser?.email);
+  } catch (err) {
+    console.error('[desktop-exchange] ensureDesktopLlmQuota failed:', err);
   }
 
   const session = await buildDesktopSession(userId);
