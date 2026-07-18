@@ -3,8 +3,11 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { user } from '@/config/db/schema';
 import { getAllConfigs } from '@/modules/config/service';
-import { getBalance } from '@/modules/credits/service';
+import { getBalance, grantForNewUser } from '@/modules/credits/service';
 import { signPlatformToken, verifyPlatformToken } from './service';
+
+/** Default free DeepSeek models offered on the managed membership relay. */
+export const FREE_DEEPSEEK_MODELS = ['deepseek-v4-flash', 'deepseek-v4-pro'] as const;
 
 /**
  * Desktop membership sessions — the platform side of the Harvey (craft-agents)
@@ -61,14 +64,29 @@ export function consumeExchangeCode(code: string): string | null {
   return record.userId;
 }
 
-/** Callback targets must be loopback — the client runs a localhost server. */
+/**
+ * Allowed desktop/WebUI callback targets:
+ * - loopback (Electron / local callback server)
+ * - the public Harvey WebUI host (VITE_HARVEY_URL), for headless agents
+ *   behind TLS termination where localhost callbacks are unreachable
+ */
 export function isLoopbackCallback(callback: string): boolean {
   try {
     const url = new URL(callback);
-    return (
-      (url.protocol === 'http:' || url.protocol === 'https:') &&
-      ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
-    );
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+    if (['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) return true;
+
+    // Remote Harvey WebUI (e.g. https://agent.harveycode.com/barbot/callback)
+    const harveyUrl = process.env.VITE_HARVEY_URL?.trim();
+    if (harveyUrl && url.protocol === 'https:') {
+      try {
+        const allowed = new URL(harveyUrl);
+        if (url.hostname === allowed.hostname) return true;
+      } catch {
+        // ignore bad env
+      }
+    }
+    return false;
   } catch {
     return false;
   }
@@ -135,13 +153,50 @@ export async function buildLegacyEntitlements(userId: string) {
   };
 }
 
+function resolveDeepseekRelay(configs: Record<string, string>) {
+  const baseUrl =
+    (configs.agent_relay_base_url as string) || 'https://api.deepseek.com/anthropic';
+  const apiKey =
+    (configs.agent_relay_api_key as string) || process.env.DEEPSEEK_API_KEY || '';
+  const modelName = (configs.agent_relay_model as string) || 'deepseek-v4-flash';
+  const fromConfig = String(configs.agent_relay_models || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const models = fromConfig.length > 0 ? fromConfig : [...FREE_DEEPSEEK_MODELS];
+  if (!models.includes(modelName)) models.unshift(modelName);
+  return { baseUrl, apiKey, modelName, models, available: !!apiKey };
+}
+
+/**
+ * Grant welcome LLM credits once for a user (signup or first desktop authorize).
+ * No-op when initial credits are disabled or the user already has a balance.
+ */
+export async function ensureDesktopLlmQuota(userId: string, userEmail?: string | null) {
+  const configs = await getAllConfigs();
+  const balance = await getBalance(userId);
+  if (balance > 0) return { granted: false, balance };
+
+  await grantForNewUser({
+    userId,
+    userEmail: userEmail || undefined,
+    configs,
+  });
+  return { granted: true, balance: await getBalance(userId) };
+}
+
 /** V1 shape (fetchEntitlementV1 → /api/v1/entitlement, snake_case quota). */
 export async function buildEntitlementV1(userId: string, product: string) {
+  const configs = await getAllConfigs();
+  const relay = resolveDeepseekRelay(configs);
   const balance = await getBalance(userId);
+  // DeepSeek managed relay is the free tier — allow even at 0 credits so
+  // new members can pick models immediately after login.
+  const allowed = relay.available || balance > 0;
   return {
-    allowed: balance > 0,
+    allowed,
     product,
-    plan: 'member',
+    plan: relay.available ? 'free' : 'member',
     subscription_status: 'active',
     quota: {
       tokens: 0,
@@ -150,7 +205,11 @@ export async function buildEntitlementV1(userId: string, product: string) {
       requests: null,
       remaining_credits: balance,
     },
-    features: {},
+    features: {
+      free_models: relay.available ? relay.models : [],
+      allowed_models: relay.available ? relay.models : [],
+      default_model: relay.available ? relay.modelName : null,
+    },
   };
 }
 
@@ -158,22 +217,27 @@ export async function buildEntitlementV1(userId: string, product: string) {
  * Relay channel handed to the client (provider 'anthropic' → the client uses
  * the Claude Agent SDK with baseUrl override — the proven DeepSeek
  * Anthropic-compatible setup). Config-table keys override env defaults.
+ *
+ * Free tier exposes DeepSeek flash + pro so the model picker has choices.
  */
 export async function buildProviderConfig(product: string) {
   const configs = await getAllConfigs();
-  const baseUrl =
-    (configs.agent_relay_base_url as string) || 'https://api.deepseek.com/anthropic';
-  const apiKey = (configs.agent_relay_api_key as string) || process.env.DEEPSEEK_API_KEY || '';
-  const modelName = (configs.agent_relay_model as string) || 'deepseek-v4-flash';
+  const relay = resolveDeepseekRelay(configs);
 
-  if (!apiKey) return { available: false, product, plan: 'member' };
+  if (!relay.available) return { available: false, product, plan: 'free' };
 
   return {
     available: true,
     product,
-    plan: 'member',
-    primary: { provider: 'anthropic', baseUrl, apiKey, modelName },
+    plan: 'free',
+    primary: {
+      provider: 'anthropic',
+      baseUrl: relay.baseUrl,
+      apiKey: relay.apiKey,
+      modelName: relay.modelName,
+    },
     fallbacks: [],
-    models: [modelName],
+    models: relay.models,
+    allowedModels: relay.models,
   };
 }

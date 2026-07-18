@@ -165,6 +165,25 @@ export function getAuth(configs?: Record<string, string>) {
     }),
     socialProviders,
     plugins: getAuthPlugins(configs),
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (createdUser) => {
+            try {
+              const { grantForNewUser } = await import('@/modules/credits/service');
+              const all = await getAllConfigs();
+              await grantForNewUser({
+                userId: createdUser.id,
+                userEmail: createdUser.email,
+                configs: all,
+              });
+            } catch (err) {
+              console.error('[auth] grantForNewUser failed:', err);
+            }
+          },
+        },
+      },
+    },
     user: {
       additionalFields: {
         utmSource: { type: 'string', input: false, required: false, defaultValue: '' },

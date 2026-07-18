@@ -3,7 +3,11 @@ import { z } from 'zod';
 import { getAuth } from '@/core/auth';
 import { respData, respErr } from '@/lib/resp';
 import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
-import { createExchangeCode, isLoopbackCallback } from '@/modules/agent-gateway/desktop';
+import {
+  createExchangeCode,
+  ensureDesktopLlmQuota,
+  isLoopbackCallback,
+} from '@/modules/agent-gateway/desktop';
 
 const bodySchema = z.object({ callback: z.string().min(1).max(500) });
 
@@ -24,7 +28,14 @@ async function POST({ request }: { request: Request }) {
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return respErr('callback required');
-  if (!isLoopbackCallback(parsed.data.callback)) return respErr('callback must be a loopback URL');
+  if (!isLoopbackCallback(parsed.data.callback)) return respErr('callback must be loopback or the Harvey WebUI host');
+
+  // Allocate free-tier LLM credits on first authorize (idempotent).
+  try {
+    await ensureDesktopLlmQuota(session.user.id, session.user.email);
+  } catch (err) {
+    console.error('[desktop-authorize] ensureDesktopLlmQuota failed:', err);
+  }
 
   return respData({ code: createExchangeCode(session.user.id) });
 }

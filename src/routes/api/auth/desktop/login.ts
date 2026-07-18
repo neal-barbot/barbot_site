@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 import { getAuth } from '@/core/auth';
 import { enforceMinIntervalRateLimit } from '@/lib/rate-limit';
-import { buildDesktopSession } from '@/modules/agent-gateway/desktop';
+import { buildDesktopSession, ensureDesktopLlmQuota } from '@/modules/agent-gateway/desktop';
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -28,9 +28,15 @@ async function POST({ request }: { request: Request }) {
     const result = await auth.api.signInEmail({
       body: { email: parsed.data.email, password: parsed.data.password },
     });
-    const userId = (result as { user?: { id?: string } })?.user?.id;
+    const user = (result as { user?: { id?: string; email?: string } })?.user;
+    const userId = user?.id;
     if (!userId) {
       return Response.json({ error: { message: 'Invalid credentials' } }, { status: 401 });
+    }
+    try {
+      await ensureDesktopLlmQuota(userId, user?.email ?? parsed.data.email);
+    } catch (err) {
+      console.error('[desktop-login] ensureDesktopLlmQuota failed:', err);
     }
     const session = await buildDesktopSession(userId);
     if (!session) return Response.json({ error: { message: 'User not found' } }, { status: 404 });

@@ -13,9 +13,9 @@ src/paraglide
 .env.*
 !.env.example
 
-# local database
+# local database (keep ./drizzle migrations in the build context —
+# Dockerfile worker/migrate stages COPY them)
 data
-drizzle
 
 # vcs / editors / tooling
 .git

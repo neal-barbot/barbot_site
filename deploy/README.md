@@ -124,5 +124,11 @@ $C up -d --build
 
 - device/exchange-code login state is in-memory; a restart drops pending
   logins (users just retry).
-- `agents.` is a single shared Harvey workspace, not per-user instances
-  (that's the phase-2 gateway, not in scope here).
+- `agents.` runs **one shared Harvey process** with **per-membership
+  directory isolation** (`~/.craft-agent/tenants/u_<userId>/`) when
+  `CRAFT_MULTI_TENANT=1`. Each user gets a fixed workspace id `u_<userId>`,
+  a 1 GiB local quota (`CRAFT_TENANT_QUOTA_BYTES`), and idle purge after
+  `CRAFT_TENANT_IDLE_TTL_HOURS` (default 24). WebUI skips the server-token
+  gate (`CRAFT_WEBUI_MEMBERSHIP_GATE`, default on with multi-tenant) and uses
+  membership login instead. This is not per-user containers; that remains a
+  future scale-out option.
